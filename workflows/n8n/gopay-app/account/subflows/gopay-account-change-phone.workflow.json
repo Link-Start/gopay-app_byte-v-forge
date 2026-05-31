@@ -1,0 +1,995 @@
+{
+  "id": "gopay-account-change-phone",
+  "name": "GoPay Account Change Phone Subflow",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "gopay-account-change-phone-trigger",
+      "name": "When Executed by GoPay Change Phone",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $('When Executed by GoPay Change Phone').first().json;\nconst configured = Number(input.change_phone_max_attempts || input.max_failures || 10);\nconst maxAttempts = Math.max(1, Number.isFinite(configured) ? configured : 10);\nreturn Array.from({ length: maxAttempts }, (_, index) => ({\n  json: { phone_attempt: index + 1, max_attempts: maxAttempts, failure_count: index },\n}));"
+      },
+      "id": "gopay-account-change-phone-build-attempts",
+      "name": "Build Change Phone Attempts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "gopay-account-change-phone-loop-attempts",
+      "name": "Loop Change Phone Attempts",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        640,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-account').toLowerCase().replace(/_/g, '-') + '/fail' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, error_message: 'gopay change phone attempts exhausted', data: { max_attempts: $('Build Change Phone Attempts').first().json.max_attempts } } }}",
+        "options": {}
+      },
+      "id": "gopay-account-change-phone-fail-attempts-exhausted",
+      "name": "Fail Change Phone Attempts Exhausted",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        -180
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-account').toLowerCase().replace(/_/g, '-') + '/acquire-change-phone-number' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, failure_count: $json.failure_count || 0 } }}",
+        "options": {}
+      },
+      "id": "gopay-account-change-phone-acquire-number",
+      "name": "Acquire Change Phone Number",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-account').toLowerCase().replace(/_/g, '-') + '/start-change-phone' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, activation_id: $json.activation_id, phone: $json.phone, state_json: $('When Executed by GoPay Change Phone').first().json.state_json || '{}', failure_count: $json.failure_count || 0 } }}",
+        "options": {}
+      },
+      "id": "gopay-account-change-phone-start",
+      "name": "Start Change Phone",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1280,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-account-change-phone-start-retryable-cond",
+              "leftValue": "={{ $json.retryable_failure === true }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-account-change-phone-start-retryable",
+      "name": "Start Retryable?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1600,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-account').toLowerCase().replace(/_/g, '-') + '/cancel-change-phone' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, activation_id: $('Start Change Phone').first().json.activation_id, failure_count: $('Start Change Phone').first().json.failure_count || 0, reason: $('Start Change Phone').first().json.error_message || 'change phone start retryable failure' } }}",
+        "options": {}
+      },
+      "id": "gopay-account-change-phone-cancel-start-failure",
+      "name": "Cancel Change Phone After Start Failure",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1920,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-account-change-phone-start-otp-sent-cond",
+              "leftValue": "={{ $json.otp_sent === true }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-account-change-phone-start-otp-sent",
+      "name": "Start OTP Sent?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1920,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-account').toLowerCase().replace(/_/g, '-') + '/fail' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, error_message: $('Start Change Phone').first().json.error_message || 'gopay change phone did not send otp', data: { start: $('Start Change Phone').first().json } } }}",
+        "options": {}
+      },
+      "id": "gopay-account-change-phone-fail-start",
+      "name": "Fail Change Phone Start",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2240,
+        180
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "jsCode": "const start = $input.first().json;\nconst retryAttempts = Math.max(0, Number(start.otp_retry_attempts || 0));\nreturn Array.from({ length: retryAttempts + 1 }, (_, index) => ({\n  json: {\n    otp_retry_attempt: index,\n    activation_id: start.activation_id,\n    phone: start.phone,\n    state_json: start.state_json || '{}',\n    failure_count: start.failure_count || 0,\n    otp_timeout_seconds: start.otp_timeout_seconds || 180,\n    otp_issued_after_unix: start.otp_issued_after_unix,\n  },\n}));"
+      },
+      "id": "gopay-account-change-phone-build-otp-send-attempts",
+      "name": "Build OTP Send Attempts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "gopay-account-change-phone-loop-otp-send-attempts",
+      "name": "Loop OTP Send Attempts",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2560,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-account').toLowerCase().replace(/_/g, '-') + '/cancel-change-phone' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, activation_id: $('Start Change Phone').first().json.activation_id, failure_count: $('Start Change Phone').first().json.failure_count || 0, reason: 'change phone otp timeout' } }}",
+        "options": {}
+      },
+      "id": "gopay-account-change-phone-cancel-otp-timeout",
+      "name": "Cancel Change Phone OTP Timeout",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2880,
+        -180
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-account-change-phone-initial-otp-attempt-cond",
+              "leftValue": "={{ $json.otp_retry_attempt === 0 }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-account-change-phone-initial-otp-attempt",
+      "name": "Initial OTP Attempt?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-account').toLowerCase().replace(/_/g, '-') + '/retry-change-phone-otp' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, activation_id: $json.activation_id, state_json: $json.state_json || '{}', otp_retry_attempt: $json.otp_retry_attempt, failure_count: $json.failure_count || 0, otp_timeout_seconds: $json.otp_timeout_seconds || 180, phone: $json.phone } }}",
+        "options": {}
+      },
+      "id": "gopay-account-change-phone-retry-otp",
+      "name": "Retry Change Phone OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3200,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-account-change-phone-retry-otp-sent-cond",
+              "leftValue": "={{ $json.otp_sent === true }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-account-change-phone-retry-otp-sent",
+      "name": "Retry OTP Sent?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-account').toLowerCase().replace(/_/g, '-') + '/cancel-change-phone' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, activation_id: $('Start Change Phone').first().json.activation_id, failure_count: $('Start Change Phone').first().json.failure_count || 0, reason: $('Retry Change Phone OTP').first().json.error_message || 'change phone otp retry failed' } }}",
+        "options": {}
+      },
+      "id": "gopay-account-change-phone-cancel-retry-failure",
+      "name": "Cancel Change Phone Retry Failure",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3840,
+        180
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { exhausted: true } }];"
+      },
+      "id": "gopay-account-change-phone-continue-otp-send-attempt",
+      "name": "Continue OTP Send Attempt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4480,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-account').toLowerCase().replace(/_/g, '-') + '/complete-change-phone' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, activation_id: $json.activation_id, phone: $json.phone, state_json: $json.state_json || '{}', failure_count: $json.failure_count || 0, otp_issued_after_unix: $json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source } }}",
+        "options": {}
+      },
+      "id": "gopay-account-change-phone-complete",
+      "name": "Complete Change Phone",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5120,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-account-change-phone-complete-ok-cond",
+              "leftValue": "={{ $json.change_phone_complete === true }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-account-change-phone-complete-ok",
+      "name": "Change Phone Complete?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const current = $input.first().json;\nreturn [{ json: { ...current, change_phone_complete: true } }];"
+      },
+      "id": "gopay-account-change-phone-normalize-success",
+      "name": "Normalize Change Phone Success",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5760,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-account-change-phone-complete-retryable-cond",
+              "leftValue": "={{ $json.retryable_failure === true }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-account-change-phone-complete-retryable",
+      "name": "Complete Retryable?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5760,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-account').toLowerCase().replace(/_/g, '-') + '/cancel-change-phone' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, activation_id: $('Start Change Phone').first().json.activation_id, failure_count: $('Complete Change Phone').first().json.failure_count || $('Start Change Phone').first().json.failure_count || 0, reason: $('Complete Change Phone').first().json.error_message || 'change phone complete retryable failure' } }}",
+        "options": {}
+      },
+      "id": "gopay-account-change-phone-cancel-complete-retryable",
+      "name": "Cancel Change Phone Complete Retryable",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6080,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-account').toLowerCase().replace(/_/g, '-') + '/fail' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, error_message: $('Complete Change Phone').first().json.error_message || 'gopay change phone did not complete', data: { complete: $('Complete Change Phone').first().json } } }}",
+        "options": {}
+      },
+      "id": "gopay-account-change-phone-fail-not-complete",
+      "name": "Fail Change Phone Not Complete",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6080,
+        180
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-account').toLowerCase().replace(/_/g, '-') + '/await-channel-otp' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, activation_id: $json.activation_id, channel: 'sms', target: $json.activation_id, phone: $json.phone, otp_issued_after_unix: $json.otp_issued_after_unix, otp_timeout_seconds: $json.otp_timeout_seconds || 180, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_change_phone_sms_wait' } } }}",
+        "options": {}
+      },
+      "id": "change-phone-await-channel-otp",
+      "name": "Await Change Phone SMS OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3840,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "change-phone-sms-otp-already-available?",
+              "leftValue": "={{ Boolean($json.otp_source || $json.data?.otp_source || $json.body?.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "change-phone-sms-otp-already-available?",
+      "name": "Change Phone SMS OTP Already Available?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4160,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "limitWaitTime": true,
+        "limitType": "afterTimeInterval",
+        "resumeAmount": 3,
+        "resumeUnit": "minutes",
+        "options": {}
+      },
+      "id": "change-phone-wait-for-sms-otp-event",
+      "name": "Wait For Change Phone SMS OTP Event",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4480,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "change-phone-sms-otp-event-received?",
+              "leftValue": "={{ Boolean($json.body?.otp_source || $json.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "change-phone-sms-otp-event-received?",
+      "name": "Change Phone SMS OTP Event Received?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4800,
+        -220
+      ]
+    }
+  ],
+  "connections": {
+    "When Executed by GoPay Change Phone": {
+      "main": [
+        [
+          {
+            "node": "Build Change Phone Attempts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Change Phone Attempts": {
+      "main": [
+        [
+          {
+            "node": "Loop Change Phone Attempts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Change Phone Attempts": {
+      "main": [
+        [
+          {
+            "node": "Fail Change Phone Attempts Exhausted",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Acquire Change Phone Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Acquire Change Phone Number": {
+      "main": [
+        [
+          {
+            "node": "Start Change Phone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Change Phone": {
+      "main": [
+        [
+          {
+            "node": "Start Retryable?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Retryable?": {
+      "main": [
+        [
+          {
+            "node": "Cancel Change Phone After Start Failure",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Start OTP Sent?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel Change Phone After Start Failure": {
+      "main": [
+        [
+          {
+            "node": "Loop Change Phone Attempts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start OTP Sent?": {
+      "main": [
+        [
+          {
+            "node": "Build OTP Send Attempts",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fail Change Phone Start",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build OTP Send Attempts": {
+      "main": [
+        [
+          {
+            "node": "Loop OTP Send Attempts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop OTP Send Attempts": {
+      "main": [
+        [
+          {
+            "node": "Cancel Change Phone OTP Timeout",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Initial OTP Attempt?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel Change Phone OTP Timeout": {
+      "main": [
+        [
+          {
+            "node": "Loop Change Phone Attempts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initial OTP Attempt?": {
+      "main": [
+        [
+          {
+            "node": "Await Change Phone SMS OTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retry Change Phone OTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry Change Phone OTP": {
+      "main": [
+        [
+          {
+            "node": "Retry OTP Sent?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry OTP Sent?": {
+      "main": [
+        [
+          {
+            "node": "Await Change Phone SMS OTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cancel Change Phone Retry Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel Change Phone Retry Failure": {
+      "main": [
+        [
+          {
+            "node": "Loop Change Phone Attempts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Continue OTP Send Attempt": {
+      "main": [
+        [
+          {
+            "node": "Loop OTP Send Attempts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complete Change Phone": {
+      "main": [
+        [
+          {
+            "node": "Change Phone Complete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Change Phone Complete?": {
+      "main": [
+        [
+          {
+            "node": "Normalize Change Phone Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Complete Retryable?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complete Retryable?": {
+      "main": [
+        [
+          {
+            "node": "Cancel Change Phone Complete Retryable",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fail Change Phone Not Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel Change Phone Complete Retryable": {
+      "main": [
+        [
+          {
+            "node": "Loop Change Phone Attempts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Await Change Phone SMS OTP": {
+      "main": [
+        [
+          {
+            "node": "Change Phone SMS OTP Already Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Change Phone SMS OTP Already Available?": {
+      "main": [
+        [
+          {
+            "node": "Complete Change Phone",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait For Change Phone SMS OTP Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For Change Phone SMS OTP Event": {
+      "main": [
+        [
+          {
+            "node": "Change Phone SMS OTP Event Received?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Change Phone SMS OTP Event Received?": {
+      "main": [
+        [
+          {
+            "node": "Complete Change Phone",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Continue OTP Send Attempt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true,
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all"
+  },
+  "tags": []
+}

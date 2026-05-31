@@ -1,0 +1,144 @@
+package paymentsvc
+
+import (
+	"fmt"
+	"net/http"
+	"strings"
+
+	"github.com/byte-v-forge/common-lib/browserfingerprint"
+	"github.com/google/uuid"
+)
+
+type browserFingerprint struct {
+	browserfingerprint.Fingerprint
+	OAILanguage string
+}
+
+type browserFingerprintCandidate = browserfingerprint.ChromiumCandidate
+
+var defaultPaymentBrowserFingerprints = []browserFingerprintCandidate{
+	{ProfileName: "chrome_146", MajorVersion: "146", OSToken: "Windows NT 10.0; Win64; x64", Platform: "Windows"},
+	{ProfileName: "chrome_146", MajorVersion: "146", OSToken: "Macintosh; Intel Mac OS X 14_6_1", Platform: "macOS"},
+	{ProfileName: "chrome_144", MajorVersion: "144", OSToken: "Windows NT 10.0; Win64; x64", Platform: "Windows"},
+	{ProfileName: "chrome_144", MajorVersion: "144", OSToken: "Macintosh; Intel Mac OS X 14_5", Platform: "macOS"},
+	{ProfileName: "chrome_133", MajorVersion: "133", OSToken: "Windows NT 10.0; Win64; x64", Platform: "Windows"},
+	{ProfileName: "chrome_133", MajorVersion: "133", OSToken: "Macintosh; Intel Mac OS X 13_7_2", Platform: "macOS"},
+	{ProfileName: "chrome_131", MajorVersion: "131", OSToken: "Windows NT 10.0; Win64; x64", Platform: "Windows"},
+	{ProfileName: "chrome_131", MajorVersion: "131", OSToken: "Macintosh; Intel Mac OS X 13_6_7", Platform: "macOS"},
+}
+
+func stablePaymentBrowserFingerprint(locale, selector, deviceID string) browserFingerprint {
+	candidate := selectPaymentBrowserFingerprintCandidate(defaultPaymentBrowserFingerprints, selector)
+	if candidate.ProfileName == "" {
+		candidate = defaultPaymentBrowserFingerprints[0]
+	}
+	return buildPaymentBrowserFingerprint(candidate, locale, firstNonEmpty(deviceID, stablePaymentDeviceID(candidate)))
+}
+
+func randomPaymentBrowserFingerprint(locale string) browserFingerprint {
+	candidate := defaultPaymentBrowserFingerprints[browserfingerprint.RandomIndex(len(defaultPaymentBrowserFingerprints))]
+	return buildPaymentBrowserFingerprint(candidate, locale, uuid.NewString())
+}
+
+func browserFingerprintFromProfile(profile requestProfile) browserFingerprint {
+	profile = profile.withDefaults(defaultRequestProfile(profile.Name))
+	candidate := selectPaymentBrowserFingerprintCandidate(defaultPaymentBrowserFingerprints, profile.TLSProfile)
+	if candidate.ProfileName == "" {
+		candidate = defaultPaymentBrowserFingerprints[0]
+	}
+	fp := buildPaymentBrowserFingerprint(candidate, profile.Locale, firstNonEmpty(profile.DeviceID, stableRequestProfileDeviceID(profile, candidate)))
+	if profile.UserAgent != "" {
+		fp.UserAgent = profile.UserAgent
+	}
+	if profile.SecCHUA != "" {
+		fp.SecCHUA = profile.SecCHUA
+	}
+	if profile.SecCHPlatform != "" {
+		fp.SecCHPlatform = profile.SecCHPlatform
+	}
+	if profile.AcceptLanguage != "" {
+		fp.AcceptLanguage = profile.AcceptLanguage
+	}
+	if profile.OAILanguage != "" {
+		fp.OAILanguage = profile.OAILanguage
+		fp.Language = profile.OAILanguage
+	}
+	return fp
+}
+
+func buildPaymentBrowserFingerprint(candidate browserFingerprintCandidate, locale, deviceID string) browserFingerprint {
+	fp := browserfingerprint.BuildChromium(candidate, locale, deviceID)
+	return browserFingerprint{Fingerprint: fp, OAILanguage: fp.Language}
+}
+
+func selectPaymentBrowserFingerprintCandidate(candidates []browserFingerprintCandidate, selector string) browserFingerprintCandidate {
+	candidate, _ := browserfingerprint.SelectChromiumCandidate(candidates, selector)
+	return candidate
+}
+
+func stablePaymentDeviceID(candidate browserFingerprintCandidate) string {
+	seed := fmt.Sprintf("byte-v-forge:gopay-payment:%s:%s:%s", candidate.ProfileName, candidate.MajorVersion, browserfingerprint.OSAlias(candidate))
+	return uuid.NewSHA1(uuid.NameSpaceOID, []byte(seed)).String()
+}
+
+func stableRequestProfileDeviceID(profile requestProfile, candidate browserFingerprintCandidate) string {
+	seed := fmt.Sprintf(
+		"byte-v-forge:gopay:%s:%s:%s:%s:%s:%s",
+		profile.Name,
+		profile.ProxyURL,
+		candidate.ProfileName,
+		candidate.MajorVersion,
+		browserfingerprint.OSAlias(candidate),
+		profile.UserAgent,
+	)
+	return uuid.NewSHA1(uuid.NameSpaceOID, []byte(seed)).String()
+}
+
+func (fp browserFingerprint) withFallback(locale string) browserFingerprint {
+	if fp.UserAgent != "" && fp.TLSProfileName != "" {
+		if fp.OAILanguage == "" {
+			fp.OAILanguage = fp.Language
+		}
+		return fp
+	}
+	return stablePaymentBrowserFingerprint(locale, "", "")
+}
+
+func (fp browserFingerprint) applyBrowserHeaders(headers http.Header) {
+	if headers == nil {
+		return
+	}
+	if fp.UserAgent != "" {
+		headers.Set("User-Agent", fp.UserAgent)
+	}
+	if fp.AcceptLanguage != "" {
+		headers.Set("Accept-Language", fp.AcceptLanguage)
+	}
+	if fp.SecCHUA != "" {
+		headers.Set("sec-ch-ua", fp.SecCHUA)
+		headers.Set("sec-ch-ua-mobile", "?0")
+	}
+	if fp.SecCHPlatform != "" {
+		headers.Set("sec-ch-ua-platform", fp.SecCHPlatform)
+	}
+}
+
+func (fp browserFingerprint) newAttemptHeaders() http.Header {
+	headers := http.Header{}
+	fp.applyBrowserHeaders(headers)
+	if fp.DeviceID != "" {
+		headers.Set("x-device-id", fp.DeviceID)
+	}
+	headers.Set("x-correlation-id", uuid.NewString())
+	headers.Set("x-request-id", uuid.NewString())
+	return headers
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if value = strings.TrimSpace(value); value != "" {
+			return value
+		}
+	}
+	return ""
+}
