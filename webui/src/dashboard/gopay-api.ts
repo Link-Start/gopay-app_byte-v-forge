@@ -1,6 +1,7 @@
 import { ACCOUNT_PAGE_SIZE, accountCarrierID, api, fetchAccountList } from '@byte-v-forge/common-ui';
 import type { AccountActionCatalog } from '@byte-v-forge/common-ui/proto/byte/v/forge/contracts/account/v1/account';
 import type {
+  DeleteGopayAccountResponse,
   GetGopayAccountProfileResponse,
   GetGopayActionCatalogResponse,
   GopayAccount,
@@ -83,6 +84,14 @@ export async function createGoPayAccount(req: CreateGoPayAccountRequest) {
   if (resp.success === false || resp.error_message) throw new Error(resp.error_message || 'create GoPayAccount failed');
   if (!resp.account) throw new Error('GoPayAccount response is empty');
   return resp.account;
+}
+
+export async function deleteGoPayAccount(account: GoPayAccountProjection | string) {
+  const accountID = typeof account === 'string' ? account : accountCarrierID(account);
+  if (!accountID) throw new Error('gopay_account_id is required');
+  const resp = await api<DeleteGopayAccountResponse>(`/api/gopay/accounts/${encodeURIComponent(accountID)}`, { method: 'DELETE' });
+  if (!resp.success || resp.error_message) throw new Error(resp.error_message || 'delete GoPayAccount failed');
+  return resp;
 }
 
 export async function getGoPayActionCatalog(): Promise<AccountActionCatalog | undefined> {

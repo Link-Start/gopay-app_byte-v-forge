@@ -4,6 +4,7 @@ import {
   AccountManagementDrawerView,
   Badge,
   accountCarrierID,
+  deleteAccountCarrier,
   accountSubject,
   submitAccountWorkflowAction,
   useAsyncActionRunner,
@@ -14,7 +15,7 @@ import {
 } from '@byte-v-forge/common-ui';
 import type { AccountActionCatalog } from '@byte-v-forge/common-ui/proto/byte/v/forge/contracts/account/v1/account';
 import type { ListGopayAccountsResponse } from '../proto/gopay_app';
-import { getGoPayAccounts, goPayKeys, type GoPayAccountProjection } from './gopay-api';
+import { deleteGoPayAccount, getGoPayAccounts, goPayKeys, type GoPayAccountProjection } from './gopay-api';
 import { GoPayAccountAdd } from './gopay-account-add';
 import { GoPayAccountDetails } from './gopay-account-details';
 import type { GoPayAccountActionSpec } from './gopay-account-action-specs';
@@ -74,6 +75,22 @@ export function GoPayAccountsTab({
     return result.ok && !result.value.error_message;
   }
 
+  async function deleteAccount(account: GoPayAccountProjection) {
+    const accountID = accountCarrierID(account);
+    await runner.tryRun(`gopay:delete:${accountID}`, async () => {
+      const deleted = await deleteAccountCarrier(account, {
+        deleteByID: () => deleteGoPayAccount(account),
+        confirmMessage: () => `删除 GoPayAccount ${accountID}？`,
+        invalidate: async () => {
+          controller.clearSelection();
+          await controller.invalidate();
+          queryClient.removeQueries({ queryKey: goPayKeys.profile(accountID) });
+        },
+      });
+      if (deleted) onToast('ok', 'GoPayAccount 已删除');
+    }, { onError });
+  }
+
   return (
     <AccountManagementDrawerView
       title="GoPayAccount"
@@ -101,6 +118,7 @@ export function GoPayAccountsTab({
           }}
           onToast={onToast}
           onError={onError}
+          onDelete={deleteAccount}
           onRunAction={(spec, payload) => runAction(account, spec, payload)}
         />
       )}

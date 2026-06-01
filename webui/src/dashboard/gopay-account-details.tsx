@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import {
-  ActionButtonGroup,
   ActionSection,
+  AccountDangerZone,
+  AccountDetailActionSection,
+  AccountDetailTabs,
   Badge,
-  ContentTabs,
   KVList,
   accountActionButton,
   accountCarrierID,
@@ -28,6 +29,7 @@ export function GoPayAccountDetails({
   busy,
   onRunAction,
   onOTPSubmitted,
+  onDelete,
   onToast,
   onError,
 }: {
@@ -36,6 +38,7 @@ export function GoPayAccountDetails({
   busy?: boolean;
   onRunAction: (spec: GoPayAccountActionSpec, payload?: Record<string, unknown>) => Promise<boolean>;
   onOTPSubmitted?: () => void | Promise<void>;
+  onDelete: (account: GoPayAccountProjection) => void | Promise<void>;
   onToast: (kind: 'error' | 'ok', message: string) => void;
   onError: (message: unknown) => void;
 }) {
@@ -62,11 +65,11 @@ export function GoPayAccountDetails({
 
   return (
     <div className="details gopayAccountDetails">
-      <ContentTabs tabsListVariant="line" tabsClassName="accountDetailsTabs" tabs={[
-        { value: 'details', label: '账户详情', content: <GoPayAccountOverview account={account} accountID={accountID} busy={busy} pin={profile.data?.pin || ''} pinConfigured={profile.data?.pin_configured} pinLoading={profile.isLoading} onOTPSubmitted={onOTPSubmitted} onToast={onToast} onError={onError} />, contentClassName: 'accountDetailTabContent' },
-        { value: 'actions', label: '账户动作', content: <ActionSection title="账户动作" description="先选中账号，再在账号详情里执行账户级操作。"><ActionButtonGroup actions={buttons(GOPAY_ACCOUNT_PRIMARY_ACTIONS, actionCatalog, account, Boolean(busy), run)} className="sectionActions" /></ActionSection>, contentClassName: 'accountDetailTabContent' },
-        { value: 'checks', label: '状态检查', content: <ActionSection title="状态检查"><ActionButtonGroup actions={buttons(GOPAY_ACCOUNT_TOOL_ACTIONS, actionCatalog, account, Boolean(busy), run)} className="sectionActions" /></ActionSection>, contentClassName: 'accountDetailTabContent' },
-        { value: 'lifecycle', label: '生命周期', content: <ActionSection title="账号生命周期"><ActionButtonGroup actions={buttons(GOPAY_ACCOUNT_LIFECYCLE_ACTIONS, actionCatalog, account, Boolean(busy), run)} className="sectionActions" /></ActionSection>, contentClassName: 'accountDetailTabContent' },
+      <AccountDetailTabs tabs={[
+        { value: 'details', label: '账户详情', content: <GoPayAccountOverview account={account} accountID={accountID} busy={busy} pin={profile.data?.pin || ''} pinConfigured={profile.data?.pin_configured} pinLoading={profile.isLoading} onOTPSubmitted={onOTPSubmitted} onDelete={onDelete} onToast={onToast} onError={onError} /> },
+        { value: 'actions', label: '账户动作', content: <GoPayActionSection title="账户动作" description="先选中账号，再在账号详情里执行账户级操作。" specs={GOPAY_ACCOUNT_PRIMARY_ACTIONS} catalog={actionCatalog} account={account} busy={Boolean(busy)} run={run} /> },
+        { value: 'checks', label: '状态检查', content: <GoPayActionSection title="状态检查" specs={GOPAY_ACCOUNT_TOOL_ACTIONS} catalog={actionCatalog} account={account} busy={Boolean(busy)} run={run} /> },
+        { value: 'lifecycle', label: '生命周期', content: <GoPayActionSection title="账号生命周期" specs={GOPAY_ACCOUNT_LIFECYCLE_ACTIONS} catalog={actionCatalog} account={account} busy={Boolean(busy)} run={run} /> },
       ]} />
       <GoPayAccountPINDialog open={!!pinAction} busy={busy} onSubmit={submitPIN} onOpenChange={(open) => { if (!open) setPinAction(null); }} />
     </div>
@@ -81,6 +84,7 @@ function GoPayAccountOverview({
   pinConfigured,
   pinLoading,
   onOTPSubmitted,
+  onDelete,
   onToast,
   onError,
 }: {
@@ -91,6 +95,7 @@ function GoPayAccountOverview({
   pinConfigured?: boolean;
   pinLoading?: boolean;
   onOTPSubmitted?: () => void | Promise<void>;
+  onDelete: (account: GoPayAccountProjection) => void | Promise<void>;
   onToast: (kind: 'error' | 'ok', message: string) => void;
   onError: (message: unknown) => void;
 }) {
@@ -114,6 +119,7 @@ function GoPayAccountOverview({
           { label: '余额', value: account.balance_currency ? `${account.balance_amount} ${account.balance_currency}` : '-' },
         ]} />
       </ActionSection>
+      <AccountDangerZone account={account} busy={busy} onDelete={onDelete} />
     </>
   );
 }
@@ -136,6 +142,18 @@ function buttons(
   run: (spec: GoPayAccountActionSpec) => void | Promise<void>,
 ): ActionButtonDescriptor[] {
   return specs.map((spec) => accountActionButton({ catalog, account, busy, placement: 'gopay' }, { ...spec, onClick: () => run(spec) }));
+}
+
+function GoPayActionSection({ title, description, specs, catalog, account, busy, run }: {
+  title: string;
+  description?: string;
+  specs: GoPayAccountActionSpec[];
+  catalog?: AccountActionCatalog;
+  account: GoPayAccountProjection;
+  busy: boolean;
+  run: (spec: GoPayAccountActionSpec) => void | Promise<void>;
+}) {
+  return <AccountDetailActionSection title={title} description={description} actions={buttons(specs, catalog, account, busy, run)} />;
 }
 
 function formatPhone(account: GoPayAccountProjection) {
