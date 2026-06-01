@@ -8,6 +8,10 @@ import (
 )
 
 func (s *Server) generateDeviceProxyState(ctx context.Context, accountID string, countryCode string, forceNew bool, skipPreflight bool, ephemeralProfile bool) (stateMap, error) {
+	return s.generateDeviceProxyStateWithLeaseTTL(ctx, accountID, countryCode, forceNew, skipPreflight, ephemeralProfile, "")
+}
+
+func (s *Server) generateDeviceProxyStateWithLeaseTTL(ctx context.Context, accountID string, countryCode string, forceNew bool, skipPreflight bool, ephemeralProfile bool, leaseTTLOverride string) (stateMap, error) {
 	identity := strings.TrimSpace(accountID)
 	if identity == "" {
 		identity = "local"
@@ -33,6 +37,9 @@ func (s *Server) generateDeviceProxyState(ctx context.Context, accountID string,
 	leaseTTL := goPayProxyLeaseTTL
 	if ephemeralProfile {
 		leaseTTL = goPayProxyProbeLeaseTTL
+	}
+	if value := strings.TrimSpace(leaseTTLOverride); value != "" {
+		leaseTTL = value
 	}
 	if err := s.ensureProxyRuntimeSession(ctx, state, proxyRuntimeAcquireOptions{AccountID: identity, CountryCode: countryCode, ForceNew: forceNew, SkipPreflight: skipPreflight, LeaseTTL: leaseTTL}); err != nil {
 		return state, err

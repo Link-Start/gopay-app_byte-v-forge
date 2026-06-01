@@ -88,6 +88,8 @@ func (h gopayHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.handleOTPSubmit(w, r)
 	case path == "phone/check":
 		h.handlePhoneCheck(w, r)
+	case path == "settings":
+		h.handleSettings(w, r)
 	case strings.HasPrefix(path, "workflows/"):
 		h.handleWorkflowStart(w, r, strings.Trim(strings.TrimPrefix(path, "workflows/"), "/"))
 	case strings.HasPrefix(path, "actions/gopay-account/"):

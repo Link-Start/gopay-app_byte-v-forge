@@ -12,8 +12,10 @@ import (
 )
 
 type gopayPhoneCheckRequest struct {
-	Phone       string `json:"phone"`
-	CountryCode string `json:"country_code"`
+	Phone             string `json:"phone"`
+	CountryCode       string `json:"country_code"`
+	StateJSON         string `json:"state_json"`
+	ReleaseProxyState bool   `json:"release_proxy_state"`
 }
 
 type gopayPhoneCheckResponse struct {
@@ -33,22 +35,28 @@ func (h gopayHTTPHandler) handlePhoneCheck(w http.ResponseWriter, r *http.Reques
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-	_, phone, countryCode, err := readGopayPhoneCheckRequest(w, r)
+	req, phone, countryCode, err := readGopayPhoneCheckRequest(w, r)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err)
 		return
 	}
-	state, gen, err := h.generatePhoneCheckState(r.Context(), countryCode)
-	if state != "" {
+	state := strings.TrimSpace(req.StateJSON)
+	generatedState := false
+	var gen *pb.GenerateDeviceProxyResponse
+	if state == "" {
+		state, gen, err = h.generatePhoneCheckState(r.Context(), countryCode)
+		generatedState = true
+	}
+	if state != "" && (generatedState || req.ReleaseProxyState) {
 		defer func() { _ = h.service.releaseProxyRuntimeState(r.Context(), state) }()
 	}
 	if err != nil {
-		writeJSON(w, http.StatusOK, phoneCheckErrorResponse(phone, countryCode, "proxy_unavailable", err, gen))
+		writeJSON(w, http.StatusOK, phoneCheckErrorResponse(phone, countryCode, "proxy_unavailable", err, gen, generatedState))
 		return
 	}
 	resp, err := h.service.CheckPhone(r.Context(), &pb.CheckPhoneRequest{Phone: phone, CountryCode: countryCode, StateJson: state})
 	if err != nil {
-		writeJSON(w, http.StatusOK, phoneCheckErrorResponse(phone, countryCode, "check_failed", err, gen))
+		writeJSON(w, http.StatusOK, phoneCheckErrorResponse(phone, countryCode, "check_failed", err, gen, generatedState))
 		return
 	}
 	writeJSON(w, http.StatusOK, gopayPhoneCheckResponse{
@@ -60,7 +68,7 @@ func (h gopayHTTPHandler) handlePhoneCheck(w http.ResponseWriter, r *http.Reques
 		ErrorMessage:        resp.GetErrorMessage(),
 		ProxyHash:           resp.GetProxyHash(),
 		DeviceFingerprint:   resp.GetDeviceFingerprint(),
-		GeneratedProxyState: true,
+		GeneratedProxyState: generatedState,
 	})
 }
 
@@ -94,8 +102,8 @@ func (h gopayHTTPHandler) generatePhoneCheckState(ctx context.Context, countryCo
 	return gen.GetStateJson(), gen, nil
 }
 
-func phoneCheckErrorResponse(phone string, countryCode string, status string, err error, gen *pb.GenerateDeviceProxyResponse) gopayPhoneCheckResponse {
-	out := gopayPhoneCheckResponse{Success: false, Available: false, Phone: phone, CountryCode: countryCode, Status: status, ErrorMessage: err.Error(), GeneratedProxyState: gen != nil}
+func phoneCheckErrorResponse(phone string, countryCode string, status string, err error, gen *pb.GenerateDeviceProxyResponse, generatedState bool) gopayPhoneCheckResponse {
+	out := gopayPhoneCheckResponse{Success: false, Available: false, Phone: phone, CountryCode: countryCode, Status: status, ErrorMessage: err.Error(), GeneratedProxyState: generatedState}
 	if gen != nil {
 		out.ProxyHash = gen.GetProxyHash()
 		out.DeviceFingerprint = gen.GetDeviceFingerprint()

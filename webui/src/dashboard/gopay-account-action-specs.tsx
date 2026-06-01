@@ -1,4 +1,4 @@
-import { KeyRound, LogOut, PhoneForwarded, Play, Search, ShieldCheck, WalletCards, Zap } from 'lucide-react';
+import { KeyRound, LogOut, PhoneForwarded, Play, Search, ShieldCheck, WalletCards } from 'lucide-react';
 import type { AccountCatalogActionBase } from '@byte-v-forge/common-ui';
 import { accountCarrierID } from '@byte-v-forge/common-ui';
 import { GoPayAccountWorkflowOperation } from '../proto/gopay_app';
@@ -12,7 +12,6 @@ export const GOPAY_ACTIONS = {
   checkPin: 'GOPAY_ACCOUNT_CHECK_PIN',
   changePhone: 'GOPAY_ACCOUNT_CHANGE_PHONE',
   deactivate: 'GOPAY_ACCOUNT_DEACTIVATE',
-  provision: 'GOPAY_ACCOUNT_PROVISION',
 } as const;
 
 export type GoPayActionID = (typeof GOPAY_ACTIONS)[keyof typeof GOPAY_ACTIONS];
@@ -45,17 +44,6 @@ export const GOPAY_ACCOUNT_PRIMARY_ACTIONS: GoPayAccountActionSpec[] = [
     allowed: canRun,
     disabledReason: '缺少 GoPayAccount ID',
     hint: '使用当前账号手机号发起 GoPay 登录编排',
-  },
-  {
-    id: 'gopay-provision',
-    actionID: GOPAY_ACTIONS.provision,
-    operation: GoPayAccountWorkflowOperation.GOPAY_ACCOUNT_WORKFLOW_OPERATION_PROVISION,
-    fallbackLabel: '一键准备',
-    icon: <Zap size={14} />,
-    allowed: canRun,
-    disabledReason: '缺少 GoPayAccount ID',
-    hint: '执行登录、改绑、注销、注册、PIN 设置组合编排',
-    requiresPinInput: true,
   },
 ];
 

@@ -888,6 +888,132 @@
         2320,
         220
       ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-account-is-register-indonesia-wa-cond",
+              "leftValue": "={{ $json.operation === 'register_indonesia_wa' }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-account-is-register-indonesia-wa",
+      "name": "Is Register Indonesia WA?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3000,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "gopay-account-register-indonesia-wa",
+          "mode": "id"
+        }
+      },
+      "id": "gopay-account-register-indonesia-wa-user",
+      "name": "Register Indonesia WA User",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        3300,
+        240
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-account-register-indonesia-wa-started-cond",
+              "leftValue": "={{ $json.success === true && $json.register_indonesia_wa_started === true }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-account-register-indonesia-wa-started",
+      "name": "Indonesia WA Register Started?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3600,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/finish' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, operation: $('Load Params').first().json.operation, gopay_account_id: $('Load Params').first().json.gopay_account_id, data: $('Register Indonesia WA User').first().json } }}",
+        "options": {}
+      },
+      "id": "gopay-account-finish-register-indonesia-wa",
+      "name": "Finish Register Indonesia WA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3900,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/fail' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, operation: $('Load Params').first().json.operation, gopay_account_id: $('Load Params').first().json.gopay_account_id, error_message: $('Register Indonesia WA User').first().json.error_message || 'register indonesia wa failed', data: $('Register Indonesia WA User').first().json } }}",
+        "options": {}
+      },
+      "id": "gopay-account-fail-register-indonesia-wa",
+      "name": "Fail Register Indonesia WA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3900,
+        360
+      ]
     }
   ],
   "connections": {
@@ -1142,7 +1268,7 @@
         ],
         [
           {
-            "node": "Fail Unsupported Operation",
+            "node": "Is Register Indonesia WA?",
             "type": "main",
             "index": 0
           }
@@ -1231,6 +1357,53 @@
         [
           {
             "node": "Finish Ensure PIN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Register Indonesia WA?": {
+      "main": [
+        [
+          {
+            "node": "Register Indonesia WA User",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fail Unsupported Operation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Register Indonesia WA User": {
+      "main": [
+        [
+          {
+            "node": "Indonesia WA Register Started?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Indonesia WA Register Started?": {
+      "main": [
+        [
+          {
+            "node": "Finish Register Indonesia WA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fail Register Indonesia WA",
             "type": "main",
             "index": 0
           }

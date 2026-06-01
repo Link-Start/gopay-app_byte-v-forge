@@ -1,11 +1,16 @@
 import { ACCOUNT_PAGE_SIZE, accountCarrierID, api, fetchAccountList } from '@byte-v-forge/common-ui';
 import type { AccountActionCatalog } from '@byte-v-forge/common-ui/proto/byte/v/forge/contracts/account/v1/account';
+import { GoPayAccountWorkflowOperation } from '../proto/gopay_app';
 import type {
   DeleteGopayAccountResponse,
   GetGopayAccountProfileResponse,
   GetGopayActionCatalogResponse,
+  GetGoPaySettingsResponse,
+  GoPayAccountWorkflowResponse,
+  GoPayRegisterIndonesiaWASettings,
   GopayAccount,
   ListGopayAccountsResponse,
+  SaveGoPaySettingsResponse,
 } from '../proto/gopay_app';
 
 export type GoPayAccountProjection = GopayAccount;
@@ -61,6 +66,7 @@ export const goPayKeys = {
   health: ['gopay', 'health'] as const,
   accounts: ['gopay', 'accounts'] as const,
   actionCatalog: ['gopay', 'action-catalog'] as const,
+  settings: ['gopay', 'settings'] as const,
   profile: (accountID: string) => ['gopay', 'profile', accountID] as const,
 };
 
@@ -111,6 +117,30 @@ export async function checkGoPayPhone(req: GoPayPhoneCheckRequest) {
     method: 'POST',
     body: JSON.stringify(req)
   });
+}
+
+export async function getGoPaySettings() {
+  const resp = await api<GetGoPaySettingsResponse>('/api/gopay/settings');
+  if (!resp.success || resp.error_message) throw new Error(resp.error_message || 'load GoPay settings failed');
+  return resp.register_indonesia_wa;
+}
+
+export async function saveGoPaySettings(settings: GoPayRegisterIndonesiaWASettings) {
+  const resp = await api<SaveGoPaySettingsResponse>('/api/gopay/settings', {
+    method: 'POST',
+    body: JSON.stringify({ register_indonesia_wa: settings })
+  });
+  if (!resp.success || resp.error_message) throw new Error(resp.error_message || 'save GoPay settings failed');
+  return resp.register_indonesia_wa;
+}
+
+export async function startGoPayRegisterIndonesiaWA() {
+  const resp = await api<GoPayAccountWorkflowResponse>('/api/gopay/workflows/gopay-account', {
+    method: 'POST',
+    body: JSON.stringify({ operation: GoPayAccountWorkflowOperation.GOPAY_ACCOUNT_WORKFLOW_OPERATION_REGISTER_INDONESIA_WA })
+  });
+  if (!resp.started || resp.error_message) throw new Error(resp.error_message || 'start Indonesia WA registration failed');
+  return resp;
 }
 
 export async function submitGoPayManualOTP(account: GoPayAccountProjection, otp: string) {

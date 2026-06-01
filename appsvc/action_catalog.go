@@ -16,7 +16,6 @@ const (
 	ActionGoPayCheckPIN     = "GOPAY_ACCOUNT_CHECK_PIN"
 	ActionGoPayChangePhone  = "GOPAY_ACCOUNT_CHANGE_PHONE"
 	ActionGoPayDeactivate   = "GOPAY_ACCOUNT_DEACTIVATE"
-	ActionGoPayProvision    = "GOPAY_ACCOUNT_PROVISION"
 
 	CapabilityGoPay         = "gopay"
 	CapabilityGoPayAccount  = "gopay_account"
@@ -51,9 +50,6 @@ func GoPayActionCatalog() *accountv1.AccountActionCatalog {
 		),
 		goPayWorkflowAction(ActionGoPayDeactivate, "GoPay 注销", "注销", "deactivate",
 			accountaction.RequiredFields("account_id", "phone", "country_code"),
-		),
-		goPayWorkflowAction(ActionGoPayProvision, "GoPay 一键准备", "一键准备", "provision",
-			accountaction.RequiredFields("account_id", "phone", "country_code", "otp_channel"),
 		),
 	)
 }

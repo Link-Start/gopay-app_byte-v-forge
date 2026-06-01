@@ -204,6 +204,12 @@ func (h gopayHTTPHandler) invokeGoPayAccountAction(ctx context.Context, action s
 	switch strings.TrimSpace(action) {
 	case "load-params":
 		return h.loadParamsResult(job, req), nil
+	case "register-indonesia-wa-settings":
+		return h.registerIndonesiaWASettings(ctx, req)
+	case "generate-shared-phone-check-proxy":
+		return h.generateSharedPhoneCheckProxy(ctx, req)
+	case "release-shared-phone-check-proxy":
+		return h.releaseSharedPhoneCheckProxy(ctx, req)
 	case "load-state":
 		return h.loadState(ctx, req)
 	case "check-balance":
@@ -881,12 +887,16 @@ func readGopayActionRequest(w http.ResponseWriter, r *http.Request) (gopayAction
 }
 
 func newGoPayWorkflowJob(req *pb.GoPayAccountWorkflowRequest) (*gopayWorkflowJob, error) {
+	operation := normalizeGoPayWorkflowOperation(req.GetOperation().String())
 	accountID := goPayAppAccountID(req.GetGopayAccountId())
+	if accountID == "" && operation == "register_indonesia_wa" {
+		accountID = "toolbox:register-indonesia-wa"
+	}
 	if accountID == "" {
 		return nil, fmt.Errorf("gopay_account_id is required")
 	}
 	now := time.Now().Unix()
-	return &gopayWorkflowJob{JobID: uuid.NewString(), Operation: normalizeGoPayWorkflowOperation(req.GetOperation().String()), GopayAccountID: accountID, Phone: strings.TrimSpace(req.GetPhone()), CountryCode: strings.TrimSpace(req.GetCountryCode()), Pin: strings.TrimSpace(req.GetPin()), OTPChannel: normalizeActionOTPChannel(req.GetOtpChannel()), Status: "started", CreatedAtUnix: now, UpdatedAtUnix: now}, nil
+	return &gopayWorkflowJob{JobID: uuid.NewString(), Operation: operation, GopayAccountID: accountID, Phone: strings.TrimSpace(req.GetPhone()), CountryCode: strings.TrimSpace(req.GetCountryCode()), Pin: strings.TrimSpace(req.GetPin()), OTPChannel: normalizeActionOTPChannel(req.GetOtpChannel()), Status: "started", CreatedAtUnix: now, UpdatedAtUnix: now}, nil
 }
 
 func (h gopayHTTPHandler) triggerGoPayWorkflow(ctx context.Context, jobID string) error {
@@ -981,6 +991,8 @@ func normalizeGoPayWorkflowOperation(value string) string {
 		return "provision"
 	case "deactivate":
 		return "deactivate"
+	case "register_indonesia_wa":
+		return "register_indonesia_wa"
 	case "signup":
 		return "signup"
 	default:

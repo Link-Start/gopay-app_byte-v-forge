@@ -1,0 +1,784 @@
+{
+  "name": "GoPay Register Indonesia WA Subflow",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "gopay-account-register-indonesia-wa-trigger",
+      "name": "When Executed by GoPay App",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/register-indonesia-wa-settings' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $execution.id, operation: 'register_indonesia_wa', gopay_account_id: $('When Executed by GoPay App').first().json.gopay_account_id || $('When Executed by GoPay App').first().json.account_id || '' } }}",
+        "options": {}
+      },
+      "id": "gopay-account-register-indonesia-wa-load-settings",
+      "name": "Load Register Indonesia WA Settings",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        320,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SMS_API_BASE_URL + '/orders/acquire?wait_seconds=' + String((($('Load Register Indonesia WA Settings').first().json.data || {}).sms_acquire_wait_seconds) || 90) }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => { const s = $('Load Register Indonesia WA Settings').first().json.data || {}; const params = { application_key: 'whatsapp', country_iso2: 'ID', country_calling_code: '62', min_available_count: Number(s.sms_min_available_count || 1) }; if (s.sms_max_price_amount_decimal) params.max_price = { amount_decimal: String(s.sms_max_price_amount_decimal), currency_code: String(s.sms_max_price_currency_code || 'USD') }; return { request_id: 'gopay-register-indonesia-wa-' + $('When Executed by GoPay App').first().json.job_id, lease_duration: '900s', acquire_params: params }; })() }}",
+        "options": {}
+      },
+      "id": "gopay-account-register-indonesia-wa-acquire-number",
+      "name": "Acquire Indonesia WA Number",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-account-register-indonesia-wa-number-acquired-cond",
+              "leftValue": "={{ Boolean($json.order?.order_id) && !Boolean($json.error?.message) && Boolean($json.order?.phone_number?.e164_number || $json.order?.phone_number?.national_number) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-account-register-indonesia-wa-number-acquired",
+      "name": "Number Acquired?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "function digits(value) { return String(value || '').replace(/\\D+/g, ''); }\nfunction clean(value) { return String(value || '').trim(); }\nconst input = $('When Executed by GoPay App').first().json;\nconst acquire = $('Acquire Indonesia WA Number').first().json.body || $('Acquire Indonesia WA Number').first().json || {};\nconst order = acquire.order || {};\nconst target = order.target || {};\nconst phoneNumber = order.phone_number || {};\nconst cc = digits(phoneNumber.country_calling_code || target.country_calling_code || '62') || '62';\nconst iso = clean(phoneNumber.country_iso2 || target.country_iso2 || 'ID').toUpperCase();\nlet e164 = clean(phoneNumber.e164_number);\nlet national = clean(phoneNumber.national_number);\nif (!national && e164) {\n  const e164Digits = digits(e164);\n  national = e164Digits.startsWith(cc) ? e164Digits.slice(cc.length) : e164Digits;\n}\nif (!e164 && national) e164 = `+${cc}${digits(national)}`;\nif (e164 && !e164.startsWith('+')) e164 = `+${digits(e164)}`;\nreturn [{ json: {\n  ...input,\n  workspace_id: input.workspace_id || 'default',\n  request_id: input.request_id || input.job_id || $execution.id,\n  sms_order_id: order.order_id || '',\n  sms_order: order,\n  register_indonesia_wa_settings: settings,\n  country_calling_code: cc,\n  country_code: cc,\n  country_iso2: iso,\n  country_region: iso,\n  region: iso,\n  phone: { e164_number: e164, country_calling_code: cc, national_number: national, country_iso2: iso },\n} }];"
+      },
+      "id": "gopay-account-register-indonesia-wa-build-probe-input",
+      "name": "Build WA Probe Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        -140
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const acquire = $('Acquire Indonesia WA Number').first().json.body || $('Acquire Indonesia WA Number').first().json || {};\nconst message = acquire.error?.message || acquire.error_message || 'sms acquire indonesia wa number failed';\nreturn [{ json: { success: false, status: 'SMS_NUMBER_ACQUIRE_FAILED', error_message: message, data: { sms_acquire: acquire } } }];"
+      },
+      "id": "gopay-account-register-indonesia-wa-build-acquire-failure",
+      "name": "Build Acquire Failure",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/generate-shared-phone-check-proxy' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $execution.id, operation: 'register_indonesia_wa', country_code: $('Build WA Probe Input').first().json.country_calling_code, data: { country_calling_code: $('Build WA Probe Input').first().json.country_calling_code, country_iso2: $('Build WA Probe Input').first().json.country_iso2 } } }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        }
+      },
+      "id": "gopay-account-register-indonesia-wa-generate-shared-proxy",
+      "name": "Generate Shared Detection Proxy",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        -140
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-account-register-indonesia-wa-shared-proxy-ready-cond",
+              "leftValue": "={{ $json.success === true && Boolean($json.state_json) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-account-register-indonesia-wa-shared-proxy-ready",
+      "name": "Shared Detection Proxy Ready?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1920,
+        -140
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/release-shared-phone-check-proxy' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $execution.id, operation: 'register_indonesia_wa', state_json: $('Generate Shared Detection Proxy').first().json.state_json || '' } }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        }
+      },
+      "id": "gopay-account-register-indonesia-wa-release-shared-proxy-setup-failure",
+      "name": "Release Shared Proxy After Setup Failure",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2240,
+        180
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SMS_API_BASE_URL + '/orders/' + encodeURIComponent($('Build WA Probe Input').first().json.sms_order_id) + '/cancel' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { request_id: 'gopay-register-indonesia-wa-proxy-failed-' + $('When Executed by GoPay App').first().json.job_id } }}",
+        "options": {}
+      },
+      "id": "gopay-account-register-indonesia-wa-cancel-proxy-failure",
+      "name": "Cancel SMS Shared Proxy Failure",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2560,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $('Build WA Probe Input').first().json;\nconst proxy = $('Generate Shared Detection Proxy').first().json || {};\nreturn [{ json: {\n  success: false,\n  status: 'SHARED_PROXY_UNAVAILABLE',\n  error_message: proxy.error_message || 'shared dynamic IP proxy unavailable',\n  phone: input.phone,\n  sms_order_id: input.sms_order_id,\n  data: { sms_order: input.sms_order, shared_proxy: { proxy_hash: proxy.data?.proxy_hash, device_fingerprint: proxy.data?.device_fingerprint } },\n} }];"
+      },
+      "id": "gopay-account-register-indonesia-wa-build-proxy-failure",
+      "name": "Build Shared Proxy Failure",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2880,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WA_API_BASE_URL + '/phone/sms-probe' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { workspace_id: $('Build WA Probe Input').first().json.workspace_id, job_id: $('Build WA Probe Input').first().json.job_id, request_id: 'gopay-wa-probe-' + $('Build WA Probe Input').first().json.job_id, phone: $('Build WA Probe Input').first().json.phone, country_calling_code: $('Build WA Probe Input').first().json.country_calling_code, country_iso2: $('Build WA Probe Input').first().json.country_iso2, country_region: $('Build WA Probe Input').first().json.country_region, proxy_state_json: $('Generate Shared Detection Proxy').first().json.state_json } }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "gopay-account-register-indonesia-wa-probe-number",
+      "name": "Probe WA Number",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2240,
+        -300
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ (($env.GOPAY_API_BASE_URL || String($env.GOPAY_ACTION_API_BASE_URL || '').replace(/\\/actions$/, '')) + '/phone/check') }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { phone: $('Build WA Probe Input').first().json.phone.national_number, country_code: '+' + $('Build WA Probe Input').first().json.country_calling_code, state_json: $('Generate Shared Detection Proxy').first().json.state_json } }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "gopay-account-register-indonesia-wa-check-gopay-number",
+      "name": "Check GoPay Number",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2240,
+        -20
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 2
+      },
+      "id": "gopay-account-register-indonesia-wa-merge-checks",
+      "name": "Merge Phone Checks",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        2560,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "function bodyOf(nodeName) {\n  const value = $(nodeName).first().json || {};\n  return value.body && typeof value.body === 'object' ? value.body : value;\n}\nfunction statusCodeOf(nodeName) {\n  const value = $(nodeName).first().json || {};\n  const code = Number(value.statusCode || 200);\n  return Number.isFinite(code) ? code : 200;\n}\nconst input = $('Build WA Probe Input').first().json;\nconst proxy = $('Generate Shared Detection Proxy').first().json || {};\nconst wa = bodyOf('Probe WA Number');\nconst gopay = bodyOf('Check GoPay Number');\nconst waStatus = wa.phone_status || {};\nconst waHTTP = statusCodeOf('Probe WA Number');\nconst gopayHTTP = statusCodeOf('Check GoPay Number');\nconst waOK = waHTTP >= 200 && waHTTP < 300 && wa.success === true && waStatus.can_register === true;\nconst gopayOK = gopayHTTP >= 200 && gopayHTTP < 300 && gopay.success === true && gopay.available === true;\nlet status = 'PHONE_CHECKS_PASSED';\nlet message = '';\nif (!waOK) {\n  status = 'WA_NUMBER_NOT_AVAILABLE';\n  message = wa.error_message || waStatus.reject_reason || waStatus.account_error || (waStatus.registered === true ? 'wa number already registered' : 'wa number cannot register');\n} else if (!gopayOK) {\n  status = gopay.success === true && gopay.available === false ? 'GOPAY_NUMBER_ALREADY_REGISTERED' : 'GOPAY_NUMBER_CHECK_FAILED';\n  message = gopay.error_message || gopay.status || (gopay.available === false ? 'gopay number already registered' : 'gopay number check failed');\n}\nreturn [{ json: {\n  success: waOK && gopayOK,\n  status,\n  error_message: message,\n  phone: input.phone,\n  sms_order_id: input.sms_order_id,\n  data: {\n    sms_order: input.sms_order,\n    shared_proxy: { proxy_hash: proxy.data?.proxy_hash, device_fingerprint: proxy.data?.device_fingerprint },\n    wa_probe: wa,\n    gopay_phone_check: gopay,\n    wa_http_status: waHTTP,\n    gopay_http_status: gopayHTTP,\n  },\n} }];"
+      },
+      "id": "gopay-account-register-indonesia-wa-evaluate-checks",
+      "name": "Evaluate Phone Checks",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2880,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/release-shared-phone-check-proxy' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $execution.id, operation: 'register_indonesia_wa', state_json: $('Generate Shared Detection Proxy').first().json.state_json || '' } }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        }
+      },
+      "id": "gopay-account-register-indonesia-wa-release-shared-proxy",
+      "name": "Release Shared Detection Proxy",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3200,
+        -160
+      ],
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-account-register-indonesia-wa-checks-passed-cond",
+              "leftValue": "={{ $('Evaluate Phone Checks').first().json.success === true }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-account-register-indonesia-wa-checks-passed",
+      "name": "Phone Checks Passed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3520,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SMS_API_BASE_URL + '/orders/' + encodeURIComponent($('Build WA Probe Input').first().json.sms_order_id) + '/cancel' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { request_id: 'gopay-register-indonesia-wa-cancel-' + $('When Executed by GoPay App').first().json.job_id } }}",
+        "options": {}
+      },
+      "id": "gopay-account-register-indonesia-wa-cancel-check-failed",
+      "name": "Cancel SMS Phone Check Failed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3840,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $('Build WA Probe Input').first().json;\nconst evaluation = $('Evaluate Phone Checks').first().json || {};\nreturn [{ json: {\n  success: false,\n  status: evaluation.status || 'PHONE_CHECKS_FAILED',\n  error_message: evaluation.error_message || 'phone checks failed',\n  phone: input.phone,\n  sms_order_id: input.sms_order_id,\n  data: evaluation.data || { sms_order: input.sms_order },\n} }];"
+      },
+      "id": "gopay-account-register-indonesia-wa-build-checks-failure",
+      "name": "Build Phone Checks Failure",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4160,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WA_API_BASE_URL + '/register' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { workspace_id: $('Build WA Probe Input').first().json.workspace_id, job_id: 'wa-register-from-gopay-' + $('When Executed by GoPay App').first().json.job_id, request_id: 'wa-register-from-gopay-' + $('When Executed by GoPay App').first().json.job_id, phone: $('Build WA Probe Input').first().json.phone, country_calling_code: $('Build WA Probe Input').first().json.country_calling_code, country_iso2: $('Build WA Probe Input').first().json.country_iso2, country_region: $('Build WA Probe Input').first().json.country_region, sms_order_id: $('Build WA Probe Input').first().json.sms_order_id, sms_order: $('Build WA Probe Input').first().json.sms_order, source: 'gopay_toolbox' } }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "gopay-account-register-indonesia-wa-start-registration",
+      "name": "Start WA Registration",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3840,
+        -280
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-account-register-indonesia-wa-registration-started-cond",
+              "leftValue": "={{ Number($json.statusCode || 0) >= 200 && Number($json.statusCode || 0) < 300 }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-account-register-indonesia-wa-registration-started",
+      "name": "Registration Started?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4160,
+        -280
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $('Build WA Probe Input').first().json;\nconst evaluation = $('Evaluate Phone Checks').first().json || {};\nconst start = $('Start WA Registration').first().json || {};\nreturn [{ json: {\n  success: true,\n  status: 'WA_REGISTRATION_STARTED',\n  register_indonesia_wa_started: true,\n  phone: input.phone,\n  sms_order_id: input.sms_order_id,\n  wa_register_http_status: start.statusCode || 202,\n  data: {\n    sms_order: input.sms_order,\n    wa_probe: evaluation.data?.wa_probe,\n    gopay_phone_check: evaluation.data?.gopay_phone_check,\n    wa_register_response: start.body || start,\n  },\n} }];"
+      },
+      "id": "gopay-account-register-indonesia-wa-build-started",
+      "name": "Build Registration Started",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4480,
+        -400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SMS_API_BASE_URL + '/orders/' + encodeURIComponent($('Build WA Probe Input').first().json.sms_order_id) + '/cancel' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { request_id: 'gopay-register-indonesia-wa-register-failed-' + $('When Executed by GoPay App').first().json.job_id } }}",
+        "options": {}
+      },
+      "id": "gopay-account-register-indonesia-wa-cancel-start-failure",
+      "name": "Cancel SMS Registration Failure",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4480,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $('Build WA Probe Input').first().json;\nconst start = $('Start WA Registration').first().json || {};\nconst body = start.body || {};\nconst message = body.error || body.error_message || `wa register returned HTTP ${start.statusCode || 'unknown'}`;\nreturn [{ json: { success: false, status: 'WA_REGISTRATION_START_FAILED', error_message: message, phone: input.phone, sms_order_id: input.sms_order_id, data: { sms_order: input.sms_order, wa_register_response: body || start } } }];"
+      },
+      "id": "gopay-account-register-indonesia-wa-build-start-failure",
+      "name": "Build Registration Start Failure",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4800,
+        -160
+      ]
+    }
+  ],
+  "connections": {
+    "When Executed by GoPay App": {
+      "main": [
+        [
+          {
+            "node": "Load Register Indonesia WA Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Register Indonesia WA Settings": {
+      "main": [
+        [
+          {
+            "node": "Acquire Indonesia WA Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Acquire Indonesia WA Number": {
+      "main": [
+        [
+          {
+            "node": "Number Acquired?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Number Acquired?": {
+      "main": [
+        [
+          {
+            "node": "Build WA Probe Input",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Acquire Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build WA Probe Input": {
+      "main": [
+        [
+          {
+            "node": "Generate Shared Detection Proxy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Shared Detection Proxy": {
+      "main": [
+        [
+          {
+            "node": "Shared Detection Proxy Ready?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shared Detection Proxy Ready?": {
+      "main": [
+        [
+          {
+            "node": "Probe WA Number",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check GoPay Number",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Release Shared Proxy After Setup Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel SMS Shared Proxy Failure": {
+      "main": [
+        [
+          {
+            "node": "Build Shared Proxy Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Probe WA Number": {
+      "main": [
+        [
+          {
+            "node": "Merge Phone Checks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check GoPay Number": {
+      "main": [
+        [
+          {
+            "node": "Merge Phone Checks",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Phone Checks": {
+      "main": [
+        [
+          {
+            "node": "Evaluate Phone Checks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Phone Checks": {
+      "main": [
+        [
+          {
+            "node": "Release Shared Detection Proxy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Release Shared Detection Proxy": {
+      "main": [
+        [
+          {
+            "node": "Phone Checks Passed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Phone Checks Passed?": {
+      "main": [
+        [
+          {
+            "node": "Start WA Registration",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cancel SMS Phone Check Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel SMS Phone Check Failed": {
+      "main": [
+        [
+          {
+            "node": "Build Phone Checks Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start WA Registration": {
+      "main": [
+        [
+          {
+            "node": "Registration Started?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registration Started?": {
+      "main": [
+        [
+          {
+            "node": "Build Registration Started",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cancel SMS Registration Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel SMS Registration Failure": {
+      "main": [
+        [
+          {
+            "node": "Build Registration Start Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Release Shared Proxy After Setup Failure": {
+      "main": [
+        [
+          {
+            "node": "Cancel SMS Shared Proxy Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "id": "gopay-account-register-indonesia-wa"
+}

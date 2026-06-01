@@ -31,6 +31,7 @@ enum GoPayAccountWorkflowOperation {
   GOPAY_ACCOUNT_WORKFLOW_OPERATION_CHANGE_PHONE = 6;
   GOPAY_ACCOUNT_WORKFLOW_OPERATION_PROVISION = 7;
   GOPAY_ACCOUNT_WORKFLOW_OPERATION_DEACTIVATE = 8;
+  GOPAY_ACCOUNT_WORKFLOW_OPERATION_REGISTER_INDONESIA_WA = 9;
 }
 
 message GoPayAccountWorkflowRequest {
@@ -46,6 +47,34 @@ message GoPayAccountWorkflowResponse {
   string job_id = 1;
   bool started = 2;
   string error_message = 3;
+}
+
+
+message GoPayRegisterIndonesiaWASettings {
+  reserved 1, 2, 3;
+  reserved "sms_application_key", "country_iso2", "country_calling_code";
+  int32 sms_acquire_wait_seconds = 4;
+  int32 sms_min_available_count = 5;
+  string sms_max_price_amount_decimal = 6;
+  string sms_max_price_currency_code = 7;
+}
+
+message GetGoPaySettingsRequest {}
+
+message GetGoPaySettingsResponse {
+  bool success = 1;
+  string error_message = 2;
+  GoPayRegisterIndonesiaWASettings register_indonesia_wa = 3;
+}
+
+message SaveGoPaySettingsRequest {
+  GoPayRegisterIndonesiaWASettings register_indonesia_wa = 1;
+}
+
+message SaveGoPaySettingsResponse {
+  bool success = 1;
+  string error_message = 2;
+  GoPayRegisterIndonesiaWASettings register_indonesia_wa = 3;
 }
 
 message GetGopayActionCatalogRequest {}
