@@ -35,14 +35,35 @@
     },
     {
       "parameters": {
-        "jsCode": "const input = $('When Executed by GoPay Toolbox').first().json;\nconst settings = $('Load Register Indonesia WA Settings').first().json.data || {};\nconst configured = Number(settings.phone_number_max_attempts || settings.number_max_attempts || 10);\nconst maxAttempts = Math.max(1, Math.min(100, Number.isFinite(configured) ? Math.trunc(configured) : 10));\nreturn Array.from({ length: maxAttempts }, (_, index) => ({\n  json: {\n    ...input,\n    register_indonesia_wa_settings: settings,\n    phone_attempt: index + 1,\n    max_attempts: maxAttempts,\n    failure_count: index,\n  },\n}));"
+        "url": "={{ $env.SMS_API_BASE_URL + '/price-offers?application_key=whatsapp&country_iso2=ID&country_calling_code=62' }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        }
+      },
+      "id": "gopay-account-register-indonesia-wa-list-sms-price-offers",
+      "name": "List SMS Price Offers",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        520,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "function decimal(value) {\n  const n = Number(String(value || '').trim());\n  return Number.isFinite(n) ? n : null;\n}\nfunction clean(value) { return String(value || '').trim(); }\nfunction lower(value) { return clean(value).toLowerCase(); }\nfunction offerPrice(offer) { return decimal(offer?.price?.amount_decimal || offer?.price?.amountDecimal); }\nfunction acquireParams(offer) {\n  const params = offer?.acquire_params || offer?.acquireParams || null;\n  if (!params || typeof params !== 'object') return null;\n  return JSON.parse(JSON.stringify(params));\n}\nconst input = $('When Executed by GoPay Toolbox').first().json;\nconst settings = $('Load Register Indonesia WA Settings').first().json.data || {};\nconst catalogEnvelope = $('List SMS Price Offers').first().json || {};\nconst catalog = catalogEnvelope.body && typeof catalogEnvelope.body === 'object' ? catalogEnvelope.body : catalogEnvelope;\nconst configured = Number(settings.phone_number_max_attempts || settings.number_max_attempts || 10);\nconst maxAttempts = Math.max(1, Math.min(100, Number.isFinite(configured) ? Math.trunc(configured) : 10));\nconst minStock = Math.max(1, Math.trunc(Number(settings.sms_min_available_count || 1)));\nconst minPrice = decimal(settings.sms_min_price_amount_decimal);\nconst maxPrice = decimal(settings.sms_max_price_amount_decimal);\nconst offers = Array.isArray(catalog.offers) ? catalog.offers : [];\nconst eligible = offers\n  .map((offer) => ({ offer, price: offerPrice(offer), params: acquireParams(offer) }))\n  .filter(({ offer, price, params }) => {\n    if (!params) return false;\n    if (Number(offer.available_count || offer.availableCount || 0) < minStock) return false;\n    if (price === null) return false;\n    if (minPrice !== null && price < minPrice) return false;\n    if (maxPrice !== null && price > maxPrice) return false;\n    return true;\n  })\n  .sort((a, b) => {\n    if (a.price !== b.price) return a.price - b.price;\n    const av = Number(a.offer.available_count || a.offer.availableCount || 0);\n    const bv = Number(b.offer.available_count || b.offer.availableCount || 0);\n    if (av !== bv) return bv - av;\n    return [lower(a.offer.provider_key || a.offer.providerKey), lower(a.offer.upstream_provider_id || a.offer.upstreamProviderId)].join(':')\n      .localeCompare([lower(b.offer.provider_key || b.offer.providerKey), lower(b.offer.upstream_provider_id || b.offer.upstreamProviderId)].join(':'));\n  });\nif (eligible.length === 0) {\n  return [{ json: {\n    ...input,\n    register_indonesia_wa_settings: settings,\n    phone_attempt: 1,\n    max_attempts: 1,\n    failure_count: 0,\n    sms_route_selection_failed: true,\n    last_failure: {\n      success: false,\n      retryable: true,\n      status: 'SMS_ROUTE_SELECTION_EMPTY',\n      error_message: `no sms route offer matches whatsapp/ID/62 stock>=${minStock} price ${minPrice === null ? '' : `>=${settings.sms_min_price_amount_decimal} `}${maxPrice === null ? '' : `<=${settings.sms_max_price_amount_decimal}`}`.trim(),\n      data: { offer_count: offers.length, min_stock: minStock, min_price: settings.sms_min_price_amount_decimal || '', max_price: settings.sms_max_price_amount_decimal || '' },\n    },\n  } }];\n}\nreturn Array.from({ length: maxAttempts }, (_, index) => {\n  const selected = eligible[index % eligible.length];\n  return { json: {\n    ...input,\n    register_indonesia_wa_settings: settings,\n    phone_attempt: index + 1,\n    max_attempts: maxAttempts,\n    failure_count: index,\n    sms_offer: selected.offer,\n    sms_acquire_params: selected.params,\n    sms_route_selection: {\n      provider_key: selected.offer.provider_key || selected.offer.providerKey || '',\n      upstream_provider_id: selected.offer.upstream_provider_id || selected.offer.upstreamProviderId || '',\n      price: selected.offer.price || {},\n      available_count: selected.offer.available_count || selected.offer.availableCount || 0,\n    },\n  } };\n});"
       },
       "id": "gopay-account-register-indonesia-wa-build-attempts",
       "name": "Build Number Attempts",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        520,
+        780,
         0
       ]
     },
@@ -56,7 +77,7 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        780,
+        1040,
         0
       ]
     },
@@ -80,7 +101,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ (() => { const s = $json.register_indonesia_wa_settings || {}; const params = { application_key: 'whatsapp', country_iso2: 'ID', country_calling_code: '62', min_available_count: Number(s.sms_min_available_count || 1) }; if (s.sms_min_price_amount_decimal) params.min_price = { amount_decimal: String(s.sms_min_price_amount_decimal), currency_code: 'USD' }; if (s.sms_max_price_amount_decimal) params.max_price = { amount_decimal: String(s.sms_max_price_amount_decimal), currency_code: 'USD' }; return { request_id: 'gopay-register-indonesia-wa-' + $json.job_id + '-' + String($json.phone_attempt || 1), lease_duration: '900s', acquire_params: params }; })() }}",
+        "jsonBody": "={{ (() => { const s = $json.register_indonesia_wa_settings || {}; const selected = $json.sms_acquire_params && typeof $json.sms_acquire_params === 'object' ? JSON.parse(JSON.stringify($json.sms_acquire_params)) : null; const params = selected || { application_key: 'whatsapp', country_iso2: 'ID', country_calling_code: '62', min_available_count: Number(s.sms_min_available_count || 1) }; if (!selected) { if (s.sms_min_price_amount_decimal) params.min_price = { amount_decimal: String(s.sms_min_price_amount_decimal), currency_code: 'USD' }; if (s.sms_max_price_amount_decimal) params.max_price = { amount_decimal: String(s.sms_max_price_amount_decimal), currency_code: 'USD' }; } return { request_id: 'gopay-register-indonesia-wa-' + $json.job_id + '-' + String($json.phone_attempt || 1), lease_duration: '900s', acquire_params: params }; })() }}",
         "options": {
           "response": {
             "response": {
@@ -95,7 +116,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1040,
+        1560,
         80
       ]
     },
@@ -689,6 +710,53 @@
         3900,
         -220
       ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-account-register-indonesia-wa-sms-route-selected-cond",
+              "leftValue": "={{ $json.sms_route_selection_failed !== true && Boolean($json.sms_acquire_params) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-account-register-indonesia-wa-sms-route-selected",
+      "name": "SMS Route Selected?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1300,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const attempt = $input.first().json || {};\nconst failure = attempt.last_failure || {};\nreturn [{ json: {\n  success: false,\n  retryable: true,\n  status: failure.status || 'SMS_ROUTE_SELECTION_EMPTY',\n  error_message: failure.error_message || 'no sms route offer matches register indonesia wa policy',\n  phone_attempt: attempt.phone_attempt || 1,\n  max_attempts: attempt.max_attempts || 1,\n  data: failure.data || {},\n} }];"
+      },
+      "id": "gopay-account-register-indonesia-wa-build-route-selection-failure",
+      "name": "Build SMS Route Selection Failure",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        -120
+      ]
     }
   ],
   "connections": {
@@ -707,7 +775,7 @@
       "main": [
         [
           {
-            "node": "Build Number Attempts",
+            "node": "List SMS Price Offers",
             "type": "main",
             "index": 0
           }
@@ -736,7 +804,7 @@
         ],
         [
           {
-            "node": "Acquire Indonesia WA Number",
+            "node": "SMS Route Selected?",
             "type": "main",
             "index": 0
           }
@@ -1067,6 +1135,35 @@
         [
           {
             "node": "Build Registration Started",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List SMS Price Offers": {
+      "main": [
+        [
+          {
+            "node": "Build Number Attempts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SMS Route Selected?": {
+      "main": [
+        [
+          {
+            "node": "Acquire Indonesia WA Number",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build SMS Route Selection Failure",
             "type": "main",
             "index": 0
           }
