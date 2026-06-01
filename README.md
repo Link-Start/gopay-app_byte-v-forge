@@ -6,7 +6,7 @@
 
 - 管理 GoPay App 账号状态、设备指纹、代理会话和 token 生命周期。
 - 支持登录、注册、改绑手机号、PIN、注销、余额检查和状态查询。
-- 接收 WhatsApp OTP webhook，并以 `channel + target + otp` 在本服务内投递到等待中的 n8n flow。
+- 接收 WhatsApp/SMS OTP webhook，并以 `channel + target + otp` 投递到等待中的 n8n flow；账号详情提供一次性手动 OTP 兜底，不写入最新 OTP 缓存。
 - 承载 Midtrans + GoPay linking/payment runtime；GPT 只负责 ChatGPT checkout/Stripe/snap_token 准备。
 - 提供 `/api/gopay/*` 与 `/mf/gopay/*`，GoPayAccount 页面归属本仓。
 

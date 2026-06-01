@@ -527,6 +527,7 @@ message GetGopayAccountProfileResponse {
   int64 updated_at_unix = 6;
   string otp_channel = 7;
   bool pin_configured = 8;
+  string pin = 9;
 }
 
 message SaveGopayAccountProfileRequest {
@@ -534,7 +535,7 @@ message SaveGopayAccountProfileRequest {
   string wa_phone = 2;
   string country_code = 3;
   string otp_channel = 4;
-  string pin = 5; // 仅写入；响应不返回 PIN
+  string pin = 5;
 }
 
 message SaveGopayAccountProfileResponse {
@@ -546,6 +547,7 @@ message SaveGopayAccountProfileResponse {
   int64 updated_at_unix = 6;
   string otp_channel = 7;
   bool pin_configured = 8;
+  string pin = 9;
 }
 
 // === GoPay payment runtime ===

@@ -4611,6 +4611,7 @@ type GetGopayAccountProfileResponse struct {
 	UpdatedAtUnix  int64                  `protobuf:"varint,6,opt,name=updated_at_unix,json=updatedAtUnix,proto3" json:"updated_at_unix,omitempty"`
 	OtpChannel     string                 `protobuf:"bytes,7,opt,name=otp_channel,json=otpChannel,proto3" json:"otp_channel,omitempty"`
 	PinConfigured  bool                   `protobuf:"varint,8,opt,name=pin_configured,json=pinConfigured,proto3" json:"pin_configured,omitempty"`
+	Pin            string                 `protobuf:"bytes,9,opt,name=pin,proto3" json:"pin,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -4701,13 +4702,20 @@ func (x *GetGopayAccountProfileResponse) GetPinConfigured() bool {
 	return false
 }
 
+func (x *GetGopayAccountProfileResponse) GetPin() string {
+	if x != nil {
+		return x.Pin
+	}
+	return ""
+}
+
 type SaveGopayAccountProfileRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	GopayAccountId string                 `protobuf:"bytes,1,opt,name=gopay_account_id,json=gopayAccountId,proto3" json:"gopay_account_id,omitempty"`
 	WaPhone        string                 `protobuf:"bytes,2,opt,name=wa_phone,json=waPhone,proto3" json:"wa_phone,omitempty"`
 	CountryCode    string                 `protobuf:"bytes,3,opt,name=country_code,json=countryCode,proto3" json:"country_code,omitempty"`
 	OtpChannel     string                 `protobuf:"bytes,4,opt,name=otp_channel,json=otpChannel,proto3" json:"otp_channel,omitempty"`
-	Pin            string                 `protobuf:"bytes,5,opt,name=pin,proto3" json:"pin,omitempty"` // 仅写入；响应不返回 PIN
+	Pin            string                 `protobuf:"bytes,5,opt,name=pin,proto3" json:"pin,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -4787,6 +4795,7 @@ type SaveGopayAccountProfileResponse struct {
 	UpdatedAtUnix  int64                  `protobuf:"varint,6,opt,name=updated_at_unix,json=updatedAtUnix,proto3" json:"updated_at_unix,omitempty"`
 	OtpChannel     string                 `protobuf:"bytes,7,opt,name=otp_channel,json=otpChannel,proto3" json:"otp_channel,omitempty"`
 	PinConfigured  bool                   `protobuf:"varint,8,opt,name=pin_configured,json=pinConfigured,proto3" json:"pin_configured,omitempty"`
+	Pin            string                 `protobuf:"bytes,9,opt,name=pin,proto3" json:"pin,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -4875,6 +4884,13 @@ func (x *SaveGopayAccountProfileResponse) GetPinConfigured() bool {
 		return x.PinConfigured
 	}
 	return false
+}
+
+func (x *SaveGopayAccountProfileResponse) GetPin() string {
+	if x != nil {
+		return x.Pin
+	}
+	return ""
 }
 
 type StartGopayPaymentRequest struct {
@@ -5936,7 +5952,7 @@ const file_gopay_app_proto_rawDesc = "" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12#\n" +
 	"\rerror_message\x18\x02 \x01(\tR\ferrorMessage\"I\n" +
 	"\x1dGetGopayAccountProfileRequest\x12(\n" +
-	"\x10gopay_account_id\x18\x01 \x01(\tR\x0egopayAccountId\"\xb7\x02\n" +
+	"\x10gopay_account_id\x18\x01 \x01(\tR\x0egopayAccountId\"\xc9\x02\n" +
 	"\x1eGetGopayAccountProfileResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12#\n" +
 	"\rerror_message\x18\x02 \x01(\tR\ferrorMessage\x12(\n" +
@@ -5946,14 +5962,15 @@ const file_gopay_app_proto_rawDesc = "" +
 	"\x0fupdated_at_unix\x18\x06 \x01(\x03R\rupdatedAtUnix\x12\x1f\n" +
 	"\votp_channel\x18\a \x01(\tR\n" +
 	"otpChannel\x12%\n" +
-	"\x0epin_configured\x18\b \x01(\bR\rpinConfigured\"\xbb\x01\n" +
+	"\x0epin_configured\x18\b \x01(\bR\rpinConfigured\x12\x10\n" +
+	"\x03pin\x18\t \x01(\tR\x03pin\"\xbb\x01\n" +
 	"\x1eSaveGopayAccountProfileRequest\x12(\n" +
 	"\x10gopay_account_id\x18\x01 \x01(\tR\x0egopayAccountId\x12\x19\n" +
 	"\bwa_phone\x18\x02 \x01(\tR\awaPhone\x12!\n" +
 	"\fcountry_code\x18\x03 \x01(\tR\vcountryCode\x12\x1f\n" +
 	"\votp_channel\x18\x04 \x01(\tR\n" +
 	"otpChannel\x12\x10\n" +
-	"\x03pin\x18\x05 \x01(\tR\x03pin\"\xb8\x02\n" +
+	"\x03pin\x18\x05 \x01(\tR\x03pin\"\xca\x02\n" +
 	"\x1fSaveGopayAccountProfileResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12#\n" +
 	"\rerror_message\x18\x02 \x01(\tR\ferrorMessage\x12(\n" +
@@ -5963,7 +5980,8 @@ const file_gopay_app_proto_rawDesc = "" +
 	"\x0fupdated_at_unix\x18\x06 \x01(\x03R\rupdatedAtUnix\x12\x1f\n" +
 	"\votp_channel\x18\a \x01(\tR\n" +
 	"otpChannel\x12%\n" +
-	"\x0epin_configured\x18\b \x01(\bR\rpinConfigured\"\xd9\x02\n" +
+	"\x0epin_configured\x18\b \x01(\bR\rpinConfigured\x12\x10\n" +
+	"\x03pin\x18\t \x01(\tR\x03pin\"\xd9\x02\n" +
 	"\x18StartGopayPaymentRequest\x12\x1d\n" +
 	"\n" +
 	"snap_token\x18\x01 \x01(\tR\tsnapToken\x12!\n" +

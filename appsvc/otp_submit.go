@@ -45,18 +45,71 @@ func (h gopayHTTPHandler) handleOTPSubmit(w http.ResponseWriter, r *http.Request
 func (h gopayHTTPHandler) submitChannelOTP(ctx context.Context, payload otpSubmitPayload) (map[string]any, error) {
 	channel := normalizeActionOTPChannel(payload.Channel)
 	target := normalizeChannelOTPTarget(channel, payload.Target)
+	accountID := strings.TrimSpace(payload.GopayAccountID)
 	code := normalizeOTP(payload.OTP)
-	if channel == "" || target == "" || code == "" {
-		return nil, fmt.Errorf("channel, target and otp are required")
+	if code == "" {
+		return nil, fmt.Errorf("otp is required")
 	}
 	receivedAt := time.Now().Unix()
-	if err := h.service.store.SaveLatestChannelOTP(ctx, latestChannelOTP{Channel: channel, Target: target, OTP: code, ReceivedAtUnix: receivedAt, Source: channel}, 30*time.Minute); err != nil {
+	if payload.ManualOnce {
+		waits, err := h.pendingManualOTPWaits(ctx, accountID, channel, target, receivedAt)
+		if err != nil {
+			return nil, err
+		}
+		resumed, err := h.resumeChannelOTPWaits(ctx, waits, code, receivedAt)
+		if err != nil {
+			return nil, err
+		}
+		submitted := map[string]any{
+			"success":          len(resumed) > 0,
+			"manual_once":      true,
+			"gopay_account_id": accountID,
+			"resume_count":     len(resumed),
+			"resumed_job_ids":  resumed,
+		}
+		if len(resumed) == 0 {
+			submitted["error_message"] = "no pending OTP wait for this GoPay account"
+		}
+		return submitted, nil
+	}
+	if channel == "" || target == "" {
+		return nil, fmt.Errorf("channel and target are required")
+	}
+	if err := h.service.store.SaveLatestChannelOTP(ctx, latestChannelOTP{Channel: channel, Target: target, OTP: code, ReceivedAtUnix: receivedAt, Source: firstNonEmpty(payload.OTPSource, channel)}, 30*time.Minute); err != nil {
 		return nil, err
 	}
 	waits, err := h.service.store.PendingChannelOTPWaits(ctx, channel, target, receivedAt)
 	if err != nil {
 		return nil, err
 	}
+	resumed, err := h.resumeChannelOTPWaits(ctx, waits, code, receivedAt)
+	if err != nil {
+		return nil, err
+	}
+	return map[string]any{
+		"success":              true,
+		"channel":              channel,
+		"target":               target,
+		"otp_received_at_unix": receivedAt,
+		"resume_count":         len(resumed),
+		"resumed_job_ids":      resumed,
+	}, nil
+}
+
+func (h gopayHTTPHandler) pendingManualOTPWaits(ctx context.Context, accountID string, channel string, target string, receivedAt int64) ([]channelOTPWaitEntry, error) {
+	if accountID != "" {
+		waits, err := h.service.store.PendingAccountOTPWaits(ctx, accountID, receivedAt)
+		if err != nil || len(waits) > 0 || channel == "" || target == "" {
+			return waits, err
+		}
+	}
+	if channel == "" || target == "" {
+		return nil, fmt.Errorf("gopay_account_id or channel and target are required")
+	}
+	return h.service.store.PendingChannelOTPWaits(ctx, channel, target, receivedAt)
+}
+
+func (h gopayHTTPHandler) resumeChannelOTPWaits(ctx context.Context, waits []channelOTPWaitEntry, code string, receivedAt int64) ([]string, error) {
 	resumed := make([]string, 0, len(waits))
 	for _, wait := range waits {
 		claimed, err := h.service.store.ClaimChannelOTPWait(ctx, wait.JobID, time.Minute)
@@ -73,14 +126,7 @@ func (h gopayHTTPHandler) submitChannelOTP(ctx context.Context, payload otpSubmi
 		_ = h.service.store.DeleteChannelOTPWait(ctx, wait)
 		resumed = append(resumed, wait.JobID)
 	}
-	return map[string]any{
-		"success":              true,
-		"channel":              channel,
-		"target":               target,
-		"otp_received_at_unix": receivedAt,
-		"resume_count":         len(resumed),
-		"resumed_job_ids":      resumed,
-	}, nil
+	return resumed, nil
 }
 
 func postOTPResume(ctx context.Context, wait channelOTPWaitEntry, code string, receivedAt int64) error {

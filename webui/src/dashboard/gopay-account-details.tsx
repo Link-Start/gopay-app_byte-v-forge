@@ -3,6 +3,7 @@ import {
   ActionButtonGroup,
   ActionSection,
   Badge,
+  ContentTabs,
   KVList,
   accountActionButton,
   accountCarrierID,
@@ -19,17 +20,24 @@ import {
   type GoPayAccountActionSpec,
 } from './gopay-account-action-specs';
 import { GoPayAccountPINDialog } from './gopay-account-pin-dialog';
+import { GoPayManualOTPSubmit } from './gopay-manual-otp-submit';
 
 export function GoPayAccountDetails({
   account,
   actionCatalog,
   busy,
   onRunAction,
+  onOTPSubmitted,
+  onToast,
+  onError,
 }: {
   account: GoPayAccountProjection;
   actionCatalog?: AccountActionCatalog;
   busy?: boolean;
   onRunAction: (spec: GoPayAccountActionSpec, payload?: Record<string, unknown>) => Promise<boolean>;
+  onOTPSubmitted?: () => void | Promise<void>;
+  onToast: (kind: 'error' | 'ok', message: string) => void;
+  onError: (message: unknown) => void;
 }) {
   const [pinAction, setPinAction] = useState<GoPayAccountActionSpec | null>(null);
   const accountID = accountCarrierID(account);
@@ -54,21 +62,47 @@ export function GoPayAccountDetails({
 
   return (
     <div className="details gopayAccountDetails">
+      <ContentTabs tabsListVariant="line" tabsClassName="accountDetailsTabs" tabs={[
+        { value: 'details', label: '账户详情', content: <GoPayAccountOverview account={account} accountID={accountID} busy={busy} pin={profile.data?.pin || ''} pinConfigured={profile.data?.pin_configured} pinLoading={profile.isLoading} onOTPSubmitted={onOTPSubmitted} onToast={onToast} onError={onError} />, contentClassName: 'accountDetailTabContent' },
+        { value: 'actions', label: '账户动作', content: <ActionSection title="账户动作" description="先选中账号，再在账号详情里执行账户级操作。"><ActionButtonGroup actions={buttons(GOPAY_ACCOUNT_PRIMARY_ACTIONS, actionCatalog, account, Boolean(busy), run)} className="sectionActions" /></ActionSection>, contentClassName: 'accountDetailTabContent' },
+        { value: 'checks', label: '状态检查', content: <ActionSection title="状态检查"><ActionButtonGroup actions={buttons(GOPAY_ACCOUNT_TOOL_ACTIONS, actionCatalog, account, Boolean(busy), run)} className="sectionActions" /></ActionSection>, contentClassName: 'accountDetailTabContent' },
+        { value: 'lifecycle', label: '生命周期', content: <ActionSection title="账号生命周期"><ActionButtonGroup actions={buttons(GOPAY_ACCOUNT_LIFECYCLE_ACTIONS, actionCatalog, account, Boolean(busy), run)} className="sectionActions" /></ActionSection>, contentClassName: 'accountDetailTabContent' },
+      ]} />
+      <GoPayAccountPINDialog open={!!pinAction} busy={busy} onSubmit={submitPIN} onOpenChange={(open) => { if (!open) setPinAction(null); }} />
+    </div>
+  );
+}
+
+function GoPayAccountOverview({
+  account,
+  accountID,
+  busy,
+  pin,
+  pinConfigured,
+  pinLoading,
+  onOTPSubmitted,
+  onToast,
+  onError,
+}: {
+  account: GoPayAccountProjection;
+  accountID: string;
+  busy?: boolean;
+  pin: string;
+  pinConfigured?: boolean;
+  pinLoading?: boolean;
+  onOTPSubmitted?: () => void | Promise<void>;
+  onToast: (kind: 'error' | 'ok', message: string) => void;
+  onError: (message: unknown) => void;
+}) {
+  return (
+    <>
       <section className="grid gap-2 rounded-xl border bg-card p-3">
         <div className="sectionTitle">
           <h3 className="font-mono text-sm">{account.account ? accountSubject(account.account) || accountID : accountID}</h3>
         </div>
-        <GoPayAccountBadges account={account} pinConfigured={profile.data?.pin_configured} />
+        <GoPayAccountBadges account={account} pinConfigured={pinConfigured} />
       </section>
-      <ActionSection title="账户动作" description="和 GPT 一样，先选中账号，再在账号详情里执行账户级操作。">
-        <ActionButtonGroup actions={buttons(GOPAY_ACCOUNT_PRIMARY_ACTIONS, actionCatalog, account, Boolean(busy), run)} className="sectionActions" />
-      </ActionSection>
-      <ActionSection title="状态检查">
-        <ActionButtonGroup actions={buttons(GOPAY_ACCOUNT_TOOL_ACTIONS, actionCatalog, account, Boolean(busy), run)} className="sectionActions" />
-      </ActionSection>
-      <ActionSection title="账号生命周期">
-        <ActionButtonGroup actions={buttons(GOPAY_ACCOUNT_LIFECYCLE_ACTIONS, actionCatalog, account, Boolean(busy), run)} className="sectionActions" />
-      </ActionSection>
+      <GoPayManualOTPSubmit account={account} disabled={busy} onSubmitted={onOTPSubmitted} onToast={onToast} onError={onError} />
       <ActionSection title="账户详情">
         <KVList items={[
           { label: 'GoPayAccount ID', value: accountID, mono: true },
@@ -76,12 +110,11 @@ export function GoPayAccountDetails({
           { label: '国家码', value: account.country_code || '-' },
           { label: 'OTP 渠道', value: account.otp_channel || '-' },
           { label: '状态', value: account.account?.status?.label || account.account?.status?.value || '-' },
-          { label: 'PIN', value: pinState(profile.data?.pin_configured, profile.isLoading) },
+          { label: 'PIN', value: pin || pinState(pinConfigured, pinLoading), mono: Boolean(pin) },
           { label: '余额', value: account.balance_currency ? `${account.balance_amount} ${account.balance_currency}` : '-' },
         ]} />
       </ActionSection>
-      <GoPayAccountPINDialog open={!!pinAction} busy={busy} onSubmit={submitPIN} onOpenChange={(open) => { if (!open) setPinAction(null); }} />
-    </div>
+    </>
   );
 }
 

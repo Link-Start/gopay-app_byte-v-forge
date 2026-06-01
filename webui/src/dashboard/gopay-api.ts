@@ -1,4 +1,4 @@
-import { ACCOUNT_PAGE_SIZE, api, fetchAccountList } from '@byte-v-forge/common-ui';
+import { ACCOUNT_PAGE_SIZE, accountCarrierID, api, fetchAccountList } from '@byte-v-forge/common-ui';
 import type { AccountActionCatalog } from '@byte-v-forge/common-ui/proto/byte/v/forge/contracts/account/v1/account';
 import type {
   GetGopayAccountProfileResponse,
@@ -47,6 +47,15 @@ export type GoPayPhoneCheckResponse = {
   generated_proxy_state?: boolean;
 };
 
+export type SubmitGoPayOTPResponse = {
+  success?: boolean;
+  manual_once?: boolean;
+  gopay_account_id?: string;
+  resume_count?: number;
+  resumed_job_ids?: string[];
+  error_message?: string;
+};
+
 export const goPayKeys = {
   health: ['gopay', 'health'] as const,
   accounts: ['gopay', 'accounts'] as const,
@@ -93,4 +102,23 @@ export async function checkGoPayPhone(req: GoPayPhoneCheckRequest) {
     method: 'POST',
     body: JSON.stringify(req)
   });
+}
+
+export async function submitGoPayManualOTP(account: GoPayAccountProjection, otp: string) {
+  const accountID = accountCarrierID(account);
+  const resp = await api<SubmitGoPayOTPResponse>('/api/gopay/otp/submit', {
+    method: 'POST',
+    body: JSON.stringify({
+      gopay_account_id: accountID,
+      channel: account.otp_channel || 'wa',
+      target: accountID,
+      otp,
+      otp_source: 'manual_frontend',
+      manual_once: true
+    })
+  });
+  if (resp.success === false || resp.error_message) {
+    throw new Error(resp.error_message || 'submit GoPay OTP failed');
+  }
+  return resp;
 }

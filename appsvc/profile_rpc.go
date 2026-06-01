@@ -55,6 +55,7 @@ func (s *Server) SaveGopayAccountProfile(ctx context.Context, req *pb.SaveGopayA
 		UpdatedAtUnix:  out.GetUpdatedAtUnix(),
 		OtpChannel:     out.GetOtpChannel(),
 		PinConfigured:  out.GetPinConfigured(),
+		Pin:            out.GetPin(),
 	}, nil
 }
 
@@ -75,6 +76,7 @@ func gopayAccountProfileResponse(gopayAccountID string, profile stateMap) *pb.Ge
 		UpdatedAtUnix:  stateInt(profile, "updated_at_unix"),
 		OtpChannel:     normalizeActionOTPChannel(stateString(profile, "otp_channel")),
 		PinConfigured:  stateString(profile, "pin") != "",
+		Pin:            stateString(profile, "pin"),
 	}
 }
 

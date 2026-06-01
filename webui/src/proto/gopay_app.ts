@@ -542,6 +542,7 @@ export interface GetGopayAccountProfileResponse {
   updated_at_unix: number;
   otp_channel: string;
   pin_configured: boolean;
+  pin: string;
 }
 
 export interface SaveGopayAccountProfileRequest {
@@ -549,7 +550,6 @@ export interface SaveGopayAccountProfileRequest {
   wa_phone: string;
   country_code: string;
   otp_channel: string;
-  /** 仅写入；响应不返回 PIN */
   pin: string;
 }
 
@@ -562,6 +562,7 @@ export interface SaveGopayAccountProfileResponse {
   updated_at_unix: number;
   otp_channel: string;
   pin_configured: boolean;
+  pin: string;
 }
 
 export interface StartGopayPaymentRequest {

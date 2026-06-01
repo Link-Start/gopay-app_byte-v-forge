@@ -124,7 +124,7 @@ function WorkflowTab({ configured, workflows, loading }: {
       </Alert>
       <div className="grid gap-3 md:grid-cols-2">
         <InfoCard icon={<KeyRound size={16} />} title="账户状态" badge="gopay-app" text="GoPayAccount 持久化、状态缓存、Profile 与账号动作都在 gopay-app 侧。" />
-        <InfoCard icon={<RefreshCw size={16} />} title="OTP" badge="channel+target" text="WA/SMS OTP 统一按 channel + target + otp 投递，不再绑定 GPT 账户接口。" />
+        <InfoCard icon={<RefreshCw size={16} />} title="OTP" badge="channel+account" text="WA/SMS 自动 OTP 按 channel + target 投递；账号详情提供一次性手动兜底，不写入缓存或历史。" />
       </div>
       <div className="grid gap-2">{workflows.map((item) => <div key={item.key} className="flex items-center justify-between rounded-xl border bg-card p-3 text-sm"><span>{item.label}</span><code className="text-xs text-muted-foreground">{item.webhook_path}</code></div>)}</div>
       <Button variant="outline" asChild><a href="/workflow" target="_blank" rel="noreferrer">打开 Workflow 状态页</a></Button>

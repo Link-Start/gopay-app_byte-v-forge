@@ -80,6 +80,14 @@ func channelOTPIndexKeys(channel string, target string) []string {
 	return out
 }
 
+func channelOTPAccountIndexKey(accountID string) string {
+	accountID = strings.TrimSpace(accountID)
+	if accountID == "" {
+		return ""
+	}
+	return "channel-otp-wait:account:" + accountID
+}
+
 func normalizeChannelOTPTarget(channel string, target string) string {
 	target = strings.TrimSpace(target)
 	if target == "" {

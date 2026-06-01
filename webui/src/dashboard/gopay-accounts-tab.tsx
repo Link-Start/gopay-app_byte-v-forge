@@ -1,9 +1,8 @@
 import { WalletCards } from 'lucide-react';
 import {
   ACCOUNT_PAGE_SIZE,
-  AccountManagementView,
+  AccountManagementDrawerView,
   Badge,
-  DetailDrawer,
   accountCarrierID,
   accountSubject,
   submitAccountWorkflowAction,
@@ -76,32 +75,37 @@ export function GoPayAccountsTab({
   }
 
   return (
-    <>
-      <AccountManagementView
-        title="GoPayAccount"
-        icon={<WalletCards size={16} />}
-        actions={<GoPayAccountAdd disabled={busy} onCreated={onCreated} onError={(message) => onError(message)} />}
-        carriers={controller.accounts}
-        selectedID={controller.selectedID}
-        loading={controller.isLoading}
-        loadingText="加载 GoPayAccount..."
-        emptyText="暂无已持久化 GoPayAccount"
-        onSelectCarrier={controller.selectAccount}
-        config={goPayAccountRenderConfig}
-        pagination={controller.accountsPagination}
-        renderChildren={(carrier) => <GoPayAccountMeta account={carrier} />}
-      />
-      <DetailDrawer open={!!controller.selected} title="GoPay账号详情" size="wide" onClose={controller.clearSelection}>
-        {controller.selected && (
-          <GoPayAccountDetails
-            account={controller.selected}
-            actionCatalog={actionCatalog}
-            busy={busy}
-            onRunAction={(spec, payload) => runAction(controller.selected!, spec, payload)}
-          />
-        )}
-      </DetailDrawer>
-    </>
+    <AccountManagementDrawerView
+      title="GoPayAccount"
+      icon={<WalletCards size={16} />}
+      actions={<GoPayAccountAdd disabled={busy} onCreated={onCreated} onError={(message) => onError(message)} />}
+      carriers={controller.accounts}
+      selectedCarrier={controller.selected}
+      selectedID={controller.selectedID}
+      loading={controller.isLoading}
+      loadingText="加载 GoPayAccount..."
+      emptyText="暂无已持久化 GoPayAccount"
+      onSelectCarrier={controller.selectAccount}
+      config={goPayAccountRenderConfig}
+      pagination={controller.accountsPagination}
+      renderChildren={(carrier) => <GoPayAccountMeta account={carrier} />}
+      drawerTitle="GoPay账号详情"
+      detail={(account) => (
+        <GoPayAccountDetails
+          account={account}
+          actionCatalog={actionCatalog}
+          busy={busy}
+          onOTPSubmitted={async () => {
+            await controller.invalidate();
+            await queryClient.invalidateQueries({ queryKey: goPayKeys.profile(accountCarrierID(account)) });
+          }}
+          onToast={onToast}
+          onError={onError}
+          onRunAction={(spec, payload) => runAction(account, spec, payload)}
+        />
+      )}
+      onCloseDetails={controller.clearSelection}
+    />
   );
 }
 

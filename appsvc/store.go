@@ -155,6 +155,11 @@ func (s *StateStore) RegisterChannelOTPWait(ctx context.Context, entry channelOT
 		pipe.SAdd(ctx, key, entry.JobID)
 		pipe.Expire(ctx, key, ttl)
 	}
+	if accountIndex := channelOTPAccountIndexKey(entry.AccountID); accountIndex != "" {
+		key := s.redisKey(accountIndex)
+		pipe.SAdd(ctx, key, entry.JobID)
+		pipe.Expire(ctx, key, ttl)
+	}
 	_, err = pipe.Exec(ctx)
 	return err
 }
@@ -187,6 +192,32 @@ func (s *StateStore) PendingChannelOTPWaits(ctx context.Context, channel string,
 			}
 			out = append(out, entry)
 		}
+	}
+	return out, nil
+}
+
+func (s *StateStore) PendingAccountOTPWaits(ctx context.Context, accountID string, receivedAtUnix int64) ([]channelOTPWaitEntry, error) {
+	if s == nil || s.client == nil {
+		return nil, fmt.Errorf("gopay-app channel otp wait store is not configured")
+	}
+	accountIndex := channelOTPAccountIndexKey(accountID)
+	if accountIndex == "" {
+		return nil, nil
+	}
+	ids, err := s.client.SMembers(ctx, s.redisKey(accountIndex)).Result()
+	if err != nil {
+		return nil, err
+	}
+	out := []channelOTPWaitEntry{}
+	for _, id := range cleanStrings(ids...) {
+		entry, found, err := s.LoadChannelOTPWait(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		if !found || !channelOTPWaitAccepts(entry, receivedAtUnix) {
+			continue
+		}
+		out = append(out, entry)
 	}
 	return out, nil
 }
@@ -225,6 +256,9 @@ func (s *StateStore) DeleteChannelOTPWait(ctx context.Context, entry channelOTPW
 	pipe.Del(ctx, s.redisKey("channel-otp-wait:job:"+entry.JobID), s.redisKey("channel-otp-wait:claim:"+entry.JobID))
 	for _, index := range channelOTPIndexKeys(entry.Channel, entry.Target) {
 		pipe.SRem(ctx, s.redisKey("channel-otp-wait:index:"+index), entry.JobID)
+	}
+	if accountIndex := channelOTPAccountIndexKey(entry.AccountID); accountIndex != "" {
+		pipe.SRem(ctx, s.redisKey(accountIndex), entry.JobID)
 	}
 	_, err := pipe.Exec(ctx)
 	return err

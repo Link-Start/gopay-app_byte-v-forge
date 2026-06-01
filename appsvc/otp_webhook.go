@@ -30,9 +30,12 @@ type otpWebhookResponse struct {
 }
 
 type otpSubmitPayload struct {
-	Channel string `json:"channel"`
-	Target  string `json:"target"`
-	OTP     string `json:"otp"`
+	GopayAccountID string `json:"gopay_account_id,omitempty"`
+	Channel        string `json:"channel"`
+	Target         string `json:"target"`
+	OTP            string `json:"otp"`
+	OTPSource      string `json:"otp_source,omitempty"`
+	ManualOnce     bool   `json:"manual_once,omitempty"`
 }
 
 func StartOTPWebhook(addr string, submitURL string) (*OTPWebhookServer, error) {
