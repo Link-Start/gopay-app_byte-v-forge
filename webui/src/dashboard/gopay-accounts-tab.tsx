@@ -6,8 +6,7 @@ import {
   accountCarrierID,
   accountSubjectRenderConfig,
   deleteAccountCarrier,
-  submitAccountWorkflowAction,
-  useAsyncActionRunner,
+  useAccountWorkflowActionRunner,
   useQueryClient,
   type AccountListPagination,
   type AccountManagementControllerOptions,
@@ -54,29 +53,31 @@ export function GoPayAccountsTab({
   onToast: (kind: 'error' | 'ok', message: string) => void;
   onError: (message: unknown) => void;
 }) {
-  const runner = useAsyncActionRunner();
   const queryClient = useQueryClient();
+  const runner = useAccountWorkflowActionRunner<GoPayAccountProjection, AccountActionCatalog>({
+    catalog: actionCatalog,
+    pathPrefix: '/api/gopay',
+    actionKeyPrefix: 'gopay',
+    toast: { showError: onError, showToast: onToast },
+    onSuccess: async ({ account }) => {
+      await controller.invalidate();
+      await queryClient.invalidateQueries({ queryKey: goPayKeys.profile(accountCarrierID(account)) });
+    },
+    onError,
+  });
   const busy = controller.isLoading || controller.actionBusy || runner.busy || loadingCatalog;
 
   async function runAction(account: GoPayAccountProjection, spec: GoPayAccountActionSpec, extra: Record<string, unknown> = {}) {
-    const accountID = accountCarrierID(account);
-    const result = await runner.tryRun(`gopay:${spec.actionID}:${accountID}`, () => submitAccountWorkflowAction({
-      catalog: actionCatalog,
+    return runner.runWorkflowAction({
       actionID: spec.actionID,
-      pathPrefix: '/api/gopay',
+      account,
       payload: goPayWorkflowPayload(account, spec, extra),
-      toast: { showError: onError, showToast: onToast },
-      onSuccess: async () => {
-        await controller.invalidate();
-        await queryClient.invalidateQueries({ queryKey: goPayKeys.profile(accountID) });
-      },
-    }), { onError });
-    return result.ok && !result.value.error_message;
+    });
   }
 
   async function deleteAccount(account: GoPayAccountProjection) {
     const accountID = accountCarrierID(account);
-    await runner.tryRun(`gopay:delete:${accountID}`, async () => {
+    await runner.tryRunAccountAction('gopay:delete', account, async () => {
       const deleted = await deleteAccountCarrier(account, {
         deleteByID: () => deleteGoPayAccount(account),
         confirmMessage: () => `删除 GoPayAccount ${accountID}？`,
