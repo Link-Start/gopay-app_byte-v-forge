@@ -1,5 +1,6 @@
 import { KeyRound, RefreshCw, WalletCards } from 'lucide-react';
 import {
+  AccountPhoneProbeToolbox,
   ToastMessage,
   WorkflowStatusPanel,
   WorkspaceTabbedPanel,
@@ -13,9 +14,8 @@ import type { ListGopayAccountsResponse } from '../proto/gopay_app';
 import type { GoPayAccountProjection, GoPayPhoneCheckResponse } from './gopay-api';
 import { checkGoPayPhone, getGoPayActionCatalog, getGoPayHealth, goPayKeys } from './gopay-api';
 import { GoPayAccountsTab, goPayAccountControllerOptions } from './gopay-accounts-tab';
-import { GoPayPhoneCheckForm } from './gopay-phone-check-form';
 import { GoPayPhoneResult } from './gopay-phone-result';
-import type { GoPayResolvedPhone } from './gopay-phone-utils';
+import { resolveGoPayPhone, type GoPayResolvedPhone } from './gopay-phone-utils';
 
 type GoPayTab = 'accounts' | 'toolbox' | 'workflows';
 
@@ -85,16 +85,21 @@ function ToolboxTab(props: {
   onCheck: (target: GoPayResolvedPhone) => void | Promise<void>;
   onError: (message: string) => void;
 }) {
-  const hasResult = props.busy || props.result || props.phone;
   return (
-    <div className="p-3">
-      <GoPayPhoneCheckForm
-        disabled={props.busy}
-        resultSlot={hasResult ? <GoPayPhoneResult phone={props.phone} result={props.result} loading={props.busy} /> : undefined}
-        onCheck={props.onCheck}
-        onError={props.onError}
-      />
-    </div>
+    <AccountPhoneProbeToolbox<GoPayResolvedPhone, GoPayPhoneCheckResponse>
+      title="GoPay 号码检测"
+      subject={props.phone}
+      result={props.result}
+      busy={props.busy}
+      emptyResultText="结果：是否已注册"
+      countryPlaceholder="+62"
+      phonePlaceholder="81234567890"
+      actionLabel="检测 GoPay 号码状态"
+      resolve={(values) => ({ target: resolveGoPayPhone(values.phone, values.country_calling_code), error: '请输入手机号和国家拨号码，例如手机号 81234567890、拨号码 62。' })}
+      renderResult={({ subject, result, loading }) => <GoPayPhoneResult phone={subject} result={result} loading={loading} />}
+      onSubmit={props.onCheck}
+      onError={props.onError}
+    />
   );
 }
 
