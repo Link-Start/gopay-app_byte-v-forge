@@ -1,12 +1,11 @@
-import { useState } from 'react';
 import { KeyRound, RefreshCw, WalletCards } from 'lucide-react';
 import {
   ToastMessage,
   WorkflowStatusPanel,
   WorkspaceTabbedPanel,
   accountCarrierID,
+  useAccountProbeAction,
   useAccountManagementController,
-  useAsyncActionRunner,
   useQuery,
   useToastMessage,
 } from '@byte-v-forge/common-ui';
@@ -25,9 +24,13 @@ export function GoPayPage() {
   const health = useQuery({ queryKey: goPayKeys.health, queryFn: getGoPayHealth, refetchInterval: 10000 });
   const actionCatalog = useQuery({ queryKey: goPayKeys.actionCatalog, queryFn: getGoPayActionCatalog, staleTime: 60000 });
   const accounts = useAccountManagementController<GoPayAccountProjection, ListGopayAccountsResponse>(goPayAccountControllerOptions);
-  const [phone, setPhone] = useState('');
-  const [result, setResult] = useState<GoPayPhoneCheckResponse | null>(null);
-  const runner = useAsyncActionRunner();
+  const phoneProbe = useAccountProbeAction<GoPayResolvedPhone, GoPayPhoneCheckResponse>({
+    actionKey: 'gopay-phone-check',
+    subjectOf: (target) => target.e164,
+    probe: (target) => checkGoPayPhone({ phone: target.phone, country_code: target.country_code }),
+    onSuccess: () => toast.showOK('GoPay 号码检测完成'),
+    onError: toast.showError,
+  });
   const workflows = health.data?.workflows || [{ key: 'gopay-account', label: 'GoPayAccount 编排', webhook_path: 'gopay-app/account' }];
 
   async function accountCreated(account: GoPayAccountProjection) {
@@ -35,16 +38,6 @@ export function GoPayPage() {
     accounts.setSelectedID(accountCarrierID(account));
     toast.showOK('GoPayAccount 已添加');
     await accounts.invalidate();
-  }
-
-  async function checkPhone(target: GoPayResolvedPhone) {
-    setPhone(target.e164);
-    setResult(null);
-    await runner.tryRun('gopay-phone-check', async () => {
-      const output = await checkGoPayPhone({ phone: target.phone, country_code: target.country_code });
-      setResult(output);
-      toast.showOK('GoPay 号码检测完成');
-    }, { onError: toast.showError });
   }
 
   return (
@@ -72,7 +65,7 @@ export function GoPayPage() {
           {
             value: 'toolbox',
             label: '工具箱',
-            content: <ToolboxTab phone={phone} result={result} busy={runner.busy} onCheck={checkPhone} onError={toast.showError} />,
+            content: <ToolboxTab phone={phoneProbe.subject} result={phoneProbe.result} busy={phoneProbe.busy} onCheck={phoneProbe.run} onError={toast.showError} />,
           },
           {
             value: 'workflows',
