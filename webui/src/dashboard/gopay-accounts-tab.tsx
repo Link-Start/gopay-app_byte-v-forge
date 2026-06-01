@@ -5,10 +5,9 @@ import {
   Badge,
   accountCarrierID,
   accountSubjectRenderConfig,
-  deleteAccountCarrier,
   useAccountWorkflowActionRunner,
   useQueryClient,
-  type AccountListPagination,
+  type AccountManagementController,
   type AccountManagementControllerOptions,
 } from '@byte-v-forge/common-ui';
 import type { AccountActionCatalog } from '@byte-v-forge/common-ui/proto/byte/v/forge/contracts/account/v1/account';
@@ -17,18 +16,6 @@ import { deleteGoPayAccount, getGoPayAccounts, goPayKeys, type GoPayAccountProje
 import { GoPayAccountAdd } from './gopay-account-add';
 import { GoPayAccountDetails } from './gopay-account-details';
 import type { GoPayAccountActionSpec } from './gopay-account-action-specs';
-
-type GoPayAccountController = {
-  accounts: GoPayAccountProjection[];
-  selectedID: string;
-  selected: GoPayAccountProjection | null;
-  isLoading: boolean;
-  actionBusy: boolean;
-  accountsPagination?: AccountListPagination;
-  invalidate: () => Promise<void>;
-  selectAccount: (account: GoPayAccountProjection) => void;
-  clearSelection: () => void;
-};
 
 export const goPayAccountControllerOptions = {
   queryKey: goPayKeys.accounts,
@@ -46,7 +33,7 @@ export function GoPayAccountsTab({
   onToast,
   onError,
 }: {
-  controller: GoPayAccountController;
+  controller: AccountManagementController<GoPayAccountProjection, ListGopayAccountsResponse>;
   actionCatalog?: AccountActionCatalog;
   loadingCatalog?: boolean;
   onCreated: (account: GoPayAccountProjection) => void | Promise<void>;
@@ -77,18 +64,16 @@ export function GoPayAccountsTab({
 
   async function deleteAccount(account: GoPayAccountProjection) {
     const accountID = accountCarrierID(account);
-    await runner.tryRunAccountAction('gopay:delete', account, async () => {
-      const deleted = await deleteAccountCarrier(account, {
-        deleteByID: () => deleteGoPayAccount(account),
-        confirmMessage: () => `删除 GoPayAccount ${accountID}？`,
-        invalidate: async () => {
-          controller.clearSelection();
-          await controller.invalidate();
-          queryClient.removeQueries({ queryKey: goPayKeys.profile(accountID) });
-        },
-      });
-      if (deleted) onToast('ok', 'GoPayAccount 已删除');
-    }, { onError });
+    await controller.deleteAccount(account, () => deleteGoPayAccount(account), {
+      actionID: 'gopay:delete',
+      confirmMessage: () => `删除 GoPayAccount ${accountID}？`,
+      onSuccess: (deleted) => {
+        if (!deleted) return;
+        queryClient.removeQueries({ queryKey: goPayKeys.profile(accountID) });
+        onToast('ok', 'GoPayAccount 已删除');
+      },
+      onError,
+    });
   }
 
   return (
