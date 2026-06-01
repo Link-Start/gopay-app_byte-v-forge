@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   ActionSection,
+  AccountCarrierManualOTPSubmit,
   AccountDangerZone,
   AccountDetailActionSection,
   AccountDetailTabs,
@@ -13,7 +14,7 @@ import {
   type ActionButtonDescriptor,
 } from '@byte-v-forge/common-ui';
 import type { AccountActionCatalog } from '@byte-v-forge/common-ui/proto/byte/v/forge/contracts/account/v1/account';
-import { getGoPayAccountProfile, goPayKeys, type GoPayAccountProjection } from './gopay-api';
+import { getGoPayAccountProfile, goPayKeys, submitGoPayManualOTP, type GoPayAccountProjection } from './gopay-api';
 import {
   GOPAY_ACCOUNT_LIFECYCLE_ACTIONS,
   GOPAY_ACCOUNT_PRIMARY_ACTIONS,
@@ -21,7 +22,6 @@ import {
   type GoPayAccountActionSpec,
 } from './gopay-account-action-specs';
 import { GoPayAccountPINDialog } from './gopay-account-pin-dialog';
-import { GoPayManualOTPSubmit } from './gopay-manual-otp-submit';
 
 export function GoPayAccountDetails({
   account,
@@ -107,7 +107,19 @@ function GoPayAccountOverview({
         </div>
         <GoPayAccountBadges account={account} pinConfigured={pinConfigured} />
       </section>
-      <GoPayManualOTPSubmit account={account} disabled={busy} onSubmitted={onOTPSubmitted} onToast={onToast} onError={onError} />
+      <AccountCarrierManualOTPSubmit
+        account={account}
+        keyPrefix="gopay-manual-otp"
+        subtitle="GoPay 流程等待 OTP 时可从这里一次性提交；只恢复当前等待流程，不写入 OTP 缓存或历史。"
+        disabled={busy}
+        inputLabel="GoPay OTP"
+        submit={submitGoPayManualOTP}
+        onSuccess={async (resp) => {
+          onToast('ok', resp.resume_count ? `已恢复 ${resp.resume_count} 个 GoPay OTP 流程` : 'GoPay OTP 已提交');
+          await onOTPSubmitted?.();
+        }}
+        onError={onError}
+      />
       <ActionSection title="账户详情">
         <KVList items={[
           { label: 'GoPayAccount ID', value: accountID, mono: true },
