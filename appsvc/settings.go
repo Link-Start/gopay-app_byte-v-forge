@@ -40,6 +40,9 @@ func normalizeGoPayRegisterIndonesiaWASettings(in *pb.GoPayRegisterIndonesiaWASe
 	if value := in.GetPhoneNumberMaxAttempts(); value > 0 {
 		out.PhoneNumberMaxAttempts = value
 	}
+	if value := strings.TrimSpace(in.GetSmsMinPriceAmountDecimal()); value != "" && goPaySMSPricePattern.MatchString(value) {
+		out.SmsMinPriceAmountDecimal = value
+	}
 	if value := strings.TrimSpace(in.GetSmsMaxPriceAmountDecimal()); value != "" && goPaySMSPricePattern.MatchString(value) {
 		out.SmsMaxPriceAmountDecimal = value
 	}
@@ -113,6 +116,7 @@ func (h gopayHTTPHandler) registerIndonesiaWASettings(ctx context.Context, req g
 	return h.baseResult(req, "register_indonesia_wa_settings", true, map[string]any{
 		"sms_acquire_wait_seconds":     settings.GetSmsAcquireWaitSeconds(),
 		"sms_min_available_count":      settings.GetSmsMinAvailableCount(),
+		"sms_min_price_amount_decimal": settings.GetSmsMinPriceAmountDecimal(),
 		"sms_max_price_amount_decimal": settings.GetSmsMaxPriceAmountDecimal(),
 		"phone_number_max_attempts":    settings.GetPhoneNumberMaxAttempts(),
 	}), nil

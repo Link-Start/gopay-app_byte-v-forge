@@ -67,6 +67,7 @@ message GoPayRegisterIndonesiaWASettings {
   reserved 7;
   reserved "sms_max_price_currency_code";
   int32 phone_number_max_attempts = 8;
+  string sms_min_price_amount_decimal = 9;
 }
 
 message GetGoPaySettingsRequest {}

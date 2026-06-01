@@ -6,6 +6,7 @@ import type { GoPayRegisterIndonesiaWASettings } from '../proto/gopay_app';
 const defaults: GoPayRegisterIndonesiaWASettings = {
   sms_acquire_wait_seconds: 90,
   sms_min_available_count: 1,
+  sms_min_price_amount_decimal: '',
   sms_max_price_amount_decimal: '',
   phone_number_max_attempts: 10
 };
@@ -51,9 +52,14 @@ export function GoPaySettingsTab({ settings, loading, saving, onSave }: {
           <DashboardField label="号码最大重试次数">
             <Input min={1} type="number" {...form.register('phone_number_max_attempts', { valueAsNumber: true })} />
           </DashboardField>
-          <DashboardField label="SMS 最大单价（USD）">
-            <Input placeholder="例如 0.50；留空不限制" {...form.register('sms_max_price_amount_decimal')} />
-          </DashboardField>
+          <div className="grid grid-cols-2 gap-3">
+            <DashboardField label="SMS 最小单价（USD）">
+              <Input placeholder="例如 0.226；留空不限制" {...form.register('sms_min_price_amount_decimal')} />
+            </DashboardField>
+            <DashboardField label="SMS 最大单价（USD）">
+              <Input placeholder="例如 0.226；留空不限制" {...form.register('sms_max_price_amount_decimal')} />
+            </DashboardField>
+          </div>
         </section>
       </div>
     </form>
@@ -64,6 +70,7 @@ function normalizeSettings(settings?: GoPayRegisterIndonesiaWASettings): GoPayRe
   return {
     sms_acquire_wait_seconds: positiveNumber(settings?.sms_acquire_wait_seconds, defaults.sms_acquire_wait_seconds),
     sms_min_available_count: positiveNumber(settings?.sms_min_available_count, defaults.sms_min_available_count),
+    sms_min_price_amount_decimal: normalizePrice(settings?.sms_min_price_amount_decimal),
     sms_max_price_amount_decimal: normalizePrice(settings?.sms_max_price_amount_decimal),
     phone_number_max_attempts: positiveNumber(settings?.phone_number_max_attempts, defaults.phone_number_max_attempts)
   };

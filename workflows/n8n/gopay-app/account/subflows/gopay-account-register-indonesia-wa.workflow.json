@@ -80,7 +80,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ (() => { const s = $json.register_indonesia_wa_settings || {}; const params = { application_key: 'whatsapp', country_iso2: 'ID', country_calling_code: '62', min_available_count: Number(s.sms_min_available_count || 1) }; if (s.sms_max_price_amount_decimal) params.max_price = { amount_decimal: String(s.sms_max_price_amount_decimal), currency_code: 'USD' }; return { request_id: 'gopay-register-indonesia-wa-' + $json.job_id + '-' + String($json.phone_attempt || 1), lease_duration: '900s', acquire_params: params }; })() }}",
+        "jsonBody": "={{ (() => { const s = $json.register_indonesia_wa_settings || {}; const params = { application_key: 'whatsapp', country_iso2: 'ID', country_calling_code: '62', min_available_count: Number(s.sms_min_available_count || 1) }; if (s.sms_min_price_amount_decimal) params.min_price = { amount_decimal: String(s.sms_min_price_amount_decimal), currency_code: 'USD' }; if (s.sms_max_price_amount_decimal) params.max_price = { amount_decimal: String(s.sms_max_price_amount_decimal), currency_code: 'USD' }; return { request_id: 'gopay-register-indonesia-wa-' + $json.job_id + '-' + String($json.phone_attempt || 1), lease_duration: '900s', acquire_params: params }; })() }}",
         "options": {
           "response": {
             "response": {

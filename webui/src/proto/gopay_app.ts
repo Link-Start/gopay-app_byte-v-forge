@@ -71,6 +71,7 @@ export interface GoPayRegisterIndonesiaWASettings {
   sms_min_available_count: number;
   sms_max_price_amount_decimal: string;
   phone_number_max_attempts: number;
+  sms_min_price_amount_decimal: string;
 }
 
 export interface GetGoPaySettingsRequest {

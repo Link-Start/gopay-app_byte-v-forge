@@ -461,6 +461,7 @@ type GoPayRegisterIndonesiaWASettings struct {
 	SmsMinAvailableCount     int32                  `protobuf:"varint,5,opt,name=sms_min_available_count,json=smsMinAvailableCount,proto3" json:"sms_min_available_count,omitempty"`
 	SmsMaxPriceAmountDecimal string                 `protobuf:"bytes,6,opt,name=sms_max_price_amount_decimal,json=smsMaxPriceAmountDecimal,proto3" json:"sms_max_price_amount_decimal,omitempty"`
 	PhoneNumberMaxAttempts   int32                  `protobuf:"varint,8,opt,name=phone_number_max_attempts,json=phoneNumberMaxAttempts,proto3" json:"phone_number_max_attempts,omitempty"`
+	SmsMinPriceAmountDecimal string                 `protobuf:"bytes,9,opt,name=sms_min_price_amount_decimal,json=smsMinPriceAmountDecimal,proto3" json:"sms_min_price_amount_decimal,omitempty"`
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
 }
@@ -521,6 +522,13 @@ func (x *GoPayRegisterIndonesiaWASettings) GetPhoneNumberMaxAttempts() int32 {
 		return x.PhoneNumberMaxAttempts
 	}
 	return 0
+}
+
+func (x *GoPayRegisterIndonesiaWASettings) GetSmsMinPriceAmountDecimal() string {
+	if x != nil {
+		return x.SmsMinPriceAmountDecimal
+	}
+	return ""
 }
 
 type GetGoPaySettingsRequest struct {
@@ -5944,12 +5952,13 @@ const file_gopay_app_proto_rawDesc = "" +
 	"-StartGoPayRegisterIndonesiaWAWorkflowResponse\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12\x18\n" +
 	"\astarted\x18\x02 \x01(\bR\astarted\x12#\n" +
-	"\rerror_message\x18\x03 \x01(\tR\ferrorMessage\"\xfb\x02\n" +
+	"\rerror_message\x18\x03 \x01(\tR\ferrorMessage\"\xbb\x03\n" +
 	" GoPayRegisterIndonesiaWASettings\x127\n" +
 	"\x18sms_acquire_wait_seconds\x18\x04 \x01(\x05R\x15smsAcquireWaitSeconds\x125\n" +
 	"\x17sms_min_available_count\x18\x05 \x01(\x05R\x14smsMinAvailableCount\x12>\n" +
 	"\x1csms_max_price_amount_decimal\x18\x06 \x01(\tR\x18smsMaxPriceAmountDecimal\x129\n" +
-	"\x19phone_number_max_attempts\x18\b \x01(\x05R\x16phoneNumberMaxAttemptsJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03J\x04\b\x03\x10\x04J\x04\b\a\x10\bR\x13sms_application_keyR\fcountry_iso2R\x14country_calling_codeR\x1bsms_max_price_currency_code\"\x19\n" +
+	"\x19phone_number_max_attempts\x18\b \x01(\x05R\x16phoneNumberMaxAttempts\x12>\n" +
+	"\x1csms_min_price_amount_decimal\x18\t \x01(\tR\x18smsMinPriceAmountDecimalJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03J\x04\b\x03\x10\x04J\x04\b\a\x10\bR\x13sms_application_keyR\fcountry_iso2R\x14country_calling_codeR\x1bsms_max_price_currency_code\"\x19\n" +
 	"\x17GetGoPaySettingsRequest\"\xba\x01\n" +
 	"\x18GetGoPaySettingsResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12#\n" +
