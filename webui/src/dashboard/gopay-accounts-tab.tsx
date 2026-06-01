@@ -4,14 +4,13 @@ import {
   AccountManagementDrawerView,
   Badge,
   accountCarrierID,
+  accountSubjectRenderConfig,
   deleteAccountCarrier,
-  accountSubject,
   submitAccountWorkflowAction,
   useAsyncActionRunner,
   useQueryClient,
   type AccountListPagination,
   type AccountManagementControllerOptions,
-  type AccountRenderConfig,
 } from '@byte-v-forge/common-ui';
 import type { AccountActionCatalog } from '@byte-v-forge/common-ui/proto/byte/v/forge/contracts/account/v1/account';
 import type { ListGopayAccountsResponse } from '../proto/gopay_app';
@@ -127,12 +126,7 @@ export function GoPayAccountsTab({
   );
 }
 
-const goPayAccountRenderConfig: AccountRenderConfig = {
-  icon: () => <WalletCards size={15} />,
-  title: (record) => <span className="font-mono">{accountSubject(record) || record.key?.account_id}</span>,
-  subtitle: (record) => record.key?.account_id || '',
-  meta: (record) => <span className="text-xs text-muted-foreground">{record.status?.label || record.status?.value || '-'}</span>,
-};
+const goPayAccountRenderConfig = accountSubjectRenderConfig({ icon: () => <WalletCards size={15} /> });
 
 function GoPayAccountMeta({ account }: { account: GoPayAccountProjection }) {
   return (
