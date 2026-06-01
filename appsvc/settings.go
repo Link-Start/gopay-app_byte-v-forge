@@ -120,10 +120,12 @@ func (h gopayHTTPHandler) registerIndonesiaWASettings(ctx context.Context, req g
 
 func (h gopayHTTPHandler) generateSharedPhoneCheckProxy(ctx context.Context, req gopayActionRequest) (*gopayActionResult, error) {
 	countryCode := firstNonEmpty(req.CountryCode, mapString(req.Data, "country_code"), mapString(req.Data, "country_calling_code"), "62")
+	requireLineProxy := false
 	if normalizeGoPayWorkflowOperation(req.Operation) == registerIndonesiaWAWorkflowOperation {
 		countryCode = firstNonEmpty(mapString(req.Data, "proxy_country_code"), "US")
+		requireLineProxy = true
 	}
-	state, err := h.service.generateDeviceProxyStateWithLeaseTTL(ctx, "", countryCode, true, true, true, goPayProxyLeaseTTL)
+	state, err := h.service.generateDeviceProxyStateWithOptions(ctx, "", countryCode, true, true, true, goPayProxyLeaseTTL, requireLineProxy)
 	rawState := stateJSON(state)
 	_ = h.service.saveSharedPhoneCheckProxyState(ctx, req.JobID, rawState)
 	data := h.service.deviceProxyDiagnostics(state)

@@ -12,6 +12,10 @@ func (s *Server) generateDeviceProxyState(ctx context.Context, accountID string,
 }
 
 func (s *Server) generateDeviceProxyStateWithLeaseTTL(ctx context.Context, accountID string, countryCode string, forceNew bool, skipPreflight bool, ephemeralProfile bool, leaseTTLOverride string) (stateMap, error) {
+	return s.generateDeviceProxyStateWithOptions(ctx, accountID, countryCode, forceNew, skipPreflight, ephemeralProfile, leaseTTLOverride, false)
+}
+
+func (s *Server) generateDeviceProxyStateWithOptions(ctx context.Context, accountID string, countryCode string, forceNew bool, skipPreflight bool, ephemeralProfile bool, leaseTTLOverride string, requireLineProxy bool) (stateMap, error) {
 	identity := strings.TrimSpace(accountID)
 	if identity == "" {
 		identity = "local"
@@ -41,7 +45,7 @@ func (s *Server) generateDeviceProxyStateWithLeaseTTL(ctx context.Context, accou
 	if value := strings.TrimSpace(leaseTTLOverride); value != "" {
 		leaseTTL = value
 	}
-	if err := s.ensureProxyRuntimeSession(ctx, state, proxyRuntimeAcquireOptions{AccountID: identity, CountryCode: countryCode, ForceNew: forceNew, SkipPreflight: skipPreflight, LeaseTTL: leaseTTL}); err != nil {
+	if err := s.ensureProxyRuntimeSession(ctx, state, proxyRuntimeAcquireOptions{AccountID: identity, CountryCode: countryCode, ForceNew: forceNew, SkipPreflight: skipPreflight, LeaseTTL: leaseTTL, RequireLineProxy: requireLineProxy}); err != nil {
 		return state, err
 	}
 	if !ephemeralProfile {

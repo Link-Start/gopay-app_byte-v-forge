@@ -15,11 +15,12 @@ var goPayProxyConnectivityTargets = []string{
 }
 
 type proxyRuntimeAcquireOptions struct {
-	AccountID     string
-	CountryCode   string
-	ForceNew      bool
-	SkipPreflight bool
-	LeaseTTL      string
+	AccountID        string
+	CountryCode      string
+	ForceNew         bool
+	SkipPreflight    bool
+	LeaseTTL         string
+	RequireLineProxy bool
 }
 
 type proxyRuntimeLeaseResponse struct {

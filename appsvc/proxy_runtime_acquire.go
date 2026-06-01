@@ -21,7 +21,7 @@ func (s *Server) ensureProxyRuntimeSession(ctx context.Context, state stateMap, 
 	if !options.ForceNew && proxyRuntimeLeaseActive(state) && stateString(state, "_gopay_proxy") != "" && stateString(state, "_proxy_runtime_listener_id") != "" {
 		return nil
 	}
-	sessionData, err := s.createProxyRuntimeSession(ctx, state, proxyRuntimeAcquireOptions{AccountID: identity, CountryCode: options.CountryCode, ForceNew: options.ForceNew, SkipPreflight: options.SkipPreflight, LeaseTTL: options.LeaseTTL})
+	sessionData, err := s.createProxyRuntimeSession(ctx, state, proxyRuntimeAcquireOptions{AccountID: identity, CountryCode: options.CountryCode, ForceNew: options.ForceNew, SkipPreflight: options.SkipPreflight, LeaseTTL: options.LeaseTTL, RequireLineProxy: options.RequireLineProxy})
 	if err != nil {
 		return err
 	}
@@ -43,11 +43,11 @@ func (s *Server) createProxyRuntimeSession(ctx context.Context, state stateMap, 
 	countryCode := normalizeGoPayProxyCountryCode(options.CountryCode)
 	leaseTTL := firstNonEmpty(options.LeaseTTL, goPayProxyLeaseTTL)
 	if options.SkipPreflight {
-		return s.acquireProxyRuntimeSession(ctx, baseURL, state, identity, countryCode, options.ForceNew, leaseTTL, 1, true)
+		return s.acquireProxyRuntimeSession(ctx, baseURL, state, identity, countryCode, options.ForceNew, leaseTTL, 1, true, options.RequireLineProxy)
 	}
 	var lastErr error
 	for attempt := 1; attempt <= goPayProxyPreflightMaxAttempts; attempt++ {
-		attemptData, err := s.acquireAndPreflightProxyRuntimeSession(ctx, baseURL, state, identity, countryCode, options.ForceNew || attempt > 1, leaseTTL, attempt)
+		attemptData, err := s.acquireAndPreflightProxyRuntimeSession(ctx, baseURL, state, identity, countryCode, options.ForceNew || attempt > 1, leaseTTL, attempt, options.RequireLineProxy)
 		if err == nil {
 			attemptData["_proxy_runtime_preflight_attempts"] = attempt
 			return attemptData, nil
@@ -57,8 +57,8 @@ func (s *Server) createProxyRuntimeSession(ctx context.Context, state stateMap, 
 	return nil, fmt.Errorf("gopay dynamic IP preflight failed after %d attempts: %w", goPayProxyPreflightMaxAttempts, lastErr)
 }
 
-func (s *Server) acquireAndPreflightProxyRuntimeSession(ctx context.Context, baseURL string, state stateMap, identity string, countryCode string, forceNew bool, leaseTTL string, attempt int) (map[string]any, error) {
-	out, listenerID, exitIP, err := s.acquireProxyRuntimeSessionWithListener(ctx, baseURL, state, identity, countryCode, forceNew, leaseTTL, attempt, false)
+func (s *Server) acquireAndPreflightProxyRuntimeSession(ctx context.Context, baseURL string, state stateMap, identity string, countryCode string, forceNew bool, leaseTTL string, attempt int, requireLineProxy bool) (map[string]any, error) {
+	out, listenerID, exitIP, err := s.acquireProxyRuntimeSessionWithListener(ctx, baseURL, state, identity, countryCode, forceNew, leaseTTL, attempt, false, requireLineProxy)
 	if err != nil {
 		return nil, err
 	}
@@ -94,12 +94,12 @@ func (s *Server) acquireAndPreflightProxyRuntimeSession(ctx context.Context, bas
 	return out, nil
 }
 
-func (s *Server) acquireProxyRuntimeSession(ctx context.Context, baseURL string, state stateMap, identity string, countryCode string, forceNew bool, leaseTTL string, attempt int, skipPreflight bool) (map[string]any, error) {
-	out, _, _, err := s.acquireProxyRuntimeSessionWithListener(ctx, baseURL, state, identity, countryCode, forceNew, leaseTTL, attempt, skipPreflight)
+func (s *Server) acquireProxyRuntimeSession(ctx context.Context, baseURL string, state stateMap, identity string, countryCode string, forceNew bool, leaseTTL string, attempt int, skipPreflight bool, requireLineProxy bool) (map[string]any, error) {
+	out, _, _, err := s.acquireProxyRuntimeSessionWithListener(ctx, baseURL, state, identity, countryCode, forceNew, leaseTTL, attempt, skipPreflight, requireLineProxy)
 	return out, err
 }
 
-func (s *Server) acquireProxyRuntimeSessionWithListener(ctx context.Context, baseURL string, state stateMap, identity string, countryCode string, forceNew bool, leaseTTL string, attempt int, skipPreflight bool) (map[string]any, string, string, error) {
+func (s *Server) acquireProxyRuntimeSessionWithListener(ctx context.Context, baseURL string, state stateMap, identity string, countryCode string, forceNew bool, leaseTTL string, attempt int, skipPreflight bool, requireLineProxy bool) (map[string]any, string, string, error) {
 	accountID := proxyRuntimeAccountID(identity)
 	leaseTTL = firstNonEmpty(leaseTTL, goPayProxyLeaseTTL)
 	leaseReq := map[string]any{
@@ -122,7 +122,7 @@ func (s *Server) acquireProxyRuntimeSessionWithListener(ctx context.Context, bas
 			"purpose":                      goPayProxyPurpose,
 			"strategy":                     "PROXY_CHAIN_STRATEGY_REGION_AWARE",
 			"require_dynamic_exit":         true,
-			"allow_direct_dynamic_gateway": true,
+			"allow_direct_dynamic_gateway": !requireLineProxy,
 			"prefer_line_proxy":            true,
 			"max_attempts":                 goPayProxyPreflightMaxAttempts,
 		},
