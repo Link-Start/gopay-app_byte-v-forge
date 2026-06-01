@@ -7,7 +7,7 @@ const defaults: GoPayRegisterIndonesiaWASettings = {
   sms_acquire_wait_seconds: 90,
   sms_min_available_count: 1,
   sms_max_price_amount_decimal: '',
-  sms_max_price_currency_code: 'USD'
+  phone_number_max_attempts: 10
 };
 
 export function GoPaySettingsTab({ settings, loading, saving, onSave }: {
@@ -48,14 +48,12 @@ export function GoPaySettingsTab({ settings, loading, saving, onSave }: {
               <Input min={1} type="number" {...form.register('sms_min_available_count', { valueAsNumber: true })} />
             </DashboardField>
           </div>
-          <div className="grid grid-cols-[1fr_110px] gap-3">
-            <DashboardField label="SMS 最大单价">
-              <Input placeholder="例如 0.50；留空不限制" {...form.register('sms_max_price_amount_decimal')} />
-            </DashboardField>
-            <DashboardField label="币种">
-              <Input placeholder="USD" {...form.register('sms_max_price_currency_code')} />
-            </DashboardField>
-          </div>
+          <DashboardField label="号码最大重试次数">
+            <Input min={1} type="number" {...form.register('phone_number_max_attempts', { valueAsNumber: true })} />
+          </DashboardField>
+          <DashboardField label="SMS 最大单价（USD）">
+            <Input placeholder="例如 0.50；留空不限制" {...form.register('sms_max_price_amount_decimal')} />
+          </DashboardField>
         </section>
       </div>
     </form>
@@ -67,7 +65,7 @@ function normalizeSettings(settings?: GoPayRegisterIndonesiaWASettings): GoPayRe
     sms_acquire_wait_seconds: positiveNumber(settings?.sms_acquire_wait_seconds, defaults.sms_acquire_wait_seconds),
     sms_min_available_count: positiveNumber(settings?.sms_min_available_count, defaults.sms_min_available_count),
     sms_max_price_amount_decimal: normalizePrice(settings?.sms_max_price_amount_decimal),
-    sms_max_price_currency_code: (settings?.sms_max_price_currency_code?.trim() || defaults.sms_max_price_currency_code).toUpperCase()
+    phone_number_max_attempts: positiveNumber(settings?.phone_number_max_attempts, defaults.phone_number_max_attempts)
   };
 }
 

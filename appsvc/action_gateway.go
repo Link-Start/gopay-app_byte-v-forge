@@ -16,9 +16,14 @@ import (
 )
 
 const (
-	gopayAccountActionScope = "gopay-account"
-	gopayPaymentActionScope = "gopay-payment"
-	gopayAccountWebhookPath = "gopay-app/account"
+	gopayAccountActionScope                 = "gopay-account"
+	gopayToolboxActionScope                 = "gopay-toolbox"
+	gopayPaymentActionScope                 = "gopay-payment"
+	gopayAccountWebhookPath                 = "gopay-app/account"
+	gopayRegisterIndonesiaWAWorkflowKey     = "register-indonesia-wa"
+	gopayRegisterIndonesiaWAWebhookPath     = "gopay-app/toolbox/register-indonesia-wa"
+	registerIndonesiaWAWorkflowOperation    = "register_indonesia_wa"
+	registerIndonesiaWAWorkflowDisplayLabel = "注册印尼 WA"
 )
 
 type gopayActionRequest struct {
@@ -53,6 +58,7 @@ type gopayActionRequest struct {
 	Reason            string         `json:"reason"`
 	ErrorMessage      string         `json:"error_message"`
 	Data              map[string]any `json:"data"`
+	actionScope       string
 }
 
 type gopayWorkflowJob struct {
@@ -114,10 +120,17 @@ type gopayActionResult struct {
 }
 
 func (h gopayHTTPHandler) handleWorkflowStart(w http.ResponseWriter, r *http.Request, key string) {
-	if key != gopayAccountActionScope {
+	switch key {
+	case gopayAccountActionScope:
+		h.handleAccountWorkflowStart(w, r)
+	case gopayRegisterIndonesiaWAWorkflowKey:
+		h.handleRegisterIndonesiaWAWorkflowStart(w, r)
+	default:
 		writeError(w, http.StatusNotFound, fmt.Errorf("unknown gopay workflow: %s", key))
-		return
 	}
+}
+
+func (h gopayHTTPHandler) handleAccountWorkflowStart(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -136,7 +149,7 @@ func (h gopayHTTPHandler) handleWorkflowStart(w http.ResponseWriter, r *http.Req
 		writeError(w, http.StatusBadGateway, err)
 		return
 	}
-	if err := h.triggerGoPayWorkflow(r.Context(), job.JobID); err != nil {
+	if err := h.triggerGoPayWorkflow(r.Context(), job.JobID, gopayAccountWebhookPath, "gopay-account"); err != nil {
 		job.Status = "trigger_failed"
 		job.ErrorMessage = err.Error()
 		job.UpdatedAtUnix = time.Now().Unix()
@@ -145,6 +158,27 @@ func (h gopayHTTPHandler) handleWorkflowStart(w http.ResponseWriter, r *http.Req
 		return
 	}
 	_ = protojsonhttp.WriteResponse(w, http.StatusAccepted, &pb.GoPayAccountWorkflowResponse{JobId: job.JobID, Started: true})
+}
+
+func (h gopayHTTPHandler) handleRegisterIndonesiaWAWorkflowStart(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	job := newGoPayRegisterIndonesiaWAWorkflowJob()
+	if err := h.saveWorkflowJob(r.Context(), job); err != nil {
+		writeError(w, http.StatusBadGateway, err)
+		return
+	}
+	if err := h.triggerGoPayWorkflow(r.Context(), job.JobID, gopayRegisterIndonesiaWAWebhookPath, gopayRegisterIndonesiaWAWorkflowKey); err != nil {
+		job.Status = "trigger_failed"
+		job.ErrorMessage = err.Error()
+		job.UpdatedAtUnix = time.Now().Unix()
+		_ = h.saveWorkflowJob(context.Background(), job)
+		_ = protojsonhttp.WriteResponse(w, http.StatusAccepted, &pb.StartGoPayRegisterIndonesiaWAWorkflowResponse{JobId: job.JobID, Started: false, ErrorMessage: err.Error()})
+		return
+	}
+	_ = protojsonhttp.WriteResponse(w, http.StatusAccepted, &pb.StartGoPayRegisterIndonesiaWAWorkflowResponse{JobId: job.JobID, Started: true})
 }
 
 func (h gopayHTTPHandler) handlePaymentAction(w http.ResponseWriter, r *http.Request, scope string, action string) {
@@ -181,7 +215,33 @@ func (h gopayHTTPHandler) handleAccountAction(w http.ResponseWriter, r *http.Req
 		writeError(w, http.StatusBadRequest, err)
 		return
 	}
+	req.actionScope = gopayAccountActionScope
 	result, err := h.invokeGoPayAccountAction(r.Context(), action, req)
+	if err != nil {
+		if result != nil {
+			result.Success = false
+			result.ErrorMessage = err.Error()
+			writeJSON(w, http.StatusOK, result)
+			return
+		}
+		writeError(w, http.StatusBadGateway, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, result)
+}
+
+func (h gopayHTTPHandler) handleToolboxAction(w http.ResponseWriter, r *http.Request, action string) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	req, err := readGopayActionRequest(w, r)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err)
+		return
+	}
+	req.actionScope = gopayToolboxActionScope
+	result, err := h.invokeGoPayToolboxAction(r.Context(), action, req)
 	if err != nil {
 		if result != nil {
 			result.Success = false
@@ -257,6 +317,31 @@ func (h gopayHTTPHandler) invokeGoPayAccountAction(ctx context.Context, action s
 	}
 }
 
+func (h gopayHTTPHandler) invokeGoPayToolboxAction(ctx context.Context, action string, req gopayActionRequest) (*gopayActionResult, error) {
+	job, loadErr := h.loadWorkflowJob(ctx, req.JobID)
+	if strings.TrimSpace(req.JobID) != "" && job == nil && strings.TrimSpace(action) != "fail" {
+		return nil, loadErr
+	}
+	req = req.withJob(job)
+	req.actionScope = gopayToolboxActionScope
+	switch strings.TrimSpace(action) {
+	case "load-params":
+		return h.loadParamsResult(job, req), nil
+	case "register-indonesia-wa-settings":
+		return h.registerIndonesiaWASettings(ctx, req)
+	case "generate-shared-phone-check-proxy":
+		return h.generateSharedPhoneCheckProxy(ctx, req)
+	case "release-shared-phone-check-proxy":
+		return h.releaseSharedPhoneCheckProxy(ctx, req)
+	case "finish":
+		return h.finish(ctx, req)
+	case "fail":
+		return h.fail(ctx, req)
+	default:
+		return nil, fmt.Errorf("unsupported gopay toolbox action: %s", action)
+	}
+}
+
 func (h gopayHTTPHandler) invokeGoPayPaymentAction(ctx context.Context, scope string, action string, req gopayActionRequest) (*gopayActionResult, error) {
 	switch strings.TrimSpace(action) {
 	case "start-payment":
@@ -277,7 +362,7 @@ func (h gopayHTTPHandler) invokeGoPayPaymentAction(ctx context.Context, scope st
 }
 
 func (h gopayHTTPHandler) loadParamsResult(job *gopayWorkflowJob, req gopayActionRequest) *gopayActionResult {
-	out := h.baseResult(req, "load_params", true, map[string]any{"action": gopayAccountActionScope, "operation": req.Operation, "gopay_account_id": req.GopayAccountID, "otp_channel": req.OTPChannel})
+	out := h.baseResult(req, "load_params", true, map[string]any{"action": firstNonEmpty(req.actionScope, gopayAccountActionScope), "operation": req.Operation, "gopay_account_id": req.GopayAccountID, "otp_channel": req.OTPChannel})
 	out.RequirePIN = req.Operation == "provision"
 	return out
 }
@@ -768,7 +853,7 @@ func (h gopayHTTPHandler) genericSuccess(req gopayActionRequest, step string, da
 }
 
 func (h gopayHTTPHandler) baseResult(req gopayActionRequest, step string, success bool, data map[string]any) *gopayActionResult {
-	return &gopayActionResult{JobID: req.JobID, N8NExecutionID: req.N8NExecutionID, Action: gopayAccountActionScope, Step: step, Operation: normalizeGoPayWorkflowOperation(req.Operation), Success: success, GopayAccountID: req.GopayAccountID, Phone: req.Phone, OTPChannel: normalizeActionOTPChannel(req.OTPChannel), CountryCode: req.CountryCode, ActivationID: req.ActivationID, FailureCount: req.FailureCount, StateJSON: firstNonEmpty(req.StateJSON, "{}"), Data: data}
+	return &gopayActionResult{JobID: req.JobID, N8NExecutionID: req.N8NExecutionID, Action: firstNonEmpty(req.actionScope, gopayAccountActionScope), Step: step, Operation: normalizeGoPayWorkflowOperation(req.Operation), Success: success, GopayAccountID: req.GopayAccountID, Phone: req.Phone, OTPChannel: normalizeActionOTPChannel(req.OTPChannel), CountryCode: req.CountryCode, ActivationID: req.ActivationID, FailureCount: req.FailureCount, StateJSON: firstNonEmpty(req.StateJSON, "{}"), Data: data}
 }
 
 func (h gopayHTTPHandler) basePaymentResult(scope string, req gopayActionRequest, step string, success bool, data map[string]any) *gopayActionResult {
@@ -889,9 +974,6 @@ func readGopayActionRequest(w http.ResponseWriter, r *http.Request) (gopayAction
 func newGoPayWorkflowJob(req *pb.GoPayAccountWorkflowRequest) (*gopayWorkflowJob, error) {
 	operation := normalizeGoPayWorkflowOperation(req.GetOperation().String())
 	accountID := goPayAppAccountID(req.GetGopayAccountId())
-	if accountID == "" && operation == "register_indonesia_wa" {
-		accountID = "toolbox:register-indonesia-wa"
-	}
 	if accountID == "" {
 		return nil, fmt.Errorf("gopay_account_id is required")
 	}
@@ -899,11 +981,16 @@ func newGoPayWorkflowJob(req *pb.GoPayAccountWorkflowRequest) (*gopayWorkflowJob
 	return &gopayWorkflowJob{JobID: uuid.NewString(), Operation: operation, GopayAccountID: accountID, Phone: strings.TrimSpace(req.GetPhone()), CountryCode: strings.TrimSpace(req.GetCountryCode()), Pin: strings.TrimSpace(req.GetPin()), OTPChannel: normalizeActionOTPChannel(req.GetOtpChannel()), Status: "started", CreatedAtUnix: now, UpdatedAtUnix: now}, nil
 }
 
-func (h gopayHTTPHandler) triggerGoPayWorkflow(ctx context.Context, jobID string) error {
+func newGoPayRegisterIndonesiaWAWorkflowJob() *gopayWorkflowJob {
+	now := time.Now().Unix()
+	return &gopayWorkflowJob{JobID: uuid.NewString(), Operation: registerIndonesiaWAWorkflowOperation, Status: "started", CreatedAtUnix: now, UpdatedAtUnix: now}
+}
+
+func (h gopayHTTPHandler) triggerGoPayWorkflow(ctx context.Context, jobID string, webhookPath string, workflowName string) error {
 	if h.n8nWebhookBaseURL == "" {
 		return fmt.Errorf("GOPAY_N8N_WEBHOOK_BASE_URL is required")
 	}
-	url := h.n8nWebhookBaseURL + "/" + gopayAccountWebhookPath
+	url := h.n8nWebhookBaseURL + "/" + strings.Trim(strings.TrimSpace(webhookPath), "/")
 	body, _ := json.Marshal(map[string]string{"job_id": strings.TrimSpace(jobID)})
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
@@ -917,7 +1004,7 @@ func (h gopayHTTPHandler) triggerGoPayWorkflow(ctx context.Context, jobID string
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("n8n gopay-account workflow returned HTTP %d", resp.StatusCode)
+		return fmt.Errorf("n8n %s workflow returned HTTP %d", strings.TrimSpace(workflowName), resp.StatusCode)
 	}
 	return nil
 }
@@ -991,8 +1078,6 @@ func normalizeGoPayWorkflowOperation(value string) string {
 		return "provision"
 	case "deactivate":
 		return "deactivate"
-	case "register_indonesia_wa":
-		return "register_indonesia_wa"
 	case "signup":
 		return "signup"
 	default:

@@ -1,16 +1,15 @@
 import { ACCOUNT_PAGE_SIZE, accountCarrierID, api, fetchAccountList } from '@byte-v-forge/common-ui';
 import type { AccountActionCatalog } from '@byte-v-forge/common-ui/proto/byte/v/forge/contracts/account/v1/account';
-import { GoPayAccountWorkflowOperation } from '../proto/gopay_app';
 import type {
   DeleteGopayAccountResponse,
   GetGopayAccountProfileResponse,
   GetGopayActionCatalogResponse,
   GetGoPaySettingsResponse,
-  GoPayAccountWorkflowResponse,
   GoPayRegisterIndonesiaWASettings,
   GopayAccount,
   ListGopayAccountsResponse,
   SaveGoPaySettingsResponse,
+  StartGoPayRegisterIndonesiaWAWorkflowResponse,
 } from '../proto/gopay_app';
 
 export type GoPayAccountProjection = GopayAccount;
@@ -135,9 +134,9 @@ export async function saveGoPaySettings(settings: GoPayRegisterIndonesiaWASettin
 }
 
 export async function startGoPayRegisterIndonesiaWA() {
-  const resp = await api<GoPayAccountWorkflowResponse>('/api/gopay/workflows/gopay-account', {
+  const resp = await api<StartGoPayRegisterIndonesiaWAWorkflowResponse>('/api/gopay/workflows/register-indonesia-wa', {
     method: 'POST',
-    body: JSON.stringify({ operation: GoPayAccountWorkflowOperation.GOPAY_ACCOUNT_WORKFLOW_OPERATION_REGISTER_INDONESIA_WA })
+    body: JSON.stringify({})
   });
   if (!resp.started || resp.error_message) throw new Error(resp.error_message || 'start Indonesia WA registration failed');
   return resp;

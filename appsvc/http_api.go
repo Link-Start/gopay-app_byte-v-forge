@@ -94,6 +94,8 @@ func (h gopayHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.handleWorkflowStart(w, r, strings.Trim(strings.TrimPrefix(path, "workflows/"), "/"))
 	case strings.HasPrefix(path, "actions/gopay-account/"):
 		h.handleAccountAction(w, r, strings.Trim(strings.TrimPrefix(path, "actions/gopay-account/"), "/"))
+	case strings.HasPrefix(path, "actions/gopay-toolbox/"):
+		h.handleToolboxAction(w, r, strings.Trim(strings.TrimPrefix(path, "actions/gopay-toolbox/"), "/"))
 	case strings.HasPrefix(path, "actions/gopay-payment/"):
 		h.handlePaymentAction(w, r, gopayPaymentActionScope, strings.Trim(strings.TrimPrefix(path, "actions/gopay-payment/"), "/"))
 	default:
@@ -110,7 +112,8 @@ func (h gopayHTTPHandler) handleHealth(w http.ResponseWriter, _ *http.Request) {
 		"gopay_action_api_owned":  true,
 		"gopay_account_api_owned": true,
 		"workflows": []map[string]string{
-			{"key": "gopay-account", "label": "GoPayAccount 编排", "webhook_path": "gopay-app/account"},
+			{"key": "gopay-account", "label": "GoPay 账户编排", "webhook_path": gopayAccountWebhookPath},
+			{"key": gopayRegisterIndonesiaWAWorkflowKey, "label": registerIndonesiaWAWorkflowDisplayLabel, "webhook_path": gopayRegisterIndonesiaWAWebhookPath},
 		},
 	})
 }

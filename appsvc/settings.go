@@ -20,8 +20,9 @@ var goPaySMSPricePattern = regexp.MustCompile(`^\d+(\.\d+)?$`)
 
 func defaultGoPayRegisterIndonesiaWASettings() *pb.GoPayRegisterIndonesiaWASettings {
 	return &pb.GoPayRegisterIndonesiaWASettings{
-		SmsAcquireWaitSeconds: 90,
-		SmsMinAvailableCount:  1,
+		SmsAcquireWaitSeconds:  90,
+		SmsMinAvailableCount:   1,
+		PhoneNumberMaxAttempts: 10,
 	}
 }
 
@@ -36,11 +37,11 @@ func normalizeGoPayRegisterIndonesiaWASettings(in *pb.GoPayRegisterIndonesiaWASe
 	if value := in.GetSmsMinAvailableCount(); value > 0 {
 		out.SmsMinAvailableCount = value
 	}
+	if value := in.GetPhoneNumberMaxAttempts(); value > 0 {
+		out.PhoneNumberMaxAttempts = value
+	}
 	if value := strings.TrimSpace(in.GetSmsMaxPriceAmountDecimal()); value != "" && goPaySMSPricePattern.MatchString(value) {
 		out.SmsMaxPriceAmountDecimal = value
-	}
-	if out.GetSmsMaxPriceAmountDecimal() != "" {
-		out.SmsMaxPriceCurrencyCode = strings.ToUpper(firstNonEmpty(in.GetSmsMaxPriceCurrencyCode(), "USD"))
 	}
 	return out
 }
@@ -113,7 +114,7 @@ func (h gopayHTTPHandler) registerIndonesiaWASettings(ctx context.Context, req g
 		"sms_acquire_wait_seconds":     settings.GetSmsAcquireWaitSeconds(),
 		"sms_min_available_count":      settings.GetSmsMinAvailableCount(),
 		"sms_max_price_amount_decimal": settings.GetSmsMaxPriceAmountDecimal(),
-		"sms_max_price_currency_code":  settings.GetSmsMaxPriceCurrencyCode(),
+		"phone_number_max_attempts":    settings.GetPhoneNumberMaxAttempts(),
 	}), nil
 }
 

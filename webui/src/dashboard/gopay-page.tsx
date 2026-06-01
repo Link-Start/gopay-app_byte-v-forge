@@ -50,7 +50,10 @@ export function GoPayPage() {
     onSuccess: () => toast.showOK('GoPay 号码检测完成'),
     onError: toast.showError,
   });
-  const workflows = health.data?.workflows || [{ key: 'gopay-account', label: 'GoPayAccount 编排', webhook_path: 'gopay-app/account' }];
+  const workflows = health.data?.workflows || [
+    { key: 'gopay-account', label: 'GoPay 账户编排', webhook_path: 'gopay-app/account' },
+    { key: 'register-indonesia-wa', label: '注册印尼 WA', webhook_path: 'gopay-app/toolbox/register-indonesia-wa' },
+  ];
 
   async function accountCreated(account: GoPayAccountProjection) {
     accounts.cacheAccount(account);
@@ -154,7 +157,7 @@ function WorkflowTab({ configured, workflows, loading }: {
       loading={loading}
       configuredTitle="GoPay n8n 编排已接入"
       unconfiguredTitle="GoPay n8n webhook 未配置"
-      description="GoPayAccount 登录、注册、PIN、改号和注销流程由 gopay-app 拥有；号码检测为 gopay-app 直连接口。"
+      description="GoPay 账户动作与工具箱动作拆分编排；号码检测为 gopay-app 直连接口。"
       cards={[
         {
           id: 'account-state',

@@ -29,7 +29,6 @@ export enum GoPayAccountWorkflowOperation {
   GOPAY_ACCOUNT_WORKFLOW_OPERATION_CHANGE_PHONE = "GOPAY_ACCOUNT_WORKFLOW_OPERATION_CHANGE_PHONE",
   GOPAY_ACCOUNT_WORKFLOW_OPERATION_PROVISION = "GOPAY_ACCOUNT_WORKFLOW_OPERATION_PROVISION",
   GOPAY_ACCOUNT_WORKFLOW_OPERATION_DEACTIVATE = "GOPAY_ACCOUNT_WORKFLOW_OPERATION_DEACTIVATE",
-  GOPAY_ACCOUNT_WORKFLOW_OPERATION_REGISTER_INDONESIA_WA = "GOPAY_ACCOUNT_WORKFLOW_OPERATION_REGISTER_INDONESIA_WA",
   UNRECOGNIZED = "UNRECOGNIZED",
 }
 
@@ -58,11 +57,20 @@ export interface GoPayAccountWorkflowResponse {
   error_message: string;
 }
 
+export interface StartGoPayRegisterIndonesiaWAWorkflowRequest {
+}
+
+export interface StartGoPayRegisterIndonesiaWAWorkflowResponse {
+  job_id: string;
+  started: boolean;
+  error_message: string;
+}
+
 export interface GoPayRegisterIndonesiaWASettings {
   sms_acquire_wait_seconds: number;
   sms_min_available_count: number;
   sms_max_price_amount_decimal: string;
-  sms_max_price_currency_code: string;
+  phone_number_max_attempts: number;
 }
 
 export interface GetGoPaySettingsRequest {
