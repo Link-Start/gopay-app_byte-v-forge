@@ -49,7 +49,7 @@ func ConfigFromEnv() Config {
 		StateTTL:                   envx.PositiveDurationSeconds("GOPAY_STATE_TTL_SECONDS", 7*24*time.Hour),
 		SignupAuthUUID:             "bb648413-b637-443a-8ebf-176cf9b5dc32",
 		PINClientID:                "6d11d261d7ae462dbd4be0dc5f36a697-MFAGOJEK",
-		GotoClientID:               "gopay:consumer:app",
+		GotoClientID:               "gojek:consumer:app",
 		GotoClientSecret:           strings.TrimSpace(os.Getenv("GOTO_SSO_CLIENT_SECRET")),
 		OTPTimeout:                 180 * time.Second,
 		TokenRefreshMinTTL:         900 * time.Second,

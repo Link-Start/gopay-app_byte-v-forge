@@ -171,6 +171,15 @@ func normalizePhoneWithConfig(cfg Config, phone string, countryCode string) stri
 	return value
 }
 
+func digitsOnly(value string) string {
+	return strings.Map(func(r rune) rune {
+		if r >= '0' && r <= '9' {
+			return r
+		}
+		return -1
+	}, strings.TrimSpace(value))
+}
+
 func jwtExpiresAt(token string) int64 {
 	return jwtx.ExpiresAt(token)
 }

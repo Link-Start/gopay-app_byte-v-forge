@@ -59,9 +59,6 @@ func (s *Server) CheckPhone(ctx context.Context, req *pb.CheckPhoneRequest) (*pb
 	result := s.checkPhoneByLoginMethods(ctx, phone, req.GetCountryCode(), proxyState)
 	status := stringx.FirstNonEmpty(anyString(result["status"]), "error")
 	errorMessage := anyString(result["error"])
-	if status == "registered" {
-		errorMessage = "PHONE_REGISTERED"
-	}
 	return &pb.CheckPhoneResponse{
 		Available:         anyBool(result["available"]),
 		Status:            status,

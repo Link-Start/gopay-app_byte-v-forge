@@ -30,7 +30,11 @@ func (s *Server) generateDeviceProxyState(ctx context.Context, accountID string,
 	if err != nil {
 		return state, err
 	}
-	if err := s.ensureProxyRuntimeSession(ctx, state, proxyRuntimeAcquireOptions{AccountID: identity, CountryCode: countryCode, ForceNew: forceNew, SkipPreflight: skipPreflight}); err != nil {
+	leaseTTL := goPayProxyLeaseTTL
+	if ephemeralProfile {
+		leaseTTL = goPayProxyProbeLeaseTTL
+	}
+	if err := s.ensureProxyRuntimeSession(ctx, state, proxyRuntimeAcquireOptions{AccountID: identity, CountryCode: countryCode, ForceNew: forceNew, SkipPreflight: skipPreflight, LeaseTTL: leaseTTL}); err != nil {
 		return state, err
 	}
 	if !ephemeralProfile {

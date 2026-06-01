@@ -4,6 +4,7 @@ const (
 	goPayProxyPurpose              = "gopay_app"
 	goPayProxyCountryCode          = "ID"
 	goPayProxyLeaseTTL             = "600s"
+	goPayProxyProbeLeaseTTL        = "60s"
 	goPayProxyPreflightMaxAttempts = 10
 )
 
@@ -18,6 +19,7 @@ type proxyRuntimeAcquireOptions struct {
 	CountryCode   string
 	ForceNew      bool
 	SkipPreflight bool
+	LeaseTTL      string
 }
 
 type proxyRuntimeLeaseResponse struct {

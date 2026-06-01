@@ -15,7 +15,7 @@ type anyClient interface {
 }
 
 func (s *Server) changePhoneStart(ctx context.Context, state stateMap, pin, newPhone, countryCode string) map[string]any {
-	pin = strings.TrimSpace(pin)
+	pin = s.resolveGoPayAccountPin(ctx, state, pin)
 	cc := phoneCountryCode(s.cfg, countryCode)
 	phone := normalizePhoneWithConfig(s.cfg, newPhone, cc)
 	if !tokenUsable(state, "token", 30*time.Second) {

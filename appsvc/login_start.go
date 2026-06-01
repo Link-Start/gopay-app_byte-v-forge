@@ -15,6 +15,7 @@ import (
 func (s *Server) startLogin(ctx context.Context, state stateMap, phone, pin, countryCode, otpChannel string) map[string]any {
 	cc := phoneCountryCode(s.cfg, countryCode)
 	normalized := normalizePhoneWithConfig(s.cfg, phone, cc)
+	pin = s.resolveGoPayAccountPin(ctx, state, pin)
 	attempts := loginMethodsMaxAttempts
 	var resp *httpjson.Response
 	var client *gopayapp.ClientSet

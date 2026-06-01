@@ -86,6 +86,8 @@ func (h gopayHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.handleProfile(w, r)
 	case path == "otp/submit":
 		h.handleOTPSubmit(w, r)
+	case path == "phone/check":
+		h.handlePhoneCheck(w, r)
 	case strings.HasPrefix(path, "workflows/"):
 		h.handleWorkflowStart(w, r, strings.Trim(strings.TrimPrefix(path, "workflows/"), "/"))
 	case strings.HasPrefix(path, "actions/gopay-account/"):
@@ -121,6 +123,10 @@ func (h gopayHTTPHandler) handleActionCatalog(w http.ResponseWriter, r *http.Req
 }
 
 func (h gopayHTTPHandler) handleAccounts(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		h.handleCreateAccount(w, r)
+		return
+	}
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return

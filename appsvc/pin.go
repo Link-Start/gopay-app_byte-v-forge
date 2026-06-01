@@ -11,7 +11,7 @@ import (
 )
 
 func (s *Server) startSignupPIN(ctx context.Context, state stateMap, pin, otpChannel string) map[string]any {
-	pin = strings.TrimSpace(pin)
+	pin = s.resolveGoPayAccountPin(ctx, state, pin)
 	if pin == "" {
 		return map[string]any{"success": false, "error": "gopay pin missing"}
 	}
@@ -155,7 +155,7 @@ func (s *Server) completeSignupPIN(ctx context.Context, state stateMap, otp, pin
 		return map[string]any{"success": false, "error": fmt.Sprintf("not waiting for signup pin otp: %s", stringx.FirstNonEmpty(stateString(state, "stage"), "idle"))}
 	}
 	otp = strings.TrimSpace(otp)
-	pin = strings.TrimSpace(pin)
+	pin = s.resolveGoPayAccountPin(ctx, state, pin)
 	if otp == "" {
 		return map[string]any{"success": false, "error": "signup pin otp required"}
 	}

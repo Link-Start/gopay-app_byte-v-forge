@@ -198,19 +198,22 @@ var gopayCustomerSlimGetPaths = map[string]bool{
 }
 
 var gopayCustomerAppHeaderPaths = map[string]bool{
-	"/v1/users/profile":                true,
-	"/v1/qris/payments":                true,
-	"/api/v1/festival-envelopes/claim": true,
-	"/api/v1/users/deactivate":         true,
-	"/api/v1/users/deactivate/check":   true,
-	"/api/v1/users/pin/challenges":     true,
-	"/api/v1/users/pin/tokens":         true,
-	"/api/v1/users/pin/tokens/nb":      true,
-	"/api/v1/users/pins/allowed":       true,
-	"/api/v2/users/pins/setup/tokens":  true,
-	"/cvs/v1/methods":                  true,
-	"/cvs/v1/initiate":                 true,
-	"/cvs/v1/verify":                   true,
+	"/v1/users/profile":                               true,
+	"/v1/qris/payments":                               true,
+	"/v2/customer/payment-options/checkout/list":      true,
+	"/v1/customer/payment-options/settings/last-used": true,
+	"/v1/promotions/evaluate":                         true,
+	"/api/v1/festival-envelopes/claim":                true,
+	"/api/v1/users/deactivate":                        true,
+	"/api/v1/users/deactivate/check":                  true,
+	"/api/v1/users/pin/challenges":                    true,
+	"/api/v1/users/pin/tokens":                        true,
+	"/api/v1/users/pin/tokens/nb":                     true,
+	"/api/v1/users/pins/allowed":                      true,
+	"/api/v2/users/pins/setup/tokens":                 true,
+	"/cvs/v1/methods":                                 true,
+	"/cvs/v1/initiate":                                true,
+	"/cvs/v1/verify":                                  true,
 }
 
 var gojekActivityPaths = map[string]bool{
@@ -237,6 +240,9 @@ func isGopayCustomerAppHeaderPath(path string) bool {
 		return true
 	}
 	if strings.HasPrefix(path, "/customers/v1/payments/") {
+		return true
+	}
+	if strings.HasPrefix(path, "/v3/payments/") && strings.HasSuffix(path, "/capture") {
 		return true
 	}
 	if strings.HasPrefix(path, "/api/v2/challenges/") && (strings.HasSuffix(path, "/pin-page") || strings.HasSuffix(path, "/pin-page/nb")) {

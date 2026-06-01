@@ -13,6 +13,7 @@ func (s *Server) deactivateStart(ctx context.Context, state stateMap, pin string
 	if !tmpTokenUsable(state, 30*time.Second) {
 		return map[string]any{"success": false, "error": "temporary account token missing"}
 	}
+	pin = s.resolveGoPayAccountPin(ctx, state, pin)
 	client, err := s.tmpClientForState(ctx, state)
 	if err != nil {
 		return map[string]any{"success": false, "error": err.Error()}
