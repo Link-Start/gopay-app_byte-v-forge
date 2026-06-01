@@ -1,14 +1,8 @@
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { KeyRound, RefreshCw, WalletCards } from 'lucide-react';
 import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-  Badge,
-  Button,
-  Card,
-  CardContent,
   ToastMessage,
+  WorkflowStatusPanel,
   WorkspaceTabbedPanel,
   accountCarrierID,
   useAccountManagementController,
@@ -117,28 +111,29 @@ function WorkflowTab({ configured, workflows, loading }: {
   workflows: Array<{ key: string; label: string; webhook_path: string }>;
 }) {
   return (
-    <div className="grid gap-4 p-4">
-      <Alert>
-        <AlertTitle>{configured ? 'GoPay n8n 编排已接入' : 'GoPay n8n webhook 未配置'}</AlertTitle>
-        <AlertDescription>{loading ? '加载中...' : 'GoPayAccount 登录、注册、PIN、改号和注销流程由 gopay-app 拥有；号码检测为 gopay-app 直连接口。'}</AlertDescription>
-      </Alert>
-      <div className="grid gap-3 md:grid-cols-2">
-        <InfoCard icon={<KeyRound size={16} />} title="账户状态" badge="gopay-app" text="GoPayAccount 持久化、状态缓存、Profile 与账号动作都在 gopay-app 侧。" />
-        <InfoCard icon={<RefreshCw size={16} />} title="OTP" badge="channel+account" text="WA/SMS 自动 OTP 按 channel + target 投递；账号详情提供一次性手动兜底，不写入缓存或历史。" />
-      </div>
-      <div className="grid gap-2">{workflows.map((item) => <div key={item.key} className="flex items-center justify-between rounded-xl border bg-card p-3 text-sm"><span>{item.label}</span><code className="text-xs text-muted-foreground">{item.webhook_path}</code></div>)}</div>
-      <Button variant="outline" asChild><a href="/workflow" target="_blank" rel="noreferrer">打开 Workflow 状态页</a></Button>
-    </div>
-  );
-}
-
-function InfoCard({ icon, title, badge, text }: { icon: ReactNode; title: string; badge: string; text: string }) {
-  return (
-    <Card>
-      <CardContent className="grid gap-2 p-4">
-        <div className="flex items-center justify-between"><div className="flex items-center gap-2 font-medium">{icon}{title}</div><Badge variant="outline">{badge}</Badge></div>
-        <p className="text-sm text-muted-foreground">{text}</p>
-      </CardContent>
-    </Card>
+    <WorkflowStatusPanel
+      configured={configured}
+      loading={loading}
+      configuredTitle="GoPay n8n 编排已接入"
+      unconfiguredTitle="GoPay n8n webhook 未配置"
+      description="GoPayAccount 登录、注册、PIN、改号和注销流程由 gopay-app 拥有；号码检测为 gopay-app 直连接口。"
+      cards={[
+        {
+          id: 'account-state',
+          icon: <KeyRound size={16} />,
+          title: '账户状态',
+          badge: 'gopay-app',
+          text: 'GoPayAccount 持久化、状态缓存、Profile 与账号动作都在 gopay-app 侧。',
+        },
+        {
+          id: 'otp',
+          icon: <RefreshCw size={16} />,
+          title: 'OTP',
+          badge: 'channel+account',
+          text: 'WA/SMS 自动 OTP 按 channel + target 投递；账号详情提供一次性手动兜底，不写入缓存或历史。',
+        },
+      ]}
+      workflows={workflows}
+    />
   );
 }
