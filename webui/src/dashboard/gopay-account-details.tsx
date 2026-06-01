@@ -6,7 +6,7 @@ import {
   AccountDetailTabs,
   Badge,
   KVList,
-  accountActionButton,
+  accountActionButtons,
   accountCarrierID,
   accountSubject,
   useQuery,
@@ -141,7 +141,10 @@ function buttons(
   busy: boolean,
   run: (spec: GoPayAccountActionSpec) => void | Promise<void>,
 ): ActionButtonDescriptor[] {
-  return specs.map((spec) => accountActionButton({ catalog, account, busy, placement: 'gopay' }, { ...spec, onClick: () => run(spec) }));
+  return accountActionButtons(
+    { catalog, account, busy, placement: 'gopay' },
+    specs.map((spec) => ({ ...spec, onClick: () => run(spec) })),
+  );
 }
 
 function GoPayActionSection({ title, description, specs, catalog, account, busy, run }: {
