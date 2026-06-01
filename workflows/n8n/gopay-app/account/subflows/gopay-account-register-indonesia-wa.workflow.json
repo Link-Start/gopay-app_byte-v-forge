@@ -166,7 +166,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Toolbox').first().json.job_id, n8n_execution_id: $execution.id, operation: 'register_indonesia_wa', country_code: $('Build WA Probe Input').first().json.country_calling_code, data: { country_calling_code: $('Build WA Probe Input').first().json.country_calling_code, country_iso2: $('Build WA Probe Input').first().json.country_iso2 } } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Toolbox').first().json.job_id, n8n_execution_id: $execution.id, operation: 'register_indonesia_wa', country_code: 'US', data: { proxy_country_code: 'US', phone_country_calling_code: $('Build WA Probe Input').first().json.country_calling_code, country_calling_code: $('Build WA Probe Input').first().json.country_calling_code, country_iso2: $('Build WA Probe Input').first().json.country_iso2 } } }}",
         "options": {
           "response": {
             "response": {
@@ -663,6 +663,32 @@
         4680,
         80
       ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-toolbox/release-shared-phone-check-proxy' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Toolbox').first().json.job_id, n8n_execution_id: $execution.id, operation: 'register_indonesia_wa', state_json: $('Generate Shared Detection Proxy').first().json.state_json || '' } }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        }
+      },
+      "id": "gopay-account-register-indonesia-wa-release-shared-proxy-registration-success",
+      "name": "Release Shared Proxy After Registration Success",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3900,
+        -220
+      ]
     }
   ],
   "connections": {
@@ -978,7 +1004,7 @@
       "main": [
         [
           {
-            "node": "Build Registration Started",
+            "node": "Release Shared Proxy After Registration Success",
             "type": "main",
             "index": 0
           }
@@ -1030,6 +1056,17 @@
         [
           {
             "node": "Loop Number Attempts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Release Shared Proxy After Registration Success": {
+      "main": [
+        [
+          {
+            "node": "Build Registration Started",
             "type": "main",
             "index": 0
           }
