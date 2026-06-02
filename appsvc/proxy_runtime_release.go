@@ -4,6 +4,8 @@ import (
 	"context"
 	"strings"
 	"time"
+
+	proxyruntimev1 "github.com/byte-v-forge/common-lib/gen/go/byte/v/forge/contracts/proxyruntime/v1"
 )
 
 func (s *Server) releaseProxyRuntimeState(ctx context.Context, rawState string) error {
@@ -30,5 +32,5 @@ func (s *Server) releaseProxyRuntimeAccount(ctx context.Context, baseURL string,
 	}
 	releaseCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
 	defer cancel()
-	return postProxyRuntime(releaseCtx, baseURL+"/leases/release", map[string]any{"account_id": accountID}, nil, 5*time.Second)
+	return postProxyRuntime(releaseCtx, baseURL+"/leases/release", &proxyruntimev1.ReleaseProxyLeaseRequest{AccountId: accountID}, nil, 5*time.Second)
 }

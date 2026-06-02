@@ -1,7 +1,7 @@
 package app
 
-import "os"
+import "github.com/byte-v-forge/common-lib/envx"
 
 func getenv(name string) string {
-	return os.Getenv(name)
+	return envx.String(name)
 }

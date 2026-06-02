@@ -1,220 +1,119 @@
 package appsvc
 
 import (
+	"reflect"
 	"strings"
 
 	gopayapp "github.com/byte-v-forge/gopay-app/protocol/app"
 )
 
+type deviceFieldMapping struct {
+	Field   string
+	Key     string
+	Aliases []string
+}
+
+var deviceFieldMappings = []deviceFieldMapping{
+	{Field: "AppType", Key: "x-apptype", Aliases: []string{"AppType"}},
+	{Field: "AppVersion", Key: "x-appversion", Aliases: []string{"AppVersion"}},
+	{Field: "AppID", Key: "x-appid", Aliases: []string{"AppID"}},
+	{Field: "Platform", Key: "x-platform", Aliases: []string{"Platform"}},
+	{Field: "UniqueID", Key: "x-uniqueid", Aliases: []string{"UniqueID"}},
+	{Field: "PhoneMake", Key: "x-phonemake", Aliases: []string{"PhoneMake"}},
+	{Field: "PhoneModel", Key: "x-phonemodel", Aliases: []string{"PhoneModel"}},
+	{Field: "DeviceOS", Key: "x-deviceos", Aliases: []string{"DeviceOS"}},
+	{Field: "UserType", Key: "x-user-type", Aliases: []string{"UserType"}},
+	{Field: "SessionID", Key: "x-session-id", Aliases: []string{"SessionID"}},
+	{Field: "TransactionID", Key: "transaction-id", Aliases: []string{"TransactionID"}},
+	{Field: "UserAgent", Key: "user-agent", Aliases: []string{"UserAgent"}},
+	{Field: "D1", Key: "d1", Aliases: []string{"D1"}},
+	{Field: "XE2", Key: "x-e2", Aliases: []string{"XE2"}},
+	{Field: "AdjTS", Key: "adjts", Aliases: []string{"AdjTS"}},
+	{Field: "AppsFlyerID", Key: "m1_appsflyer_id", Aliases: []string{"AppsFlyerID"}},
+	{Field: "WidevineID", Key: "m1_widevine_id", Aliases: []string{"WidevineID"}},
+	{Field: "Screen", Key: "m1_screen", Aliases: []string{"Screen"}},
+	{Field: "WiFiMAC", Key: "m1_wifi_mac", Aliases: []string{"WiFiMAC"}},
+	{Field: "WiFiSSID", Key: "m1_wifi_ssid", Aliases: []string{"WiFiSSID"}},
+	{Field: "M1ConnectionID", Key: "m1_connection_id", Aliases: []string{"M1ConnectionID"}},
+	{Field: "M1Hardware", Key: "m1_hardware", Aliases: []string{"m1_device_hardware", "M1Hardware"}},
+	{Field: "M1Signature", Key: "m1_signature", Aliases: []string{"M1Signature"}},
+	{Field: "M1SignatureTime", Key: "m1_signature_time", Aliases: []string{"M1SignatureTime"}},
+	{Field: "M1DeviceUUID", Key: "m1_device_uuid", Aliases: []string{"M1DeviceUUID"}},
+	{Field: "FirebaseID", Key: "m1_firebase_app_instance_id", Aliases: []string{"firebase_app_instance_id", "FirebaseID"}},
+	{Field: "AdvertisingID", Key: "advertising_id", Aliases: []string{"ad_id", "AdvertisingID"}},
+	{Field: "AppSetID", Key: "app_set_id", Aliases: []string{"AppSetID"}},
+	{Field: "InstallReferrer", Key: "install_referrer", Aliases: []string{"InstallReferrer"}},
+	{Field: "InstallerPackage", Key: "installer_package", Aliases: []string{"InstallerPackage"}},
+	{Field: "GMSVersion", Key: "gms_version", Aliases: []string{"play_services_version", "GMSVersion"}},
+	{Field: "UserUUID", Key: "user-uuid", Aliases: []string{"UserUUID"}},
+	{Field: "DeviceToken", Key: "x-devicetoken", Aliases: []string{"DeviceToken"}},
+	{Field: "IMEI", Key: "x-imei", Aliases: []string{"IMEI"}},
+	{Field: "IPAddress", Key: "x-ipaddress", Aliases: []string{"x-ip-address", "IPAddress"}},
+	{Field: "Location", Key: "x-location", Aliases: []string{"Location"}},
+	{Field: "LocationAccuracy", Key: "x-location-accuracy", Aliases: []string{"LocationAccuracy"}},
+	{Field: "GojekCountryCode", Key: "gojek-country-code", Aliases: []string{"GojekCountryCode"}},
+	{Field: "TLSProfileName", Key: "tls_profile", Aliases: []string{"tls-profile", "TLSProfileName"}},
+}
+
 func deviceFromMap(raw map[string]any) gopayapp.DeviceFingerprint {
-	get := func(keys ...string) string {
-		for _, key := range keys {
-			if value := anyString(raw[key]); value != "" {
-				return value
-			}
+	device := gopayapp.DeviceFingerprint{}
+	dst := reflect.ValueOf(&device).Elem()
+	for _, mapping := range deviceFieldMappings {
+		field := dst.FieldByName(mapping.Field)
+		if !field.IsValid() || !field.CanSet() || field.Kind() != reflect.String {
+			continue
 		}
-		return ""
+		if value := deviceMapString(raw, mapping); value != "" {
+			field.SetString(value)
+		}
 	}
-	return normalizeDeviceShape(gopayapp.DeviceFingerprint{
-		AppType:          get("x-apptype", "AppType"),
-		AppVersion:       get("x-appversion", "AppVersion"),
-		AppID:            get("x-appid", "AppID"),
-		Platform:         get("x-platform", "Platform"),
-		UniqueID:         get("x-uniqueid", "UniqueID"),
-		PhoneMake:        get("x-phonemake", "PhoneMake"),
-		PhoneModel:       get("x-phonemodel", "PhoneModel"),
-		DeviceOS:         get("x-deviceos", "DeviceOS"),
-		UserType:         get("x-user-type", "UserType"),
-		SessionID:        get("x-session-id", "SessionID"),
-		TransactionID:    get("transaction-id", "TransactionID"),
-		UserAgent:        get("user-agent", "UserAgent"),
-		D1:               get("d1", "D1"),
-		XE2:              get("x-e2", "XE2"),
-		AdjTS:            get("adjts", "AdjTS"),
-		AppsFlyerID:      get("m1_appsflyer_id", "AppsFlyerID"),
-		WidevineID:       get("m1_widevine_id", "WidevineID"),
-		Screen:           get("m1_screen", "Screen"),
-		WiFiMAC:          get("m1_wifi_mac", "WiFiMAC"),
-		WiFiSSID:         get("m1_wifi_ssid", "WiFiSSID"),
-		M1ConnectionID:   get("m1_connection_id", "M1ConnectionID"),
-		M1Hardware:       get("m1_hardware", "m1_device_hardware", "M1Hardware"),
-		M1Signature:      get("m1_signature", "M1Signature"),
-		M1SignatureTime:  get("m1_signature_time", "M1SignatureTime"),
-		M1DeviceUUID:     get("m1_device_uuid", "M1DeviceUUID"),
-		FirebaseID:       get("m1_firebase_app_instance_id", "firebase_app_instance_id", "FirebaseID"),
-		AdvertisingID:    get("advertising_id", "ad_id", "AdvertisingID"),
-		AppSetID:         get("app_set_id", "AppSetID"),
-		InstallReferrer:  get("install_referrer", "InstallReferrer"),
-		InstallerPackage: get("installer_package", "InstallerPackage"),
-		GMSVersion:       get("gms_version", "play_services_version", "GMSVersion"),
-		UserUUID:         get("user-uuid", "UserUUID"),
-		DeviceToken:      get("x-devicetoken", "DeviceToken"),
-		IMEI:             get("x-imei", "IMEI"),
-		IPAddress:        get("x-ipaddress", "x-ip-address", "IPAddress"),
-		Location:         get("x-location", "Location"),
-		LocationAccuracy: get("x-location-accuracy", "LocationAccuracy"),
-		GojekCountryCode: get("gojek-country-code", "GojekCountryCode"),
-		TLSProfileName:   get("tls_profile", "tls-profile", "TLSProfileName"),
-	})
+	return normalizeDeviceShape(device)
 }
 
 func deviceToMap(device gopayapp.DeviceFingerprint) map[string]any {
-	return map[string]any{
-		"x-apptype":                   device.AppType,
-		"x-appversion":                device.AppVersion,
-		"x-appid":                     device.AppID,
-		"x-platform":                  device.Platform,
-		"x-uniqueid":                  device.UniqueID,
-		"x-phonemake":                 device.PhoneMake,
-		"x-phonemodel":                device.PhoneModel,
-		"x-deviceos":                  device.DeviceOS,
-		"x-user-type":                 device.UserType,
-		"x-session-id":                device.SessionID,
-		"transaction-id":              device.TransactionID,
-		"user-agent":                  device.UserAgent,
-		"d1":                          device.D1,
-		"x-e2":                        device.XE2,
-		"adjts":                       device.AdjTS,
-		"m1_appsflyer_id":             device.AppsFlyerID,
-		"m1_widevine_id":              device.WidevineID,
-		"m1_screen":                   device.Screen,
-		"m1_wifi_mac":                 device.WiFiMAC,
-		"m1_wifi_ssid":                device.WiFiSSID,
-		"m1_connection_id":            device.M1ConnectionID,
-		"m1_hardware":                 device.M1Hardware,
-		"m1_signature":                device.M1Signature,
-		"m1_signature_time":           device.M1SignatureTime,
-		"m1_device_uuid":              device.M1DeviceUUID,
-		"m1_firebase_app_instance_id": device.FirebaseID,
-		"advertising_id":              device.AdvertisingID,
-		"app_set_id":                  device.AppSetID,
-		"install_referrer":            device.InstallReferrer,
-		"installer_package":           device.InstallerPackage,
-		"gms_version":                 device.GMSVersion,
-		"user-uuid":                   device.UserUUID,
-		"x-devicetoken":               device.DeviceToken,
-		"x-imei":                      device.IMEI,
-		"x-ipaddress":                 device.IPAddress,
-		"x-location":                  device.Location,
-		"x-location-accuracy":         device.LocationAccuracy,
-		"gojek-country-code":          device.GojekCountryCode,
-		"tls_profile":                 device.TLSProfileName,
+	src := reflect.ValueOf(device)
+	out := make(map[string]any, len(deviceFieldMappings))
+	for _, mapping := range deviceFieldMappings {
+		field := src.FieldByName(mapping.Field)
+		if !field.IsValid() || field.Kind() != reflect.String {
+			out[mapping.Key] = ""
+			continue
+		}
+		out[mapping.Key] = field.String()
 	}
+	return out
 }
 
 func mergeDevice(current, fallback gopayapp.DeviceFingerprint) gopayapp.DeviceFingerprint {
-	if current.AppType == "" {
-		current.AppType = fallback.AppType
+	out := current
+	dst := reflect.ValueOf(&out).Elem()
+	src := reflect.ValueOf(fallback)
+	for i := 0; i < dst.NumField(); i++ {
+		field := dst.Field(i)
+		if field.Kind() != reflect.String || field.String() != "" {
+			continue
+		}
+		fallbackField := src.Field(i)
+		if fallbackField.Kind() == reflect.String {
+			field.SetString(fallbackField.String())
+		}
 	}
-	if current.AppVersion == "" {
-		current.AppVersion = fallback.AppVersion
+	return normalizeDeviceShape(out)
+}
+
+func deviceMapString(raw map[string]any, mapping deviceFieldMapping) string {
+	if raw == nil {
+		return ""
 	}
-	if current.AppID == "" {
-		current.AppID = fallback.AppID
+	if value := anyString(raw[mapping.Key]); value != "" {
+		return value
 	}
-	if current.Platform == "" {
-		current.Platform = fallback.Platform
+	for _, alias := range mapping.Aliases {
+		if value := anyString(raw[alias]); value != "" {
+			return value
+		}
 	}
-	if current.UniqueID == "" {
-		current.UniqueID = fallback.UniqueID
-	}
-	if current.PhoneMake == "" {
-		current.PhoneMake = fallback.PhoneMake
-	}
-	if current.PhoneModel == "" {
-		current.PhoneModel = fallback.PhoneModel
-	}
-	if current.DeviceOS == "" {
-		current.DeviceOS = fallback.DeviceOS
-	}
-	if current.UserType == "" {
-		current.UserType = fallback.UserType
-	}
-	if current.SessionID == "" {
-		current.SessionID = fallback.SessionID
-	}
-	if current.TransactionID == "" {
-		current.TransactionID = fallback.TransactionID
-	}
-	if current.UserAgent == "" {
-		current.UserAgent = fallback.UserAgent
-	}
-	if current.D1 == "" {
-		current.D1 = fallback.D1
-	}
-	if current.AdjTS == "" {
-		current.AdjTS = fallback.AdjTS
-	}
-	if current.AppsFlyerID == "" {
-		current.AppsFlyerID = fallback.AppsFlyerID
-	}
-	if current.WidevineID == "" {
-		current.WidevineID = fallback.WidevineID
-	}
-	if current.Screen == "" {
-		current.Screen = fallback.Screen
-	}
-	if current.WiFiMAC == "" {
-		current.WiFiMAC = fallback.WiFiMAC
-	}
-	if current.WiFiSSID == "" {
-		current.WiFiSSID = fallback.WiFiSSID
-	}
-	if current.M1ConnectionID == "" {
-		current.M1ConnectionID = fallback.M1ConnectionID
-	}
-	if current.M1Hardware == "" {
-		current.M1Hardware = fallback.M1Hardware
-	}
-	if current.M1Signature == "" {
-		current.M1Signature = fallback.M1Signature
-	}
-	if current.M1SignatureTime == "" {
-		current.M1SignatureTime = fallback.M1SignatureTime
-	}
-	if current.M1DeviceUUID == "" {
-		current.M1DeviceUUID = fallback.M1DeviceUUID
-	}
-	if current.FirebaseID == "" {
-		current.FirebaseID = fallback.FirebaseID
-	}
-	if current.AdvertisingID == "" {
-		current.AdvertisingID = fallback.AdvertisingID
-	}
-	if current.AppSetID == "" {
-		current.AppSetID = fallback.AppSetID
-	}
-	if current.InstallReferrer == "" {
-		current.InstallReferrer = fallback.InstallReferrer
-	}
-	if current.InstallerPackage == "" {
-		current.InstallerPackage = fallback.InstallerPackage
-	}
-	if current.GMSVersion == "" {
-		current.GMSVersion = fallback.GMSVersion
-	}
-	if current.DeviceToken == "" {
-		current.DeviceToken = fallback.DeviceToken
-	}
-	if current.IMEI == "" {
-		current.IMEI = fallback.IMEI
-	}
-	if current.IPAddress == "" {
-		current.IPAddress = fallback.IPAddress
-	}
-	if current.Location == "" {
-		current.Location = fallback.Location
-	}
-	if current.LocationAccuracy == "" {
-		current.LocationAccuracy = fallback.LocationAccuracy
-	}
-	if current.GojekCountryCode == "" {
-		current.GojekCountryCode = fallback.GojekCountryCode
-	}
-	if current.TLSProfileName == "" {
-		current.TLSProfileName = fallback.TLSProfileName
-	}
-	return normalizeDeviceShape(current)
+	return ""
 }
 
 func normalizeDeviceShape(device gopayapp.DeviceFingerprint) gopayapp.DeviceFingerprint {

@@ -8,7 +8,6 @@ import (
 
 	"github.com/byte-v-forge/common-lib/httpjson"
 	"github.com/byte-v-forge/common-lib/stringx"
-
 	gopayapp "github.com/byte-v-forge/gopay-app/protocol/app"
 )
 

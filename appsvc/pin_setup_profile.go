@@ -42,7 +42,7 @@ func pinSetupFlagFromProfileData(value any) (bool, bool) {
 	}
 	var walk func(any) (bool, bool)
 	walk = func(current any) (bool, bool) {
-		if obj, ok := jsonObject(current); ok {
+		if obj, ok := jsonx.Object(current); ok {
 			for key, item := range obj {
 				if _, ok := wanted[jsonx.NormalizeKey(key)]; ok {
 					return anyBool(item), true

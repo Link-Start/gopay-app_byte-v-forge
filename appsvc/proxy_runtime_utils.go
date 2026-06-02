@@ -6,8 +6,10 @@ import (
 	"strings"
 	"time"
 
+	proxyruntimev1 "github.com/byte-v-forge/common-lib/gen/go/byte/v/forge/contracts/proxyruntime/v1"
 	"github.com/byte-v-forge/common-lib/hashx"
 	"github.com/byte-v-forge/common-lib/stringx"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func proxyRuntimeAPIBase(value string) string {
@@ -58,16 +60,16 @@ func normalizeGoPayProxyCountryCode(value string) string {
 	}
 }
 
-func proxyRuntimeProxyURL(endpoint proxyRuntimeEndpoint) (string, error) {
-	if endpoint.Host == "" || endpoint.Port <= 0 {
+func proxyRuntimeProxyURL(endpoint *proxyruntimev1.ProxyEndpoint) (string, error) {
+	if endpoint.GetHost() == "" || endpoint.GetPort() <= 0 {
 		return "", fmt.Errorf("proxy-runtime returned invalid lease egress")
 	}
 	scheme := "http"
-	switch endpoint.Protocol {
-	case "PROXY_PROTOCOL_SOCKS5", "SOCKS5", "socks5":
+	switch endpoint.GetProtocol() {
+	case proxyruntimev1.ProxyProtocol_PROXY_PROTOCOL_SOCKS5:
 		scheme = "socks5"
 	}
-	return (&url.URL{Scheme: scheme, Host: fmt.Sprintf("%s:%d", endpoint.Host, endpoint.Port)}).String(), nil
+	return (&url.URL{Scheme: scheme, Host: fmt.Sprintf("%s:%d", endpoint.GetHost(), endpoint.GetPort())}).String(), nil
 }
 
 func proxyRuntimeLeaseActive(state stateMap) bool {
@@ -115,23 +117,38 @@ func shortProxyEnum(value string) string {
 	return value
 }
 
-func firstMap(values ...map[string]any) map[string]any {
+func proxyRuntimeLeaseDuration(value string) time.Duration {
+	parsed, err := time.ParseDuration(strings.TrimSpace(value))
+	if err == nil && parsed > 0 {
+		return parsed
+	}
+	return 10 * time.Minute
+}
+
+func protoTimestampRFC3339(value *timestamppb.Timestamp) string {
+	if value == nil || !value.IsValid() {
+		return ""
+	}
+	return value.AsTime().Format(time.RFC3339Nano)
+}
+
+func firstProxyChainPlan(values ...*proxyruntimev1.ProxyChainPlan) *proxyruntimev1.ProxyChainPlan {
 	for _, value := range values {
-		if len(value) > 0 {
+		if value != nil {
 			return value
 		}
 	}
 	return nil
 }
 
-func chainRouteLabel(chainPlan map[string]any) string {
-	if len(chainPlan) == 0 {
+func chainRouteLabel(chainPlan *proxyruntimev1.ProxyChainPlan) string {
+	if chainPlan == nil {
 		return ""
 	}
-	line := nestedMap(chainPlan["line"])
-	dynamicGateway := nestedMap(chainPlan["dynamic_gateway"])
-	lineName := stringx.FirstNonEmpty(anyString(line["display_name"]), anyString(line["node_id"]), anyString(line["source_id"]))
-	gatewayName := stringx.FirstNonEmpty(anyString(dynamicGateway["display_name"]), anyString(dynamicGateway["gateway_id"]), anyString(dynamicGateway["provider_id"]))
+	line := chainPlan.GetLine()
+	dynamicGateway := chainPlan.GetDynamicGateway()
+	lineName := stringx.FirstNonEmpty(line.GetDisplayName(), line.GetNodeId(), line.GetSourceId())
+	gatewayName := stringx.FirstNonEmpty(dynamicGateway.GetDisplayName(), dynamicGateway.GetGatewayId(), dynamicGateway.GetProviderId())
 	switch {
 	case lineName != "" && gatewayName != "":
 		return lineName + " -> " + gatewayName

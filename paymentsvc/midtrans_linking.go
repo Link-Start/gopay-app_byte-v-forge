@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/byte-v-forge/common-lib/stringx"
+	"github.com/byte-v-forge/common-lib/timex"
 )
 
 var midtransReferenceRE = regexp.MustCompile(`reference=([a-f0-9-]{36})`)
@@ -86,10 +86,8 @@ func (c *charger) midtransInitLinking(ctx context.Context, snapToken string) (st
 		}
 		if resp.status == http.StatusNotAcceptable {
 			lastErr = resp.excerpt(200)
-			select {
-			case <-ctx.Done():
-				return "", ctx.Err()
-			case <-time.After(linkRetrySleep):
+			if err := timex.Sleep(ctx, linkRetrySleep); err != nil {
+				return "", err
 			}
 			continue
 		}

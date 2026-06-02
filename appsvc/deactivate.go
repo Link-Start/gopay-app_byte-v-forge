@@ -3,10 +3,11 @@ package appsvc
 import (
 	"context"
 	"fmt"
-	"github.com/byte-v-forge/common-lib/httpjson"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/byte-v-forge/common-lib/httpjson"
 )
 
 func (s *Server) deactivateStart(ctx context.Context, state stateMap, pin string) map[string]any {

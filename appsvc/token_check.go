@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/byte-v-forge/common-lib/stringx"
+	"github.com/byte-v-forge/common-lib/timex"
 )
 
 func (s *Server) checkTokenValid(ctx context.Context, state stateMap) map[string]any {
@@ -67,7 +68,9 @@ func (s *Server) checkBalance(ctx context.Context, state stateMap) map[string]an
 		if anyBool(last["success"]) || !retryableGoPayActionError(last) {
 			return last
 		}
-		time.Sleep(loginMethodsBackoff(attempt))
+		if err := timex.Sleep(ctx, loginMethodsBackoff(attempt)); err != nil {
+			return map[string]any{"success": false, "error": err.Error(), "status": 0}
+		}
 	}
 	return last
 }

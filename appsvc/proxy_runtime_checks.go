@@ -4,62 +4,68 @@ import (
 	"context"
 	"fmt"
 	"time"
+
+	proxyruntimev1 "github.com/byte-v-forge/common-lib/gen/go/byte/v/forge/contracts/proxyruntime/v1"
 )
 
 func (s *Server) checkProxyRuntimeExitIP(ctx context.Context, baseURL string, listenerID string) (string, error) {
-	var parsed proxyRuntimeExitIPResponse
-	if err := postProxyRuntime(ctx, baseURL+"/proxy_exit_ip", map[string]any{"listener_id": listenerID}, &parsed, 20*time.Second); err != nil {
+	var parsed proxyruntimev1.GetProxyExitIPResponse
+	if err := postProxyRuntime(ctx, baseURL+"/proxy_exit_ip", &proxyruntimev1.GetProxyExitIPRequest{ListenerId: listenerID}, &parsed, 20*time.Second); err != nil {
 		return "", fmt.Errorf("proxy exit ip check: %w", err)
 	}
-	if parsed.ProxyExitIP.ErrorMessage != "" {
-		return "", fmt.Errorf("proxy exit ip check: %s", parsed.ProxyExitIP.ErrorMessage)
+	exitIP := parsed.GetProxyExitIp()
+	if exitIP.GetErrorMessage() != "" {
+		return "", fmt.Errorf("proxy exit ip check: %s", exitIP.GetErrorMessage())
 	}
-	if parsed.ProxyExitIP.IP == "" {
+	if exitIP.GetIp() == "" {
 		return "", fmt.Errorf("proxy exit ip check returned empty ip")
 	}
-	return parsed.ProxyExitIP.IP, nil
+	return exitIP.GetIp(), nil
 }
 
-func (s *Server) checkProxyRuntimeGeo(ctx context.Context, baseURL string, ip string) (proxyRuntimeGeoResponse, error) {
-	var parsed proxyRuntimeGeoResponse
-	if err := postProxyRuntime(ctx, baseURL+"/proxy_exit_geo", map[string]any{"ip": ip}, &parsed, 20*time.Second); err != nil {
-		return parsed, fmt.Errorf("proxy exit geo check: %w", err)
+func (s *Server) checkProxyRuntimeGeo(ctx context.Context, baseURL string, ip string) (*proxyruntimev1.ProxyExitGeo, error) {
+	var parsed proxyruntimev1.GetProxyExitGeoResponse
+	if err := postProxyRuntime(ctx, baseURL+"/proxy_exit_geo", &proxyruntimev1.GetProxyExitGeoRequest{Ip: ip}, &parsed, 20*time.Second); err != nil {
+		return nil, fmt.Errorf("proxy exit geo check: %w", err)
 	}
-	if parsed.ProxyExitGeo.ErrorMessage != "" {
-		return parsed, fmt.Errorf("proxy exit geo check: %s", parsed.ProxyExitGeo.ErrorMessage)
+	geo := parsed.GetProxyExitGeo()
+	if geo.GetErrorMessage() != "" {
+		return geo, fmt.Errorf("proxy exit geo check: %s", geo.GetErrorMessage())
 	}
-	return parsed, nil
+	return geo, nil
 }
 
-func (s *Server) checkProxyRuntimeFraud(ctx context.Context, baseURL string, ip string) (proxyRuntimeFraudResponse, error) {
-	var parsed proxyRuntimeFraudResponse
-	if err := postProxyRuntime(ctx, baseURL+"/ip_fraud_check", map[string]any{"ip": ip}, &parsed, 25*time.Second); err != nil {
-		return parsed, fmt.Errorf("proxy IP fraud check: %w", err)
+func (s *Server) checkProxyRuntimeFraud(ctx context.Context, baseURL string, ip string) (*proxyruntimev1.ProxyIPFraudCheck, error) {
+	var parsed proxyruntimev1.CheckProxyIPFraudResponse
+	if err := postProxyRuntime(ctx, baseURL+"/ip_fraud_check", &proxyruntimev1.CheckProxyIPFraudRequest{Ip: ip}, &parsed, 25*time.Second); err != nil {
+		return nil, fmt.Errorf("proxy IP fraud check: %w", err)
 	}
-	if parsed.Check.ErrorMessage != "" && !proxyIPFraudUnsupported(parsed.Check.RiskLevel, parsed.Check.ErrorMessage) {
-		return parsed, fmt.Errorf("proxy IP fraud check: %s", parsed.Check.ErrorMessage)
+	check := parsed.GetCheck()
+	if check.GetErrorMessage() != "" && !proxyIPFraudUnsupported(check.GetRiskLevel().String(), check.GetErrorMessage()) {
+		return check, fmt.Errorf("proxy IP fraud check: %s", check.GetErrorMessage())
 	}
-	return parsed, nil
+	return check, nil
 }
 
 func (s *Server) checkGoPayProxyRuntimeConnectivity(ctx context.Context, baseURL string, listenerID string) ([]map[string]any, error) {
 	results := make([]map[string]any, 0, len(goPayProxyConnectivityTargets))
 	for _, target := range goPayProxyConnectivityTargets {
-		var parsed proxyRuntimeConnectivityResponse
-		if err := postProxyRuntime(ctx, baseURL+"/target_connectivity_check", map[string]any{"listener_id": listenerID, "target_url": target}, &parsed, 20*time.Second); err != nil {
+		var parsed proxyruntimev1.CheckProxyTargetConnectivityResponse
+		if err := postProxyRuntime(ctx, baseURL+"/target_connectivity_check", &proxyruntimev1.CheckProxyTargetConnectivityRequest{ListenerId: listenerID, TargetUrl: target}, &parsed, 20*time.Second); err != nil {
 			return results, fmt.Errorf("target connectivity check %s: %w", target, err)
 		}
+		check := parsed.GetCheck()
 		result := map[string]any{
 			"target_url":  target,
-			"reachable":   parsed.Check.Reachable,
-			"status_code": parsed.Check.StatusCode,
-			"latency_ms":  parsed.Check.LatencyMS,
+			"reachable":   check.GetReachable(),
+			"status_code": check.GetStatusCode(),
+			"latency_ms":  check.GetLatencyMs(),
 		}
-		if parsed.Check.ErrorMessage != "" {
-			result["error_message"] = parsed.Check.ErrorMessage
+		if check.GetErrorMessage() != "" {
+			result["error_message"] = check.GetErrorMessage()
 		}
 		results = append(results, result)
-		if !parsed.Check.Reachable {
+		if !check.GetReachable() {
 			return results, fmt.Errorf("target connectivity failed: %s", target)
 		}
 	}

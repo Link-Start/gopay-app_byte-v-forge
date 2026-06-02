@@ -1,57 +1,44 @@
 package appsvc
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
-)
 
-type otpResumePayload struct {
-	JobID             string         `json:"job_id,omitempty"`
-	AccountID         string         `json:"account_id,omitempty"`
-	N8NExecutionID    string         `json:"n8n_execution_id,omitempty"`
-	Action            string         `json:"action,omitempty"`
-	Step              string         `json:"step,omitempty"`
-	Channel           string         `json:"channel"`
-	Target            string         `json:"target"`
-	OTP               string         `json:"otp"`
-	OTPSource         string         `json:"otp_source"`
-	OTPReceivedAtUnix int64          `json:"otp_received_at_unix"`
-	Data              map[string]any `json:"data,omitempty"`
-}
+	"github.com/byte-v-forge/common-lib/protojsonhttp"
+	"github.com/byte-v-forge/common-lib/stringx"
+	"github.com/byte-v-forge/gopay-app/pb"
+)
 
 func (h gopayHTTPHandler) handleOTPSubmit(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-	var payload otpSubmitPayload
-	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 16*1024)).Decode(&payload); err != nil {
+	var payload pb.SubmitChannelOTPRequest
+	if err := protojsonhttp.ReadRequest(r, &payload); err != nil {
 		writeError(w, http.StatusBadRequest, fmt.Errorf("invalid otp submit payload"))
 		return
 	}
-	submitted, err := h.submitChannelOTP(r.Context(), payload)
+	submitted, err := h.submitChannelOTP(r.Context(), &payload)
 	if err != nil {
 		writeError(w, http.StatusBadGateway, err)
 		return
 	}
-	writeJSON(w, http.StatusAccepted, submitted)
+	_ = protojsonhttp.WriteResponse(w, http.StatusAccepted, submitted)
 }
 
-func (h gopayHTTPHandler) submitChannelOTP(ctx context.Context, payload otpSubmitPayload) (map[string]any, error) {
-	channel := normalizeActionOTPChannel(payload.Channel)
-	target := normalizeChannelOTPTarget(channel, payload.Target)
-	accountID := strings.TrimSpace(payload.GopayAccountID)
-	code := normalizeOTP(payload.OTP)
+func (h gopayHTTPHandler) submitChannelOTP(ctx context.Context, payload *pb.SubmitChannelOTPRequest) (*pb.SubmitChannelOTPResponse, error) {
+	channel := normalizeActionOTPChannel(payload.GetChannel())
+	target := normalizeChannelOTPTarget(channel, payload.GetTarget())
+	accountID := strings.TrimSpace(payload.GetGopayAccountId())
+	code := normalizeOTP(payload.GetOtp())
 	if code == "" {
 		return nil, fmt.Errorf("otp is required")
 	}
 	receivedAt := time.Now().Unix()
-	if payload.ManualOnce {
+	if payload.GetManualOnce() {
 		waits, err := h.pendingManualOTPWaits(ctx, accountID, channel, target, receivedAt)
 		if err != nil {
 			return nil, err
@@ -60,22 +47,22 @@ func (h gopayHTTPHandler) submitChannelOTP(ctx context.Context, payload otpSubmi
 		if err != nil {
 			return nil, err
 		}
-		submitted := map[string]any{
-			"success":          len(resumed) > 0,
-			"manual_once":      true,
-			"gopay_account_id": accountID,
-			"resume_count":     len(resumed),
-			"resumed_job_ids":  resumed,
+		submitted := &pb.SubmitChannelOTPResponse{
+			Success:        len(resumed) > 0,
+			ManualOnce:     true,
+			GopayAccountId: accountID,
+			ResumeCount:    int32(len(resumed)),
+			ResumedJobIds:  resumed,
 		}
 		if len(resumed) == 0 {
-			submitted["error_message"] = "no pending OTP wait for this GoPay account"
+			submitted.ErrorMessage = "no pending OTP wait for this GoPay account"
 		}
 		return submitted, nil
 	}
 	if channel == "" || target == "" {
 		return nil, fmt.Errorf("channel and target are required")
 	}
-	if err := h.service.store.SaveLatestChannelOTP(ctx, latestChannelOTP{Channel: channel, Target: target, OTP: code, ReceivedAtUnix: receivedAt, Source: firstNonEmpty(payload.OTPSource, channel)}, 30*time.Minute); err != nil {
+	if err := h.service.store.SaveLatestChannelOTP(ctx, &pb.LatestChannelOTP{Channel: channel, Target: target, Otp: code, ReceivedAtUnix: receivedAt, Source: stringx.FirstNonEmpty(payload.GetOtpSource(), channel)}, 30*time.Minute); err != nil {
 		return nil, err
 	}
 	waits, err := h.service.store.PendingChannelOTPWaits(ctx, channel, target, receivedAt)
@@ -86,17 +73,17 @@ func (h gopayHTTPHandler) submitChannelOTP(ctx context.Context, payload otpSubmi
 	if err != nil {
 		return nil, err
 	}
-	return map[string]any{
-		"success":              true,
-		"channel":              channel,
-		"target":               target,
-		"otp_received_at_unix": receivedAt,
-		"resume_count":         len(resumed),
-		"resumed_job_ids":      resumed,
+	return &pb.SubmitChannelOTPResponse{
+		Success:           true,
+		Channel:           channel,
+		Target:            target,
+		OtpReceivedAtUnix: receivedAt,
+		ResumeCount:       int32(len(resumed)),
+		ResumedJobIds:     resumed,
 	}, nil
 }
 
-func (h gopayHTTPHandler) pendingManualOTPWaits(ctx context.Context, accountID string, channel string, target string, receivedAt int64) ([]channelOTPWaitEntry, error) {
+func (h gopayHTTPHandler) pendingManualOTPWaits(ctx context.Context, accountID string, channel string, target string, receivedAt int64) ([]*pb.ChannelOTPWaitEntry, error) {
 	if accountID != "" {
 		waits, err := h.service.store.PendingAccountOTPWaits(ctx, accountID, receivedAt)
 		if err != nil || len(waits) > 0 || channel == "" || target == "" {
@@ -109,10 +96,13 @@ func (h gopayHTTPHandler) pendingManualOTPWaits(ctx context.Context, accountID s
 	return h.service.store.PendingChannelOTPWaits(ctx, channel, target, receivedAt)
 }
 
-func (h gopayHTTPHandler) resumeChannelOTPWaits(ctx context.Context, waits []channelOTPWaitEntry, code string, receivedAt int64) ([]string, error) {
+func (h gopayHTTPHandler) resumeChannelOTPWaits(ctx context.Context, waits []*pb.ChannelOTPWaitEntry, code string, receivedAt int64) ([]string, error) {
 	resumed := make([]string, 0, len(waits))
 	for _, wait := range waits {
-		claimed, err := h.service.store.ClaimChannelOTPWait(ctx, wait.JobID, time.Minute)
+		if wait == nil {
+			continue
+		}
+		claimed, err := h.service.store.ClaimChannelOTPWait(ctx, wait.GetJobId(), time.Minute)
 		if err != nil {
 			return nil, err
 		}
@@ -120,51 +110,39 @@ func (h gopayHTTPHandler) resumeChannelOTPWaits(ctx context.Context, waits []cha
 			continue
 		}
 		if err := postOTPResume(ctx, wait, code, receivedAt); err != nil {
-			_ = h.service.store.ReleaseChannelOTPWaitClaim(ctx, wait.JobID)
+			_ = h.service.store.ReleaseChannelOTPWaitClaim(ctx, wait.GetJobId())
 			return nil, err
 		}
 		_ = h.service.store.DeleteChannelOTPWait(ctx, wait)
-		resumed = append(resumed, wait.JobID)
+		resumed = append(resumed, wait.GetJobId())
 	}
 	return resumed, nil
 }
 
-func postOTPResume(ctx context.Context, wait channelOTPWaitEntry, code string, receivedAt int64) error {
-	body := otpResumePayload{
-		JobID:             wait.JobID,
-		AccountID:         wait.AccountID,
-		N8NExecutionID:    wait.N8NExecutionID,
-		Action:            wait.Action,
-		Step:              wait.StepName,
-		Channel:           wait.Channel,
-		Target:            wait.Target,
-		OTP:               code,
-		OTPSource:         firstNonEmpty(wait.Channel, "channel"),
-		OTPReceivedAtUnix: receivedAt,
-		Data: map[string]any{
-			"otp_found":             true,
-			"otp_channel":           wait.Channel,
-			"channel_otp_target":    wait.Target,
-			"otp_issued_after_unix": wait.IssuedAfterUnix,
+func postOTPResume(ctx context.Context, wait *pb.ChannelOTPWaitEntry, code string, receivedAt int64) error {
+	body := &pb.ChannelOTPResumeRequest{
+		JobId:             wait.GetJobId(),
+		AccountId:         wait.GetAccountId(),
+		N8NExecutionId:    wait.GetN8NExecutionId(),
+		Action:            wait.GetAction(),
+		Step:              wait.GetStepName(),
+		Channel:           wait.GetChannel(),
+		Target:            wait.GetTarget(),
+		Otp:               code,
+		OtpSource:         stringx.FirstNonEmpty(wait.GetChannel(), "channel"),
+		OtpReceivedAtUnix: receivedAt,
+		Data: &pb.ChannelOTPResumeData{
+			OtpFound:           true,
+			OtpChannel:         wait.GetChannel(),
+			ChannelOtpTarget:   wait.GetTarget(),
+			OtpIssuedAfterUnix: wait.GetIssuedAfterUnix(),
 		},
 	}
-	data, err := json.Marshal(body)
-	if err != nil {
-		return err
-	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, strings.TrimSpace(wait.ResumeURL), bytes.NewReader(data))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{Timeout: 15 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
+	if err := postJSON(ctx, wait.GetResumeUrl(), body, jsonPostOptions{
+		Timeout:   15 * time.Second,
+		Operation: "resume channel otp wait",
+	}); err != nil {
 		return fmt.Errorf("resume channel otp wait: %w", err)
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
-		return fmt.Errorf("resume channel otp wait returned HTTP %d", resp.StatusCode)
 	}
 	return nil
 }

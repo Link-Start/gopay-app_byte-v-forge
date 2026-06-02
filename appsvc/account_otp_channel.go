@@ -1,7 +1,9 @@
 package appsvc
 
+import "github.com/byte-v-forge/common-lib/stringx"
+
 func gopayAccountOTPChannelFromState(state stateMap) string {
-	return normalizeActionOTPChannel(firstNonEmpty(
+	return normalizeActionOTPChannel(stringx.FirstNonEmpty(
 		stateString(state, "_otp_channel"),
 		stateString(state, "otp_channel"),
 		stateString(state, "_login_verification_method"),

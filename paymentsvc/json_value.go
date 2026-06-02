@@ -3,13 +3,11 @@ package paymentsvc
 import (
 	"fmt"
 	"net/url"
-	"strconv"
 	"strings"
 
 	"github.com/byte-v-forge/common-lib/jsonx"
 	"github.com/byte-v-forge/common-lib/jwtx"
 	"github.com/byte-v-forge/common-lib/redactx"
-	"github.com/byte-v-forge/common-lib/stringx"
 )
 
 func stringAt(value any, path ...string) string {
@@ -17,42 +15,11 @@ func stringAt(value any, path ...string) string {
 }
 
 func boolAt(value any, path ...string) bool {
-	current := value
-	for _, key := range path {
-		obj, ok := current.(map[string]any)
-		if !ok {
-			return false
-		}
-		current = obj[key]
-	}
-	switch typed := current.(type) {
-	case bool:
-		return typed
-	case string:
-		return strings.EqualFold(strings.TrimSpace(typed), "true")
-	default:
-		return false
-	}
+	return jsonx.BoolAt(value, path...)
 }
 
 func intAt(value any, path ...string) int64 {
-	text := stringAt(value, path...)
-	if text == "" {
-		return 0
-	}
-	parsed, err := strconv.ParseFloat(text, 64)
-	if err != nil {
-		return 0
-	}
-	return int64(parsed)
-}
-
-func normalizeDigits(value string) string {
-	return stringx.Digits(value)
-}
-
-func normalizeCountryCode(value string) string {
-	return normalizeDigits(value)
+	return jsonx.IntAt(value, path...)
 }
 
 func decodeJWTPayload(token string) map[string]any {

@@ -1,15 +1,10 @@
 package appsvc
 
 import (
-	"encoding/json"
 	"fmt"
-	"math"
-	"regexp"
-	"strconv"
 	"strings"
-	"time"
 
-	"github.com/byte-v-forge/common-lib/jwtx"
+	"github.com/byte-v-forge/common-lib/jsonx"
 )
 
 type stateMap map[string]any
@@ -19,12 +14,18 @@ func parseState(raw string) (stateMap, error) {
 	if raw == "" {
 		return stateMap{}, nil
 	}
-	var value map[string]any
-	if err := json.Unmarshal([]byte(raw), &value); err != nil {
+	if strings.EqualFold(raw, "null") {
+		return stateMap{}, nil
+	}
+	if !strings.HasPrefix(raw, "{") {
+		return nil, fmt.Errorf("state_json must be a JSON object")
+	}
+	value, err := jsonx.DecodeMap([]byte(raw))
+	if err != nil {
 		return nil, err
 	}
 	if value == nil {
-		value = map[string]any{}
+		value = jsonx.Map{}
 	}
 	return stateMap(value), nil
 }
@@ -33,7 +34,7 @@ func stateJSON(state stateMap) string {
 	if state == nil {
 		state = stateMap{}
 	}
-	raw, err := json.Marshal(state)
+	raw, err := jsonx.Compact(state)
 	if err != nil {
 		return "{}"
 	}
@@ -44,16 +45,7 @@ func stateString(state stateMap, key string) string {
 	if state == nil {
 		return ""
 	}
-	switch value := state[key].(type) {
-	case string:
-		return strings.TrimSpace(value)
-	case fmt.Stringer:
-		return strings.TrimSpace(value.String())
-	case nil:
-		return ""
-	default:
-		return strings.TrimSpace(fmt.Sprint(value))
-	}
+	return anyString(state[key])
 }
 
 func stateInt(state stateMap, key string) int64 {
@@ -63,179 +55,8 @@ func stateInt(state stateMap, key string) int64 {
 	return anyInt(state[key])
 }
 
-func anyString(value any) string {
-	switch typed := value.(type) {
-	case string:
-		return strings.TrimSpace(typed)
-	case fmt.Stringer:
-		return strings.TrimSpace(typed.String())
-	case nil:
-		return ""
-	default:
-		return strings.TrimSpace(fmt.Sprint(typed))
-	}
-}
-
-func anyInt(value any) int64 {
-	switch typed := value.(type) {
-	case int:
-		return int64(typed)
-	case int64:
-		return typed
-	case float64:
-		if math.IsNaN(typed) || math.IsInf(typed, 0) {
-			return 0
-		}
-		return int64(typed)
-	case string:
-		text := strings.TrimSpace(typed)
-		if text == "" {
-			return 0
-		}
-		parsed, err := strconv.ParseFloat(text, 64)
-		if err != nil {
-			return 0
-		}
-		return int64(parsed)
-	default:
-		return 0
-	}
-}
-
-func anyBool(value any) bool {
-	switch typed := value.(type) {
-	case bool:
-		return typed
-	case int:
-		return typed != 0
-	case int32:
-		return typed != 0
-	case int64:
-		return typed != 0
-	case float32:
-		return typed != 0
-	case float64:
-		return typed != 0
-	case string:
-		switch strings.ToLower(strings.TrimSpace(typed)) {
-		case "1", "true", "yes", "on":
-			return true
-		default:
-			return false
-		}
-	default:
-		return false
-	}
-}
-
-func nestedMap(value any) map[string]any {
-	if typed, ok := value.(map[string]any); ok && typed != nil {
-		return typed
-	}
-	return map[string]any{}
-}
-
 func deleteKeys(state stateMap, keys ...string) {
 	for _, key := range keys {
 		delete(state, key)
 	}
-}
-
-func phoneCountryCode(cfg Config, explicit string) string {
-	value := strings.TrimSpace(explicit)
-	if value == "" {
-		value = "62"
-	}
-	switch strings.ToUpper(strings.TrimPrefix(value, "+")) {
-	case "ID", "IDN", "INDONESIA":
-		return "+62"
-	}
-	if strings.HasPrefix(value, "+") {
-		return value
-	}
-	return "+" + value
-}
-
-func normalizePhone(phone string, countryCode string) string {
-	prefix := strings.TrimPrefix(phoneCountryCode(Config{}, countryCode), "+")
-	value := strings.TrimPrefix(strings.TrimSpace(phone), "+")
-	if strings.HasPrefix(value, prefix) {
-		return strings.TrimPrefix(value, prefix)
-	}
-	return value
-}
-
-func normalizePhoneWithConfig(cfg Config, phone string, countryCode string) string {
-	prefix := strings.TrimPrefix(phoneCountryCode(cfg, countryCode), "+")
-	value := strings.TrimPrefix(strings.TrimSpace(phone), "+")
-	if strings.HasPrefix(value, prefix) {
-		return strings.TrimPrefix(value, prefix)
-	}
-	return value
-}
-
-func digitsOnly(value string) string {
-	return strings.Map(func(r rune) rune {
-		if r >= '0' && r <= '9' {
-			return r
-		}
-		return -1
-	}, strings.TrimSpace(value))
-}
-
-func jwtExpiresAt(token string) int64 {
-	return jwtx.ExpiresAt(token)
-}
-
-func tokenUsable(state stateMap, key string, minTTL time.Duration) bool {
-	token := stateString(state, key)
-	if token == "" {
-		return false
-	}
-	expiresAt := jwtExpiresAt(token)
-	if expiresAt == 0 {
-		return true
-	}
-	return expiresAt > time.Now().Add(minTTL).Unix()
-}
-
-func safeJSON(value any) string {
-	raw, err := json.Marshal(value)
-	if err != nil {
-		return fmt.Sprintf(`{"marshal_error":%q}`, err.Error())
-	}
-	return string(raw)
-}
-
-func compactErrorDetail(value any) string {
-	raw := safeJSON(value)
-	if len(raw) > 800 {
-		return raw[:800]
-	}
-	return raw
-}
-
-var digitsRE = regexp.MustCompile(`\D+`)
-
-func signupSeed(phone string) string {
-	digits := digitsRE.ReplaceAllString(phone, "")
-	if len(digits) > 6 {
-		digits = digits[len(digits)-6:]
-	}
-	return fmt.Sprintf("%s%d", digits, time.Now().Unix())
-}
-
-func signupNameFromSeed(seed string) string {
-	const alphabet = "abcdefghijklmnopqrstuvwxyz"
-	hexChars := regexp.MustCompile(`[^0-9a-f]`).ReplaceAllString(strings.ToLower(seed), "")
-	if len(hexChars) < 2 {
-		hexChars = fmt.Sprintf("%02s", hexChars)
-	}
-	hexChars = hexChars[len(hexChars)-2:]
-	var out strings.Builder
-	for _, ch := range hexChars {
-		idx, _ := strconv.ParseInt(string(ch), 16, 64)
-		out.WriteByte(alphabet[idx%int64(len(alphabet))])
-	}
-	return out.String()
 }

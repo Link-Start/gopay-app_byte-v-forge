@@ -2,8 +2,6 @@ package app
 
 import (
 	"net/http"
-	"os"
-	"strings"
 	"time"
 
 	"github.com/byte-v-forge/common-lib/envx"
@@ -36,17 +34,17 @@ type Config struct {
 func ConfigFromEnv(token string) Config {
 	return Config{
 		Token:        token,
-		ProxyURL:     os.Getenv("GOPAY_PROXY_URL"),
+		ProxyURL:     envx.String("GOPAY_PROXY_URL"),
 		DeviceConfig: DeviceConfigFromEnv(),
 		DebugHTTP:    envx.Bool("GOPAY_APP_DEBUG_HTTP_REQUESTS", false),
-		SignVersion:  stringx.FirstNonEmpty(os.Getenv("GOPAY_SIGN_VERSION"), defaultGoPaySignVersion),
+		SignVersion:  envx.StringDefault("GOPAY_SIGN_VERSION", defaultGoPaySignVersion),
 		LegacyHMACKey: stringx.FirstNonEmpty(
-			os.Getenv("GOPAY_LEGACY_DISPLAY_ENCODER_KEY"),
-			os.Getenv("GOPAY_HMAC_KEY"),
+			envx.String("GOPAY_LEGACY_DISPLAY_ENCODER_KEY"),
+			envx.String("GOPAY_HMAC_KEY"),
 			defaultGoPayLegacyDisplayEncoderKey,
 		),
-		DisplayEncoderKey:     stringx.FirstNonEmpty(os.Getenv("GOPAY_DISPLAY_ENCODER_KEY"), defaultGoPayDisplayEncoderKey),
-		DisplayEncoderID:      stringx.FirstNonEmpty(os.Getenv("GOPAY_DISPLAY_ENCODER_ID"), defaultGoPayDisplayEncoderID),
-		SignedMsgTemplatePath: strings.TrimSpace(os.Getenv("GOPAY_SIGNED_MSG_TEMPLATE")),
+		DisplayEncoderKey:     envx.StringDefault("GOPAY_DISPLAY_ENCODER_KEY", defaultGoPayDisplayEncoderKey),
+		DisplayEncoderID:      envx.StringDefault("GOPAY_DISPLAY_ENCODER_ID", defaultGoPayDisplayEncoderID),
+		SignedMsgTemplatePath: envx.String("GOPAY_SIGNED_MSG_TEMPLATE"),
 	}
 }

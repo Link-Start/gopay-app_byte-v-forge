@@ -2,13 +2,12 @@ package appsvc
 
 import (
 	"context"
-	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/byte-v-forge/common-lib/httpjson"
 	"github.com/byte-v-forge/common-lib/stringx"
+	"github.com/byte-v-forge/common-lib/timex"
 	gopayapp "github.com/byte-v-forge/gopay-app/protocol/app"
 )
 
@@ -61,7 +60,9 @@ func (s *Server) startLogin(ctx context.Context, state stateMap, phone, pin, cou
 		})
 		if err != nil {
 			if attempt < attempts && retryableGoPayTransportError(err) {
-				time.Sleep(loginMethodsBackoff(attempt))
+				if sleepErr := timex.Sleep(ctx, loginMethodsBackoff(attempt)); sleepErr != nil {
+					return map[string]any{"success": false, "error": sleepErr.Error()}
+				}
 				continue
 			}
 			return map[string]any{"success": false, "error": err.Error()}
@@ -72,7 +73,9 @@ func (s *Server) startLogin(ctx context.Context, state stateMap, phone, pin, cou
 			break
 		}
 		if isRateLimited(resp) && attempt < attempts {
-			time.Sleep(loginMethodsBackoff(attempt))
+			if sleepErr := timex.Sleep(ctx, loginMethodsBackoff(attempt)); sleepErr != nil {
+				return map[string]any{"success": false, "error": sleepErr.Error()}
+			}
 			continue
 		}
 		if isRateLimited(resp) {
@@ -119,134 +122,13 @@ func (s *Server) startLogin(ctx context.Context, state stateMap, phone, pin, cou
 		s.persistLoginOTP(state, normalized, cc, verificationID, method, otpToken, "", "login_1fa")
 		return map[string]any{"success": true, "ready": false, "otp_sent": true, "verification_id": verificationID, "method": method}
 	}
-	if !contains(methods, "goto_pin") {
-		return map[string]any{"success": false, "error": fmt.Sprintf("goto_pin unavailable: %v", methods)}
-	}
-	if strings.TrimSpace(pin) == "" {
-		return map[string]any{"success": false, "error": "gopay pin missing"}
-	}
-	c := client
-	initResp, err := c.Auth.Request(ctx, http.MethodPost, "/cvs/v1/initiate", signupInitiateBody{
-		VerificationID:            verificationID,
-		Flow:                      "login_1fa",
-		VerificationMethod:        "goto_pin",
-		CountryCode:               cc,
-		EmailAddress:              nil,
-		ClientID:                  s.cfg.GotoClientID,
-		PhoneNumber:               normalized,
-		ClientSecret:              s.cfg.GotoClientSecret,
-		IsMultipleMethod:          true,
-		DeviceVerificationTokenID: nil,
-	}, http.Header{"Authorization": []string{""}})
-	if err != nil {
-		return map[string]any{"success": false, "error": err.Error()}
-	}
-	if initResp.StatusCode != http.StatusOK {
-		return map[string]any{"success": false, "error": apiError("login pin initiate failed", initResp)}
-	}
-	challengeID := challengeIDFrom(initResp.Data())
-	if challengeID == "" {
-		shape := responseShape(initResp)
-		return map[string]any{"success": false, "error": "pin challenge_id missing: " + safeJSON(shape), "response_shape": shape}
-	}
-	if pinPage, err := c.Customer.Get(ctx, "/api/v2/challenges/"+challengeID+"/pin-page/nb"); err != nil || pinPage.StatusCode != http.StatusOK {
-		return map[string]any{"success": false, "error": apiError("pin page failed", pinPage)}
-	}
-	pinResp, err := c.Customer.Post(ctx, "/api/v1/users/pin/tokens/nb", map[string]any{
-		"challenge_id": challengeID,
-		"client_id":    s.cfg.PINClientID,
-		"pin":          pin,
+	return s.startLoginWithPIN(ctx, state, loginPINStart{
+		Client:         client,
+		Phone:          normalized,
+		CountryCode:    cc,
+		VerificationID: verificationID,
+		Methods:        methods,
+		PIN:            pin,
+		OTPChannel:     otpChannel,
 	})
-	if err != nil {
-		return map[string]any{"success": false, "error": err.Error()}
-	}
-	if pinResp.StatusCode != http.StatusOK {
-		return map[string]any{"success": false, "error": apiError("pin token failed", pinResp)}
-	}
-	validationJWT := stringForAnyKey(pinResp.Data(), "token")
-	if validationJWT == "" {
-		return map[string]any{"success": false, "error": "pin validation token missing"}
-	}
-	verifyResp, err := c.Auth.Post(ctx, "/cvs/v1/verify", cvsVerifyBody{
-		Data:               map[string]any{"challenge_id": challengeID, "validation_jwt": validationJWT},
-		Flow:               "login_1fa",
-		VerificationID:     verificationID,
-		VerificationMethod: "goto_pin",
-		ClientID:           s.cfg.GotoClientID,
-		ClientSecret:       s.cfg.GotoClientSecret,
-	})
-	if err != nil {
-		return map[string]any{"success": false, "error": err.Error()}
-	}
-	if verifyResp.StatusCode != http.StatusOK {
-		return map[string]any{"success": false, "error": apiError("login pin verify failed", verifyResp)}
-	}
-	verificationToken := verificationTokenFrom(verifyResp.Data())
-	if verificationToken == "" {
-		return map[string]any{"success": false, "error": "1fa verification_token missing"}
-	}
-	accountResp, err := c.Auth.Request(ctx, http.MethodPost, "/goto-auth/accountlist", gotoAuthClientBody{
-		ClientID:     s.cfg.GotoClientID,
-		ClientSecret: s.cfg.GotoClientSecret,
-	}, http.Header{"Verification-Token": []string{"Bearer " + verificationToken}})
-	if err != nil {
-		return map[string]any{"success": false, "error": err.Error()}
-	}
-	if accountResp.StatusCode != http.StatusOK {
-		return map[string]any{"success": false, "error": apiError("accountlist failed", accountResp)}
-	}
-	accountID := firstAccountID(accountListFrom(accountResp.Data()))
-	oneFAToken := oneFATokenFrom(accountResp.Data())
-	if accountID == "" || oneFAToken == "" {
-		return map[string]any{"success": false, "error": "account_id or 1fa_token missing"}
-	}
-	tokenResp, err := c.Auth.Post(ctx, "/goto-auth/token", gotoCVSTokenBody{
-		AccountID:    accountID,
-		ExtUserToken: nil,
-		GrantType:    "cvs",
-		Token:        oneFAToken,
-		ClientID:     s.cfg.GotoClientID,
-		ClientSecret: s.cfg.GotoClientSecret,
-	})
-	if err != nil {
-		return map[string]any{"success": false, "error": err.Error()}
-	}
-	if tokenResp.StatusCode == http.StatusCreated {
-		s.persistLoginReady(state, tokenResp.Data(), normalized)
-		return map[string]any{"success": true, "ready": true, "otp_sent": false}
-	}
-	twoFAToken := twoFATokenFrom(tokenResp.Data())
-	verificationID = verificationIDFrom(tokenResp.Data())
-	if tokenResp.StatusCode != http.StatusForbidden || twoFAToken == "" || verificationID == "" {
-		return map[string]any{"success": false, "error": apiError("token exchange failed", tokenResp)}
-	}
-	otpMethods := methodsFrom(tokenResp.Data())
-	method := chooseOTPMethod(otpMethods, otpChannel, "otp_wa")
-	if method == "" {
-		return map[string]any{"success": false, "error": fmt.Sprintf("otp method unavailable: %v", otpMethods), "response_shape": responseShape(tokenResp)}
-	}
-	otpResp, err := c.Auth.Request(ctx, http.MethodPost, "/cvs/v1/initiate", signupInitiateBody{
-		VerificationID:            verificationID,
-		Flow:                      "login_2fa",
-		VerificationMethod:        method,
-		CountryCode:               cc,
-		EmailAddress:              nil,
-		ClientID:                  s.cfg.GotoClientID,
-		PhoneNumber:               normalized,
-		ClientSecret:              s.cfg.GotoClientSecret,
-		IsMultipleMethod:          nil,
-		DeviceVerificationTokenID: nil,
-	}, http.Header{"Authorization": []string{""}})
-	if err != nil {
-		return map[string]any{"success": false, "error": err.Error()}
-	}
-	if otpResp.StatusCode != http.StatusOK {
-		return map[string]any{"success": false, "error": apiError("2fa otp initiate failed", otpResp)}
-	}
-	otpToken := otpTokenFrom(otpResp.Data())
-	if otpToken == "" {
-		return map[string]any{"success": false, "error": "2fa otp_token missing"}
-	}
-	s.persistLoginOTP(state, normalized, cc, verificationID, method, otpToken, twoFAToken, "login_2fa")
-	return map[string]any{"success": true, "ready": false, "otp_sent": true, "verification_id": verificationID, "method": method}
 }

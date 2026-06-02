@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/byte-v-forge/common-lib/timex"
 )
 
 func (c *charger) gopayPaymentValidate(ctx context.Context, chargeRef string) error {
@@ -27,10 +29,8 @@ func (c *charger) gopayPaymentValidate(ctx context.Context, chargeRef string) er
 		if resp.status == http.StatusOK && boolAt(resp.json, "success") {
 			return nil
 		}
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-time.After(1500 * time.Millisecond):
+		if err := timex.Sleep(ctx, 1500*time.Millisecond); err != nil {
+			return err
 		}
 	}
 	return fmt.Errorf("payment/validate failed after retries: %d %s", last.status, last.excerpt(250))

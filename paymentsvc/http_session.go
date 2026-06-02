@@ -1,22 +1,19 @@
 package paymentsvc
 
 import (
-	"fmt"
 	stdhttp "net/http"
 	"net/url"
 	"strings"
 	"time"
 
-	"github.com/byte-v-forge/common-lib/browserhttp"
+	"github.com/byte-v-forge/common-lib/fingerprinthttp"
 )
 
 const defaultTimeout = 30 * time.Second
 
 type httpSession struct {
-	client      browserhttp.TLSClient
-	cookieJar   browserhttp.CookieJar
+	client      *fingerprinthttp.Client
 	proxyURL    string
-	headers     stdhttp.Header
 	fingerprint browserFingerprint
 }
 
@@ -34,9 +31,7 @@ func newHTTPSession(proxyURL string, fingerprints ...browserFingerprint) (*httpS
 		fingerprint = fingerprints[0].withFallback(defaultBrowserLocale)
 	}
 	session := &httpSession{
-		cookieJar:   browserhttp.NewCookieJar(),
 		proxyURL:    strings.TrimSpace(proxyURL),
-		headers:     make(stdhttp.Header),
 		fingerprint: fingerprint,
 	}
 	if err := session.rebuildClient(fingerprint); err != nil {
@@ -47,12 +42,15 @@ func newHTTPSession(proxyURL string, fingerprints ...browserFingerprint) (*httpS
 
 func (s *httpSession) rebuildClient(fingerprint browserFingerprint) error {
 	fingerprint = fingerprint.withFallback(defaultBrowserLocale)
-	client, err := browserhttp.NewTLSClient(browserhttp.Config{
-		Timeout:        defaultTimeout,
-		ProxyURL:       s.proxyURL,
-		TLSProfileName: fingerprint.TLSProfileName,
-		DisableHTTP3:   true,
-	}, s.cookieJar)
+	client, err := fingerprinthttp.New(fingerprinthttp.Config{
+		Timeout:      defaultTimeout,
+		ProxyURL:     s.proxyURL,
+		Profile:      fingerprint.httpProfile(s.proxyURL),
+		DisableHTTP3: true,
+		RetryMax:     3,
+		RetryDelay:   time.Second,
+		MaxBodyBytes: 8 * 1024 * 1024,
+	})
 	if err != nil {
 		return err
 	}
@@ -62,18 +60,6 @@ func (s *httpSession) rebuildClient(fingerprint browserFingerprint) error {
 	s.client = client
 	s.fingerprint = fingerprint
 	return nil
-}
-
-func (s *httpSession) setProxy(proxyURL string) error {
-	if s == nil {
-		return fmt.Errorf("http session is nil")
-	}
-	proxyURL = strings.TrimSpace(proxyURL)
-	if s.proxyURL == proxyURL {
-		return nil
-	}
-	s.proxyURL = proxyURL
-	return s.rebuildClient(s.fingerprint)
 }
 
 func (s *httpSession) close() {

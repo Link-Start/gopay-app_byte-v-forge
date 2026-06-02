@@ -4,19 +4,25 @@ import (
 	"strings"
 	"time"
 	"unicode"
+
+	"github.com/byte-v-forge/common-lib/stringx"
+	"github.com/byte-v-forge/gopay-app/pb"
 )
 
-func normalizeChannelOTPWaitEntry(entry channelOTPWaitEntry) channelOTPWaitEntry {
-	entry.JobID = strings.TrimSpace(entry.JobID)
-	entry.AccountID = strings.TrimSpace(entry.AccountID)
-	entry.N8NExecutionID = strings.TrimSpace(entry.N8NExecutionID)
-	entry.Action = strings.TrimSpace(entry.Action)
-	entry.StepName = strings.TrimSpace(entry.StepName)
-	entry.Channel = normalizeActionOTPChannel(entry.Channel)
-	entry.Target = normalizeChannelOTPTarget(entry.Channel, entry.Target)
-	entry.ResumeURL = strings.TrimSpace(entry.ResumeURL)
+func normalizeChannelOTPWaitEntry(entry *pb.ChannelOTPWaitEntry) *pb.ChannelOTPWaitEntry {
+	if entry == nil {
+		entry = &pb.ChannelOTPWaitEntry{}
+	}
+	entry.JobId = strings.TrimSpace(entry.GetJobId())
+	entry.AccountId = strings.TrimSpace(entry.GetAccountId())
+	entry.N8NExecutionId = strings.TrimSpace(entry.GetN8NExecutionId())
+	entry.Action = strings.TrimSpace(entry.GetAction())
+	entry.StepName = strings.TrimSpace(entry.GetStepName())
+	entry.Channel = normalizeActionOTPChannel(entry.GetChannel())
+	entry.Target = normalizeChannelOTPTarget(entry.GetChannel(), entry.GetTarget())
+	entry.ResumeUrl = strings.TrimSpace(entry.GetResumeUrl())
 	if entry.TimeoutSeconds <= 0 {
-		entry.TimeoutSeconds = defaultChannelOTPTimeoutSeconds(entry.Channel)
+		entry.TimeoutSeconds = defaultChannelOTPTimeoutSeconds(entry.GetChannel())
 	}
 	if entry.CreatedAtUnix <= 0 {
 		entry.CreatedAtUnix = time.Now().Unix()
@@ -24,22 +30,28 @@ func normalizeChannelOTPWaitEntry(entry channelOTPWaitEntry) channelOTPWaitEntry
 	return entry
 }
 
-func normalizeLatestChannelOTP(otp latestChannelOTP) latestChannelOTP {
-	otp.Channel = normalizeActionOTPChannel(otp.Channel)
-	otp.Target = normalizeChannelOTPTarget(otp.Channel, otp.Target)
-	otp.OTP = normalizeOTP(otp.OTP)
-	otp.Source = firstNonEmpty(otp.Source, otp.Channel)
+func normalizeLatestChannelOTP(otp *pb.LatestChannelOTP) *pb.LatestChannelOTP {
+	if otp == nil {
+		otp = &pb.LatestChannelOTP{}
+	}
+	otp.Channel = normalizeActionOTPChannel(otp.GetChannel())
+	otp.Target = normalizeChannelOTPTarget(otp.GetChannel(), otp.GetTarget())
+	otp.Otp = normalizeOTP(otp.GetOtp())
+	otp.Source = stringx.FirstNonEmpty(otp.GetSource(), otp.GetChannel())
 	if otp.ReceivedAtUnix <= 0 {
 		otp.ReceivedAtUnix = time.Now().Unix()
 	}
 	return otp
 }
 
-func channelOTPWaitAccepts(entry channelOTPWaitEntry, receivedAtUnix int64) bool {
-	if entry.IssuedAfterUnix > 0 && receivedAtUnix > 0 && receivedAtUnix < entry.IssuedAfterUnix {
+func channelOTPWaitAccepts(entry *pb.ChannelOTPWaitEntry, receivedAtUnix int64) bool {
+	if entry == nil {
 		return false
 	}
-	if entry.TimeoutSeconds > 0 && entry.IssuedAfterUnix > 0 && receivedAtUnix > entry.IssuedAfterUnix+int64(entry.TimeoutSeconds) {
+	if entry.GetIssuedAfterUnix() > 0 && receivedAtUnix > 0 && receivedAtUnix < entry.GetIssuedAfterUnix() {
+		return false
+	}
+	if entry.GetTimeoutSeconds() > 0 && entry.GetIssuedAfterUnix() > 0 && receivedAtUnix > entry.GetIssuedAfterUnix()+int64(entry.GetTimeoutSeconds()) {
 		return false
 	}
 	return true

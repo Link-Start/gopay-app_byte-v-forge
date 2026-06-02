@@ -3,9 +3,10 @@ package paymentsvc
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/byte-v-forge/common-lib/browserfingerprint"
+	"github.com/byte-v-forge/common-lib/fingerprinthttp"
+	"github.com/byte-v-forge/common-lib/stringx"
 	"github.com/google/uuid"
 )
 
@@ -32,7 +33,7 @@ func stablePaymentBrowserFingerprint(locale, selector, deviceID string) browserF
 	if candidate.ProfileName == "" {
 		candidate = defaultPaymentBrowserFingerprints[0]
 	}
-	return buildPaymentBrowserFingerprint(candidate, locale, firstNonEmpty(deviceID, stablePaymentDeviceID(candidate)))
+	return buildPaymentBrowserFingerprint(candidate, locale, stringx.FirstNonEmpty(deviceID, stablePaymentDeviceID(candidate)))
 }
 
 func randomPaymentBrowserFingerprint(locale string) browserFingerprint {
@@ -46,7 +47,7 @@ func browserFingerprintFromProfile(profile requestProfile) browserFingerprint {
 	if candidate.ProfileName == "" {
 		candidate = defaultPaymentBrowserFingerprints[0]
 	}
-	fp := buildPaymentBrowserFingerprint(candidate, profile.Locale, firstNonEmpty(profile.DeviceID, stableRequestProfileDeviceID(profile, candidate)))
+	fp := buildPaymentBrowserFingerprint(candidate, profile.Locale, stringx.FirstNonEmpty(profile.DeviceID, stableRequestProfileDeviceID(profile, candidate)))
 	if profile.UserAgent != "" {
 		fp.UserAgent = profile.UserAgent
 	}
@@ -134,11 +135,15 @@ func (fp browserFingerprint) newAttemptHeaders() http.Header {
 	return headers
 }
 
-func firstNonEmpty(values ...string) string {
-	for _, value := range values {
-		if value = strings.TrimSpace(value); value != "" {
-			return value
-		}
+func (fp browserFingerprint) httpProfile(proxyURL string) fingerprinthttp.Profile {
+	return fingerprinthttp.Profile{
+		ProxyURL:       proxyURL,
+		TLSProfileName: fp.TLSProfileName,
+		UserAgent:      fp.UserAgent,
+		SecCHUA:        fp.SecCHUA,
+		SecCHPlatform:  fp.SecCHPlatform,
+		AcceptLanguage: fp.AcceptLanguage,
+		Language:       fp.Language,
+		DeviceID:       fp.DeviceID,
 	}
-	return ""
 }

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/byte-v-forge/common-lib/stringx"
+	"github.com/byte-v-forge/common-lib/timex"
 )
 
 func (c *charger) midtransPollStatus(ctx context.Context, snapToken string) (map[string]any, error) {
@@ -34,10 +35,8 @@ func (c *charger) midtransPollStatus(ctx context.Context, snapToken string) (map
 		} else {
 			last = fmt.Sprintf("http %d: %s", resp.status, resp.excerpt(150))
 		}
-		select {
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		case <-time.After(2 * time.Second):
+		if err := timex.Sleep(ctx, 2*time.Second); err != nil {
+			return nil, err
 		}
 	}
 	return map[string]any{}, fmt.Errorf("midtrans status poll timeout: %s", last)

@@ -3,10 +3,8 @@ package appsvc
 import (
 	"context"
 	"fmt"
-	"strings"
-	"time"
 
-	"github.com/byte-v-forge/common-lib/hashx"
+	"github.com/byte-v-forge/common-lib/stringx"
 )
 
 func (s *Server) ensureProxyRuntimeSession(ctx context.Context, state stateMap, options proxyRuntimeAcquireOptions) error {
@@ -41,7 +39,7 @@ func (s *Server) createProxyRuntimeSession(ctx context.Context, state stateMap, 
 		return nil, fmt.Errorf("gopay account identity missing")
 	}
 	countryCode := normalizeGoPayProxyCountryCode(options.CountryCode)
-	leaseTTL := firstNonEmpty(options.LeaseTTL, goPayProxyLeaseTTL)
+	leaseTTL := stringx.FirstNonEmpty(options.LeaseTTL, goPayProxyLeaseTTL)
 	if options.SkipPreflight {
 		return s.acquireProxyRuntimeSession(ctx, baseURL, state, identity, countryCode, options.ForceNew, leaseTTL, 1, true, options.RequireLineProxy)
 	}
@@ -55,131 +53,4 @@ func (s *Server) createProxyRuntimeSession(ctx context.Context, state stateMap, 
 		lastErr = err
 	}
 	return nil, fmt.Errorf("gopay dynamic IP preflight failed after %d attempts: %w", goPayProxyPreflightMaxAttempts, lastErr)
-}
-
-func (s *Server) acquireAndPreflightProxyRuntimeSession(ctx context.Context, baseURL string, state stateMap, identity string, countryCode string, forceNew bool, leaseTTL string, attempt int, requireLineProxy bool) (map[string]any, error) {
-	out, listenerID, exitIP, err := s.acquireProxyRuntimeSessionWithListener(ctx, baseURL, state, identity, countryCode, forceNew, leaseTTL, attempt, false, requireLineProxy)
-	if err != nil {
-		return nil, err
-	}
-	geo, err := s.checkProxyRuntimeGeo(ctx, baseURL, exitIP)
-	if err != nil {
-		return nil, s.releaseFailedProxyRuntimePreflight(ctx, baseURL, out, err)
-	}
-	if geo.ProxyExitGeo.CountryCode != "" && !strings.EqualFold(geo.ProxyExitGeo.CountryCode, countryCode) {
-		return nil, s.releaseFailedProxyRuntimePreflight(ctx, baseURL, out, fmt.Errorf("proxy exit country mismatch: got %s want %s", geo.ProxyExitGeo.CountryCode, countryCode))
-	}
-	fraud, err := s.checkProxyRuntimeFraud(ctx, baseURL, exitIP)
-	if err != nil {
-		return nil, s.releaseFailedProxyRuntimePreflight(ctx, baseURL, out, err)
-	}
-	if proxyIPFraudRiskRejected(fraud.Check.RiskLevel) {
-		return nil, s.releaseFailedProxyRuntimePreflight(ctx, baseURL, out, fmt.Errorf("proxy IP fraud risk rejected: level=%s score=%.0f", fraud.Check.RiskLevel, fraud.Check.RiskScore))
-	}
-	connectivity, err := s.checkGoPayProxyRuntimeConnectivity(ctx, baseURL, listenerID)
-	if err != nil {
-		return nil, s.releaseFailedProxyRuntimePreflight(ctx, baseURL, out, err)
-	}
-	out["_proxy_runtime_preflight_country_code"] = countryCode
-	out["_proxy_runtime_preflight_attempt"] = attempt
-	out["_proxy_runtime_exit_ip_hash"] = hashx.ShortSHA256(exitIP, 12)
-	out["_proxy_runtime_exit_country_code"] = geo.ProxyExitGeo.CountryCode
-	out["_proxy_runtime_exit_region"] = geo.ProxyExitGeo.Region
-	out["_proxy_runtime_ip_fraud_risk_level"] = normalizeProxyRiskLevel(fraud.Check.RiskLevel)
-	out["_proxy_runtime_ip_fraud_risk_score"] = fraud.Check.RiskScore
-	out["_proxy_runtime_ip_network_kind"] = shortProxyEnum(fraud.Check.NetworkKind)
-	out["_proxy_runtime_ip_anonymizer_kind"] = shortProxyEnum(fraud.Check.AnonymizerKind)
-	out["_proxy_runtime_connectivity_reachable"] = true
-	out["_proxy_runtime_connectivity_targets"] = connectivity
-	return out, nil
-}
-
-func (s *Server) acquireProxyRuntimeSession(ctx context.Context, baseURL string, state stateMap, identity string, countryCode string, forceNew bool, leaseTTL string, attempt int, skipPreflight bool, requireLineProxy bool) (map[string]any, error) {
-	out, _, _, err := s.acquireProxyRuntimeSessionWithListener(ctx, baseURL, state, identity, countryCode, forceNew, leaseTTL, attempt, skipPreflight, requireLineProxy)
-	return out, err
-}
-
-func (s *Server) acquireProxyRuntimeSessionWithListener(ctx context.Context, baseURL string, state stateMap, identity string, countryCode string, forceNew bool, leaseTTL string, attempt int, skipPreflight bool, requireLineProxy bool) (map[string]any, string, string, error) {
-	accountID := proxyRuntimeAccountID(identity)
-	leaseTTL = firstNonEmpty(leaseTTL, goPayProxyLeaseTTL)
-	leaseReq := map[string]any{
-		"account_id": accountID,
-		"purpose":    goPayProxyPurpose,
-		"force_new":  forceNew,
-		"policy": map[string]any{
-			"mode":          "PROXY_SESSION_MODE_STICKY",
-			"region":        countryCode,
-			"sticky_ttl":    leaseTTL,
-			"upstream_kind": "PROXY_UPSTREAM_KIND_DYNAMIC_IP",
-			"rotation_mode": "PROXY_ROTATION_MODE_STICKY_SESSION",
-			"labels": map[string]string{
-				"purpose": "gopay_app",
-				"country": countryCode,
-			},
-		},
-		"chain_policy": map[string]any{
-			"country_code":                 countryCode,
-			"purpose":                      goPayProxyPurpose,
-			"strategy":                     "PROXY_CHAIN_STRATEGY_REGION_AWARE",
-			"require_dynamic_exit":         true,
-			"allow_direct_dynamic_gateway": !requireLineProxy,
-			"prefer_line_proxy":            true,
-			"max_attempts":                 goPayProxyPreflightMaxAttempts,
-		},
-	}
-	var lease proxyRuntimeLeaseResponse
-	if err := postProxyRuntime(ctx, baseURL+"/leases/acquire", leaseReq, &lease, 30*time.Second); err != nil {
-		return nil, "", "", err
-	}
-	egress := lease.Egress
-	if egress.Host == "" {
-		egress = lease.Lease.Egress
-	}
-	proxyURL, err := proxyRuntimeProxyURL(egress)
-	if err != nil {
-		return nil, "", "", err
-	}
-	listenerID := strings.TrimSpace(lease.Lease.Listener.ListenerID)
-	if listenerID == "" {
-		return nil, "", "", fmt.Errorf("proxy-runtime returned lease without listener")
-	}
-
-	chainPlan := firstMap(lease.ChainPlan, lease.Lease.ChainPlan)
-	out := map[string]any{
-		"_gopay_proxy":                      proxyURL,
-		"_gopay_account_id":                 identity,
-		"_gopay_country_code":               countryCode,
-		"_proxy_runtime_account_id":         accountID,
-		"_proxy_runtime_lease_id":           lease.Lease.LeaseID,
-		"_proxy_runtime_provider_account":   lease.Lease.ProviderAccountID,
-		"_proxy_runtime_lease_expires_at":   lease.Lease.ExpiresAt,
-		"_proxy_runtime_listener_id":        listenerID,
-		"_proxy_runtime_listener_kind":      lease.Lease.Listener.Kind,
-		"_proxy_runtime_session_started_at": time.Now().Unix(),
-		"_proxy_runtime_pool_endpoints":     len(lease.Pool.Endpoints),
-		"_proxy_runtime_session_rotated":    forceNew,
-		"_proxy_runtime_preflight_skipped":  skipPreflight,
-	}
-	if lease.Lease.Session.SessionID != "" {
-		out["_proxy_runtime_session_hash"] = hashx.ShortSHA256(lease.Lease.Session.SessionID, 12)
-	}
-	if routeLabel := chainRouteLabel(chainPlan); routeLabel != "" {
-		out["_proxy_runtime_chain_route"] = routeLabel
-	}
-	exitIP := ""
-	if !skipPreflight {
-		exitIP, err = s.checkProxyRuntimeExitIP(ctx, baseURL, listenerID)
-		if err != nil {
-			_ = s.releaseProxyRuntimeAccount(ctx, baseURL, accountID)
-			return nil, "", "", err
-		}
-	}
-	return out, listenerID, exitIP, nil
-}
-
-func (s *Server) releaseFailedProxyRuntimePreflight(ctx context.Context, baseURL string, data map[string]any, err error) error {
-	if releaseErr := s.releaseProxyRuntimeAccount(ctx, baseURL, anyString(data["_proxy_runtime_account_id"])); releaseErr != nil {
-		return fmt.Errorf("%w; release failed: %v", err, releaseErr)
-	}
-	return err
 }

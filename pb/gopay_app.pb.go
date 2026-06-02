@@ -455,6 +455,146 @@ func (x *StartGoPayRegisterIndonesiaWAWorkflowResponse) GetErrorMessage() string
 	return ""
 }
 
+type GopayWorkflowJob struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	JobId          string                 `protobuf:"bytes,1,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"`
+	N8NExecutionId string                 `protobuf:"bytes,2,opt,name=n8n_execution_id,json=n8nExecutionId,proto3" json:"n8n_execution_id,omitempty"`
+	Operation      string                 `protobuf:"bytes,3,opt,name=operation,proto3" json:"operation,omitempty"`
+	GopayAccountId string                 `protobuf:"bytes,4,opt,name=gopay_account_id,json=gopayAccountId,proto3" json:"gopay_account_id,omitempty"`
+	Phone          string                 `protobuf:"bytes,5,opt,name=phone,proto3" json:"phone,omitempty"`
+	CountryCode    string                 `protobuf:"bytes,6,opt,name=country_code,json=countryCode,proto3" json:"country_code,omitempty"`
+	Pin            string                 `protobuf:"bytes,7,opt,name=pin,proto3" json:"pin,omitempty"`
+	OtpChannel     string                 `protobuf:"bytes,8,opt,name=otp_channel,json=otpChannel,proto3" json:"otp_channel,omitempty"`
+	Status         string                 `protobuf:"bytes,9,opt,name=status,proto3" json:"status,omitempty"`
+	ErrorMessage   string                 `protobuf:"bytes,10,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	CreatedAtUnix  int64                  `protobuf:"varint,11,opt,name=created_at_unix,json=createdAtUnix,proto3" json:"created_at_unix,omitempty"`
+	UpdatedAtUnix  int64                  `protobuf:"varint,12,opt,name=updated_at_unix,json=updatedAtUnix,proto3" json:"updated_at_unix,omitempty"`
+	Result         *structpb.Struct       `protobuf:"bytes,13,opt,name=result,proto3" json:"result,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *GopayWorkflowJob) Reset() {
+	*x = GopayWorkflowJob{}
+	mi := &file_gopay_app_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GopayWorkflowJob) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GopayWorkflowJob) ProtoMessage() {}
+
+func (x *GopayWorkflowJob) ProtoReflect() protoreflect.Message {
+	mi := &file_gopay_app_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GopayWorkflowJob.ProtoReflect.Descriptor instead.
+func (*GopayWorkflowJob) Descriptor() ([]byte, []int) {
+	return file_gopay_app_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GopayWorkflowJob) GetJobId() string {
+	if x != nil {
+		return x.JobId
+	}
+	return ""
+}
+
+func (x *GopayWorkflowJob) GetN8NExecutionId() string {
+	if x != nil {
+		return x.N8NExecutionId
+	}
+	return ""
+}
+
+func (x *GopayWorkflowJob) GetOperation() string {
+	if x != nil {
+		return x.Operation
+	}
+	return ""
+}
+
+func (x *GopayWorkflowJob) GetGopayAccountId() string {
+	if x != nil {
+		return x.GopayAccountId
+	}
+	return ""
+}
+
+func (x *GopayWorkflowJob) GetPhone() string {
+	if x != nil {
+		return x.Phone
+	}
+	return ""
+}
+
+func (x *GopayWorkflowJob) GetCountryCode() string {
+	if x != nil {
+		return x.CountryCode
+	}
+	return ""
+}
+
+func (x *GopayWorkflowJob) GetPin() string {
+	if x != nil {
+		return x.Pin
+	}
+	return ""
+}
+
+func (x *GopayWorkflowJob) GetOtpChannel() string {
+	if x != nil {
+		return x.OtpChannel
+	}
+	return ""
+}
+
+func (x *GopayWorkflowJob) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *GopayWorkflowJob) GetErrorMessage() string {
+	if x != nil {
+		return x.ErrorMessage
+	}
+	return ""
+}
+
+func (x *GopayWorkflowJob) GetCreatedAtUnix() int64 {
+	if x != nil {
+		return x.CreatedAtUnix
+	}
+	return 0
+}
+
+func (x *GopayWorkflowJob) GetUpdatedAtUnix() int64 {
+	if x != nil {
+		return x.UpdatedAtUnix
+	}
+	return 0
+}
+
+func (x *GopayWorkflowJob) GetResult() *structpb.Struct {
+	if x != nil {
+		return x.Result
+	}
+	return nil
+}
+
 type GoPayRegisterIndonesiaWASettings struct {
 	state                    protoimpl.MessageState `protogen:"open.v1"`
 	SmsAcquireWaitSeconds    int32                  `protobuf:"varint,4,opt,name=sms_acquire_wait_seconds,json=smsAcquireWaitSeconds,proto3" json:"sms_acquire_wait_seconds,omitempty"`
@@ -468,7 +608,7 @@ type GoPayRegisterIndonesiaWASettings struct {
 
 func (x *GoPayRegisterIndonesiaWASettings) Reset() {
 	*x = GoPayRegisterIndonesiaWASettings{}
-	mi := &file_gopay_app_proto_msgTypes[5]
+	mi := &file_gopay_app_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -480,7 +620,7 @@ func (x *GoPayRegisterIndonesiaWASettings) String() string {
 func (*GoPayRegisterIndonesiaWASettings) ProtoMessage() {}
 
 func (x *GoPayRegisterIndonesiaWASettings) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[5]
+	mi := &file_gopay_app_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -493,7 +633,7 @@ func (x *GoPayRegisterIndonesiaWASettings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GoPayRegisterIndonesiaWASettings.ProtoReflect.Descriptor instead.
 func (*GoPayRegisterIndonesiaWASettings) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{5}
+	return file_gopay_app_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GoPayRegisterIndonesiaWASettings) GetSmsAcquireWaitSeconds() int32 {
@@ -539,7 +679,7 @@ type GetGoPaySettingsRequest struct {
 
 func (x *GetGoPaySettingsRequest) Reset() {
 	*x = GetGoPaySettingsRequest{}
-	mi := &file_gopay_app_proto_msgTypes[6]
+	mi := &file_gopay_app_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -551,7 +691,7 @@ func (x *GetGoPaySettingsRequest) String() string {
 func (*GetGoPaySettingsRequest) ProtoMessage() {}
 
 func (x *GetGoPaySettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[6]
+	mi := &file_gopay_app_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -564,7 +704,7 @@ func (x *GetGoPaySettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGoPaySettingsRequest.ProtoReflect.Descriptor instead.
 func (*GetGoPaySettingsRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{6}
+	return file_gopay_app_proto_rawDescGZIP(), []int{7}
 }
 
 type GetGoPaySettingsResponse struct {
@@ -578,7 +718,7 @@ type GetGoPaySettingsResponse struct {
 
 func (x *GetGoPaySettingsResponse) Reset() {
 	*x = GetGoPaySettingsResponse{}
-	mi := &file_gopay_app_proto_msgTypes[7]
+	mi := &file_gopay_app_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -590,7 +730,7 @@ func (x *GetGoPaySettingsResponse) String() string {
 func (*GetGoPaySettingsResponse) ProtoMessage() {}
 
 func (x *GetGoPaySettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[7]
+	mi := &file_gopay_app_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -603,7 +743,7 @@ func (x *GetGoPaySettingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGoPaySettingsResponse.ProtoReflect.Descriptor instead.
 func (*GetGoPaySettingsResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{7}
+	return file_gopay_app_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetGoPaySettingsResponse) GetSuccess() bool {
@@ -636,7 +776,7 @@ type SaveGoPaySettingsRequest struct {
 
 func (x *SaveGoPaySettingsRequest) Reset() {
 	*x = SaveGoPaySettingsRequest{}
-	mi := &file_gopay_app_proto_msgTypes[8]
+	mi := &file_gopay_app_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -648,7 +788,7 @@ func (x *SaveGoPaySettingsRequest) String() string {
 func (*SaveGoPaySettingsRequest) ProtoMessage() {}
 
 func (x *SaveGoPaySettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[8]
+	mi := &file_gopay_app_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -661,7 +801,7 @@ func (x *SaveGoPaySettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveGoPaySettingsRequest.ProtoReflect.Descriptor instead.
 func (*SaveGoPaySettingsRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{8}
+	return file_gopay_app_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *SaveGoPaySettingsRequest) GetRegisterIndonesiaWa() *GoPayRegisterIndonesiaWASettings {
@@ -682,7 +822,7 @@ type SaveGoPaySettingsResponse struct {
 
 func (x *SaveGoPaySettingsResponse) Reset() {
 	*x = SaveGoPaySettingsResponse{}
-	mi := &file_gopay_app_proto_msgTypes[9]
+	mi := &file_gopay_app_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -694,7 +834,7 @@ func (x *SaveGoPaySettingsResponse) String() string {
 func (*SaveGoPaySettingsResponse) ProtoMessage() {}
 
 func (x *SaveGoPaySettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[9]
+	mi := &file_gopay_app_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -707,7 +847,7 @@ func (x *SaveGoPaySettingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveGoPaySettingsResponse.ProtoReflect.Descriptor instead.
 func (*SaveGoPaySettingsResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{9}
+	return file_gopay_app_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *SaveGoPaySettingsResponse) GetSuccess() bool {
@@ -739,7 +879,7 @@ type GetGopayActionCatalogRequest struct {
 
 func (x *GetGopayActionCatalogRequest) Reset() {
 	*x = GetGopayActionCatalogRequest{}
-	mi := &file_gopay_app_proto_msgTypes[10]
+	mi := &file_gopay_app_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -751,7 +891,7 @@ func (x *GetGopayActionCatalogRequest) String() string {
 func (*GetGopayActionCatalogRequest) ProtoMessage() {}
 
 func (x *GetGopayActionCatalogRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[10]
+	mi := &file_gopay_app_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -764,7 +904,7 @@ func (x *GetGopayActionCatalogRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGopayActionCatalogRequest.ProtoReflect.Descriptor instead.
 func (*GetGopayActionCatalogRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{10}
+	return file_gopay_app_proto_rawDescGZIP(), []int{11}
 }
 
 type GetGopayActionCatalogResponse struct {
@@ -778,7 +918,7 @@ type GetGopayActionCatalogResponse struct {
 
 func (x *GetGopayActionCatalogResponse) Reset() {
 	*x = GetGopayActionCatalogResponse{}
-	mi := &file_gopay_app_proto_msgTypes[11]
+	mi := &file_gopay_app_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -790,7 +930,7 @@ func (x *GetGopayActionCatalogResponse) String() string {
 func (*GetGopayActionCatalogResponse) ProtoMessage() {}
 
 func (x *GetGopayActionCatalogResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[11]
+	mi := &file_gopay_app_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -803,7 +943,7 @@ func (x *GetGopayActionCatalogResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGopayActionCatalogResponse.ProtoReflect.Descriptor instead.
 func (*GetGopayActionCatalogResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{11}
+	return file_gopay_app_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetGopayActionCatalogResponse) GetSuccess() bool {
@@ -827,6 +967,262 @@ func (x *GetGopayActionCatalogResponse) GetCatalog() *v1.AccountActionCatalog {
 	return nil
 }
 
+type GopayAPIErrorResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Error         string                 `protobuf:"bytes,1,opt,name=error,proto3" json:"error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GopayAPIErrorResponse) Reset() {
+	*x = GopayAPIErrorResponse{}
+	mi := &file_gopay_app_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GopayAPIErrorResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GopayAPIErrorResponse) ProtoMessage() {}
+
+func (x *GopayAPIErrorResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_gopay_app_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GopayAPIErrorResponse.ProtoReflect.Descriptor instead.
+func (*GopayAPIErrorResponse) Descriptor() ([]byte, []int) {
+	return file_gopay_app_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *GopayAPIErrorResponse) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+type GopayHealthWorkflow struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	Label         string                 `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`
+	WebhookPath   string                 `protobuf:"bytes,3,opt,name=webhook_path,json=webhookPath,proto3" json:"webhook_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GopayHealthWorkflow) Reset() {
+	*x = GopayHealthWorkflow{}
+	mi := &file_gopay_app_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GopayHealthWorkflow) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GopayHealthWorkflow) ProtoMessage() {}
+
+func (x *GopayHealthWorkflow) ProtoReflect() protoreflect.Message {
+	mi := &file_gopay_app_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GopayHealthWorkflow.ProtoReflect.Descriptor instead.
+func (*GopayHealthWorkflow) Descriptor() ([]byte, []int) {
+	return file_gopay_app_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GopayHealthWorkflow) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *GopayHealthWorkflow) GetLabel() string {
+	if x != nil {
+		return x.Label
+	}
+	return ""
+}
+
+func (x *GopayHealthWorkflow) GetWebhookPath() string {
+	if x != nil {
+		return x.WebhookPath
+	}
+	return ""
+}
+
+type GopayHealthResponse struct {
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	Success              bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Ok                   bool                   `protobuf:"varint,2,opt,name=ok,proto3" json:"ok,omitempty"`
+	Service              string                 `protobuf:"bytes,3,opt,name=service,proto3" json:"service,omitempty"`
+	N8NWebhookConfigured bool                   `protobuf:"varint,4,opt,name=n8n_webhook_configured,json=n8nWebhookConfigured,proto3" json:"n8n_webhook_configured,omitempty"`
+	GopayActionApiOwned  bool                   `protobuf:"varint,5,opt,name=gopay_action_api_owned,json=gopayActionApiOwned,proto3" json:"gopay_action_api_owned,omitempty"`
+	GopayAccountApiOwned bool                   `protobuf:"varint,6,opt,name=gopay_account_api_owned,json=gopayAccountApiOwned,proto3" json:"gopay_account_api_owned,omitempty"`
+	Workflows            []*GopayHealthWorkflow `protobuf:"bytes,7,rep,name=workflows,proto3" json:"workflows,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *GopayHealthResponse) Reset() {
+	*x = GopayHealthResponse{}
+	mi := &file_gopay_app_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GopayHealthResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GopayHealthResponse) ProtoMessage() {}
+
+func (x *GopayHealthResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_gopay_app_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GopayHealthResponse.ProtoReflect.Descriptor instead.
+func (*GopayHealthResponse) Descriptor() ([]byte, []int) {
+	return file_gopay_app_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *GopayHealthResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *GopayHealthResponse) GetOk() bool {
+	if x != nil {
+		return x.Ok
+	}
+	return false
+}
+
+func (x *GopayHealthResponse) GetService() string {
+	if x != nil {
+		return x.Service
+	}
+	return ""
+}
+
+func (x *GopayHealthResponse) GetN8NWebhookConfigured() bool {
+	if x != nil {
+		return x.N8NWebhookConfigured
+	}
+	return false
+}
+
+func (x *GopayHealthResponse) GetGopayActionApiOwned() bool {
+	if x != nil {
+		return x.GopayActionApiOwned
+	}
+	return false
+}
+
+func (x *GopayHealthResponse) GetGopayAccountApiOwned() bool {
+	if x != nil {
+		return x.GopayAccountApiOwned
+	}
+	return false
+}
+
+func (x *GopayHealthResponse) GetWorkflows() []*GopayHealthWorkflow {
+	if x != nil {
+		return x.Workflows
+	}
+	return nil
+}
+
+type CreateGopayAccountRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Phone         string                 `protobuf:"bytes,1,opt,name=phone,proto3" json:"phone,omitempty"`
+	CountryCode   string                 `protobuf:"bytes,2,opt,name=country_code,json=countryCode,proto3" json:"country_code,omitempty"`
+	OtpChannel    string                 `protobuf:"bytes,3,opt,name=otp_channel,json=otpChannel,proto3" json:"otp_channel,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateGopayAccountRequest) Reset() {
+	*x = CreateGopayAccountRequest{}
+	mi := &file_gopay_app_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateGopayAccountRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateGopayAccountRequest) ProtoMessage() {}
+
+func (x *CreateGopayAccountRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_gopay_app_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateGopayAccountRequest.ProtoReflect.Descriptor instead.
+func (*CreateGopayAccountRequest) Descriptor() ([]byte, []int) {
+	return file_gopay_app_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *CreateGopayAccountRequest) GetPhone() string {
+	if x != nil {
+		return x.Phone
+	}
+	return ""
+}
+
+func (x *CreateGopayAccountRequest) GetCountryCode() string {
+	if x != nil {
+		return x.CountryCode
+	}
+	return ""
+}
+
+func (x *CreateGopayAccountRequest) GetOtpChannel() string {
+	if x != nil {
+		return x.OtpChannel
+	}
+	return ""
+}
+
 type ChangePhoneStartRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Pin           string                 `protobuf:"bytes,1,opt,name=pin,proto3" json:"pin,omitempty"`
@@ -839,7 +1235,7 @@ type ChangePhoneStartRequest struct {
 
 func (x *ChangePhoneStartRequest) Reset() {
 	*x = ChangePhoneStartRequest{}
-	mi := &file_gopay_app_proto_msgTypes[12]
+	mi := &file_gopay_app_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -851,7 +1247,7 @@ func (x *ChangePhoneStartRequest) String() string {
 func (*ChangePhoneStartRequest) ProtoMessage() {}
 
 func (x *ChangePhoneStartRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[12]
+	mi := &file_gopay_app_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -864,7 +1260,7 @@ func (x *ChangePhoneStartRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangePhoneStartRequest.ProtoReflect.Descriptor instead.
 func (*ChangePhoneStartRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{12}
+	return file_gopay_app_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ChangePhoneStartRequest) GetPin() string {
@@ -909,7 +1305,7 @@ type ChangePhoneStartResponse struct {
 
 func (x *ChangePhoneStartResponse) Reset() {
 	*x = ChangePhoneStartResponse{}
-	mi := &file_gopay_app_proto_msgTypes[13]
+	mi := &file_gopay_app_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -921,7 +1317,7 @@ func (x *ChangePhoneStartResponse) String() string {
 func (*ChangePhoneStartResponse) ProtoMessage() {}
 
 func (x *ChangePhoneStartResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[13]
+	mi := &file_gopay_app_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -934,7 +1330,7 @@ func (x *ChangePhoneStartResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangePhoneStartResponse.ProtoReflect.Descriptor instead.
 func (*ChangePhoneStartResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{13}
+	return file_gopay_app_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ChangePhoneStartResponse) GetSuccess() bool {
@@ -989,7 +1385,7 @@ type ChangePhoneCompleteRequest struct {
 
 func (x *ChangePhoneCompleteRequest) Reset() {
 	*x = ChangePhoneCompleteRequest{}
-	mi := &file_gopay_app_proto_msgTypes[14]
+	mi := &file_gopay_app_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1001,7 +1397,7 @@ func (x *ChangePhoneCompleteRequest) String() string {
 func (*ChangePhoneCompleteRequest) ProtoMessage() {}
 
 func (x *ChangePhoneCompleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[14]
+	mi := &file_gopay_app_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1014,7 +1410,7 @@ func (x *ChangePhoneCompleteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangePhoneCompleteRequest.ProtoReflect.Descriptor instead.
 func (*ChangePhoneCompleteRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{14}
+	return file_gopay_app_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ChangePhoneCompleteRequest) GetOtp() string {
@@ -1042,7 +1438,7 @@ type ChangePhoneCompleteResponse struct {
 
 func (x *ChangePhoneCompleteResponse) Reset() {
 	*x = ChangePhoneCompleteResponse{}
-	mi := &file_gopay_app_proto_msgTypes[15]
+	mi := &file_gopay_app_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1054,7 +1450,7 @@ func (x *ChangePhoneCompleteResponse) String() string {
 func (*ChangePhoneCompleteResponse) ProtoMessage() {}
 
 func (x *ChangePhoneCompleteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[15]
+	mi := &file_gopay_app_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1067,7 +1463,7 @@ func (x *ChangePhoneCompleteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangePhoneCompleteResponse.ProtoReflect.Descriptor instead.
 func (*ChangePhoneCompleteResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{15}
+	return file_gopay_app_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ChangePhoneCompleteResponse) GetSuccess() bool {
@@ -1100,7 +1496,7 @@ type ChangePhoneRetryRequest struct {
 
 func (x *ChangePhoneRetryRequest) Reset() {
 	*x = ChangePhoneRetryRequest{}
-	mi := &file_gopay_app_proto_msgTypes[16]
+	mi := &file_gopay_app_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1112,7 +1508,7 @@ func (x *ChangePhoneRetryRequest) String() string {
 func (*ChangePhoneRetryRequest) ProtoMessage() {}
 
 func (x *ChangePhoneRetryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[16]
+	mi := &file_gopay_app_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1125,7 +1521,7 @@ func (x *ChangePhoneRetryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangePhoneRetryRequest.ProtoReflect.Descriptor instead.
 func (*ChangePhoneRetryRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{16}
+	return file_gopay_app_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ChangePhoneRetryRequest) GetStateJson() string {
@@ -1147,7 +1543,7 @@ type ChangePhoneRetryResponse struct {
 
 func (x *ChangePhoneRetryResponse) Reset() {
 	*x = ChangePhoneRetryResponse{}
-	mi := &file_gopay_app_proto_msgTypes[17]
+	mi := &file_gopay_app_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1159,7 +1555,7 @@ func (x *ChangePhoneRetryResponse) String() string {
 func (*ChangePhoneRetryResponse) ProtoMessage() {}
 
 func (x *ChangePhoneRetryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[17]
+	mi := &file_gopay_app_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1172,7 +1568,7 @@ func (x *ChangePhoneRetryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangePhoneRetryResponse.ProtoReflect.Descriptor instead.
 func (*ChangePhoneRetryResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{17}
+	return file_gopay_app_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ChangePhoneRetryResponse) GetSuccess() bool {
@@ -1213,7 +1609,7 @@ type DeactivateStartRequest struct {
 
 func (x *DeactivateStartRequest) Reset() {
 	*x = DeactivateStartRequest{}
-	mi := &file_gopay_app_proto_msgTypes[18]
+	mi := &file_gopay_app_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1225,7 +1621,7 @@ func (x *DeactivateStartRequest) String() string {
 func (*DeactivateStartRequest) ProtoMessage() {}
 
 func (x *DeactivateStartRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[18]
+	mi := &file_gopay_app_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1238,7 +1634,7 @@ func (x *DeactivateStartRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeactivateStartRequest.ProtoReflect.Descriptor instead.
 func (*DeactivateStartRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{18}
+	return file_gopay_app_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *DeactivateStartRequest) GetPin() string {
@@ -1267,7 +1663,7 @@ type DeactivateStartResponse struct {
 
 func (x *DeactivateStartResponse) Reset() {
 	*x = DeactivateStartResponse{}
-	mi := &file_gopay_app_proto_msgTypes[19]
+	mi := &file_gopay_app_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1279,7 +1675,7 @@ func (x *DeactivateStartResponse) String() string {
 func (*DeactivateStartResponse) ProtoMessage() {}
 
 func (x *DeactivateStartResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[19]
+	mi := &file_gopay_app_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1292,7 +1688,7 @@ func (x *DeactivateStartResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeactivateStartResponse.ProtoReflect.Descriptor instead.
 func (*DeactivateStartResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{19}
+	return file_gopay_app_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *DeactivateStartResponse) GetSuccess() bool {
@@ -1333,7 +1729,7 @@ type DeactivateCompleteRequest struct {
 
 func (x *DeactivateCompleteRequest) Reset() {
 	*x = DeactivateCompleteRequest{}
-	mi := &file_gopay_app_proto_msgTypes[20]
+	mi := &file_gopay_app_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1345,7 +1741,7 @@ func (x *DeactivateCompleteRequest) String() string {
 func (*DeactivateCompleteRequest) ProtoMessage() {}
 
 func (x *DeactivateCompleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[20]
+	mi := &file_gopay_app_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1358,7 +1754,7 @@ func (x *DeactivateCompleteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeactivateCompleteRequest.ProtoReflect.Descriptor instead.
 func (*DeactivateCompleteRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{20}
+	return file_gopay_app_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *DeactivateCompleteRequest) GetOtp() string {
@@ -1387,7 +1783,7 @@ type DeactivateCompleteResponse struct {
 
 func (x *DeactivateCompleteResponse) Reset() {
 	*x = DeactivateCompleteResponse{}
-	mi := &file_gopay_app_proto_msgTypes[21]
+	mi := &file_gopay_app_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1399,7 +1795,7 @@ func (x *DeactivateCompleteResponse) String() string {
 func (*DeactivateCompleteResponse) ProtoMessage() {}
 
 func (x *DeactivateCompleteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[21]
+	mi := &file_gopay_app_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1412,7 +1808,7 @@ func (x *DeactivateCompleteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeactivateCompleteResponse.ProtoReflect.Descriptor instead.
 func (*DeactivateCompleteResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{21}
+	return file_gopay_app_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *DeactivateCompleteResponse) GetSuccess() bool {
@@ -1456,7 +1852,7 @@ type LoginStartRequest struct {
 
 func (x *LoginStartRequest) Reset() {
 	*x = LoginStartRequest{}
-	mi := &file_gopay_app_proto_msgTypes[22]
+	mi := &file_gopay_app_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1468,7 +1864,7 @@ func (x *LoginStartRequest) String() string {
 func (*LoginStartRequest) ProtoMessage() {}
 
 func (x *LoginStartRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[22]
+	mi := &file_gopay_app_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1481,7 +1877,7 @@ func (x *LoginStartRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginStartRequest.ProtoReflect.Descriptor instead.
 func (*LoginStartRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{22}
+	return file_gopay_app_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *LoginStartRequest) GetPhone() string {
@@ -1533,7 +1929,7 @@ type LoginStartResponse struct {
 
 func (x *LoginStartResponse) Reset() {
 	*x = LoginStartResponse{}
-	mi := &file_gopay_app_proto_msgTypes[23]
+	mi := &file_gopay_app_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1545,7 +1941,7 @@ func (x *LoginStartResponse) String() string {
 func (*LoginStartResponse) ProtoMessage() {}
 
 func (x *LoginStartResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[23]
+	mi := &file_gopay_app_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1558,7 +1954,7 @@ func (x *LoginStartResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginStartResponse.ProtoReflect.Descriptor instead.
 func (*LoginStartResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{23}
+	return file_gopay_app_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *LoginStartResponse) GetSuccess() bool {
@@ -1613,7 +2009,7 @@ type LoginCompleteRequest struct {
 
 func (x *LoginCompleteRequest) Reset() {
 	*x = LoginCompleteRequest{}
-	mi := &file_gopay_app_proto_msgTypes[24]
+	mi := &file_gopay_app_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1625,7 +2021,7 @@ func (x *LoginCompleteRequest) String() string {
 func (*LoginCompleteRequest) ProtoMessage() {}
 
 func (x *LoginCompleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[24]
+	mi := &file_gopay_app_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1638,7 +2034,7 @@ func (x *LoginCompleteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginCompleteRequest.ProtoReflect.Descriptor instead.
 func (*LoginCompleteRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{24}
+	return file_gopay_app_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *LoginCompleteRequest) GetOtp() string {
@@ -1670,7 +2066,7 @@ type LoginCompleteResponse struct {
 
 func (x *LoginCompleteResponse) Reset() {
 	*x = LoginCompleteResponse{}
-	mi := &file_gopay_app_proto_msgTypes[25]
+	mi := &file_gopay_app_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1682,7 +2078,7 @@ func (x *LoginCompleteResponse) String() string {
 func (*LoginCompleteResponse) ProtoMessage() {}
 
 func (x *LoginCompleteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[25]
+	mi := &file_gopay_app_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1695,7 +2091,7 @@ func (x *LoginCompleteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginCompleteResponse.ProtoReflect.Descriptor instead.
 func (*LoginCompleteResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{25}
+	return file_gopay_app_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *LoginCompleteResponse) GetSuccess() bool {
@@ -1762,7 +2158,7 @@ type SignupStartRequest struct {
 
 func (x *SignupStartRequest) Reset() {
 	*x = SignupStartRequest{}
-	mi := &file_gopay_app_proto_msgTypes[26]
+	mi := &file_gopay_app_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1774,7 +2170,7 @@ func (x *SignupStartRequest) String() string {
 func (*SignupStartRequest) ProtoMessage() {}
 
 func (x *SignupStartRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[26]
+	mi := &file_gopay_app_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1787,7 +2183,7 @@ func (x *SignupStartRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SignupStartRequest.ProtoReflect.Descriptor instead.
 func (*SignupStartRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{26}
+	return file_gopay_app_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *SignupStartRequest) GetPhone() string {
@@ -1855,7 +2251,7 @@ type SignupStartResponse struct {
 
 func (x *SignupStartResponse) Reset() {
 	*x = SignupStartResponse{}
-	mi := &file_gopay_app_proto_msgTypes[27]
+	mi := &file_gopay_app_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1867,7 +2263,7 @@ func (x *SignupStartResponse) String() string {
 func (*SignupStartResponse) ProtoMessage() {}
 
 func (x *SignupStartResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[27]
+	mi := &file_gopay_app_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1880,7 +2276,7 @@ func (x *SignupStartResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SignupStartResponse.ProtoReflect.Descriptor instead.
 func (*SignupStartResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{27}
+	return file_gopay_app_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *SignupStartResponse) GetSuccess() bool {
@@ -1948,7 +2344,7 @@ type SignupRetryRequest struct {
 
 func (x *SignupRetryRequest) Reset() {
 	*x = SignupRetryRequest{}
-	mi := &file_gopay_app_proto_msgTypes[28]
+	mi := &file_gopay_app_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1960,7 +2356,7 @@ func (x *SignupRetryRequest) String() string {
 func (*SignupRetryRequest) ProtoMessage() {}
 
 func (x *SignupRetryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[28]
+	mi := &file_gopay_app_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1973,7 +2369,7 @@ func (x *SignupRetryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SignupRetryRequest.ProtoReflect.Descriptor instead.
 func (*SignupRetryRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{28}
+	return file_gopay_app_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *SignupRetryRequest) GetStateJson() string {
@@ -1996,7 +2392,7 @@ type SignupRetryResponse struct {
 
 func (x *SignupRetryResponse) Reset() {
 	*x = SignupRetryResponse{}
-	mi := &file_gopay_app_proto_msgTypes[29]
+	mi := &file_gopay_app_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2008,7 +2404,7 @@ func (x *SignupRetryResponse) String() string {
 func (*SignupRetryResponse) ProtoMessage() {}
 
 func (x *SignupRetryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[29]
+	mi := &file_gopay_app_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2021,7 +2417,7 @@ func (x *SignupRetryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SignupRetryResponse.ProtoReflect.Descriptor instead.
 func (*SignupRetryResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{29}
+	return file_gopay_app_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *SignupRetryResponse) GetSuccess() bool {
@@ -2069,7 +2465,7 @@ type SignupCompleteRequest struct {
 
 func (x *SignupCompleteRequest) Reset() {
 	*x = SignupCompleteRequest{}
-	mi := &file_gopay_app_proto_msgTypes[30]
+	mi := &file_gopay_app_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2081,7 +2477,7 @@ func (x *SignupCompleteRequest) String() string {
 func (*SignupCompleteRequest) ProtoMessage() {}
 
 func (x *SignupCompleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[30]
+	mi := &file_gopay_app_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2094,7 +2490,7 @@ func (x *SignupCompleteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SignupCompleteRequest.ProtoReflect.Descriptor instead.
 func (*SignupCompleteRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{30}
+	return file_gopay_app_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *SignupCompleteRequest) GetOtp() string {
@@ -2125,7 +2521,7 @@ type SignupCompleteResponse struct {
 
 func (x *SignupCompleteResponse) Reset() {
 	*x = SignupCompleteResponse{}
-	mi := &file_gopay_app_proto_msgTypes[31]
+	mi := &file_gopay_app_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2137,7 +2533,7 @@ func (x *SignupCompleteResponse) String() string {
 func (*SignupCompleteResponse) ProtoMessage() {}
 
 func (x *SignupCompleteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[31]
+	mi := &file_gopay_app_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2150,7 +2546,7 @@ func (x *SignupCompleteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SignupCompleteResponse.ProtoReflect.Descriptor instead.
 func (*SignupCompleteResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{31}
+	return file_gopay_app_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *SignupCompleteResponse) GetSuccess() bool {
@@ -2208,7 +2604,7 @@ type GenerateDeviceProxyRequest struct {
 
 func (x *GenerateDeviceProxyRequest) Reset() {
 	*x = GenerateDeviceProxyRequest{}
-	mi := &file_gopay_app_proto_msgTypes[32]
+	mi := &file_gopay_app_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2220,7 +2616,7 @@ func (x *GenerateDeviceProxyRequest) String() string {
 func (*GenerateDeviceProxyRequest) ProtoMessage() {}
 
 func (x *GenerateDeviceProxyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[32]
+	mi := &file_gopay_app_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2233,7 +2629,7 @@ func (x *GenerateDeviceProxyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateDeviceProxyRequest.ProtoReflect.Descriptor instead.
 func (*GenerateDeviceProxyRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{32}
+	return file_gopay_app_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *GenerateDeviceProxyRequest) GetAccountId() string {
@@ -2287,7 +2683,7 @@ type GenerateDeviceProxyResponse struct {
 
 func (x *GenerateDeviceProxyResponse) Reset() {
 	*x = GenerateDeviceProxyResponse{}
-	mi := &file_gopay_app_proto_msgTypes[33]
+	mi := &file_gopay_app_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2299,7 +2695,7 @@ func (x *GenerateDeviceProxyResponse) String() string {
 func (*GenerateDeviceProxyResponse) ProtoMessage() {}
 
 func (x *GenerateDeviceProxyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[33]
+	mi := &file_gopay_app_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2312,7 +2708,7 @@ func (x *GenerateDeviceProxyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateDeviceProxyResponse.ProtoReflect.Descriptor instead.
 func (*GenerateDeviceProxyResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{33}
+	return file_gopay_app_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *GenerateDeviceProxyResponse) GetSuccess() bool {
@@ -2382,7 +2778,7 @@ type CreatePinStartRequest struct {
 
 func (x *CreatePinStartRequest) Reset() {
 	*x = CreatePinStartRequest{}
-	mi := &file_gopay_app_proto_msgTypes[34]
+	mi := &file_gopay_app_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2394,7 +2790,7 @@ func (x *CreatePinStartRequest) String() string {
 func (*CreatePinStartRequest) ProtoMessage() {}
 
 func (x *CreatePinStartRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[34]
+	mi := &file_gopay_app_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2407,7 +2803,7 @@ func (x *CreatePinStartRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreatePinStartRequest.ProtoReflect.Descriptor instead.
 func (*CreatePinStartRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{34}
+	return file_gopay_app_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *CreatePinStartRequest) GetPin() string {
@@ -2445,7 +2841,7 @@ type CreatePinStartResponse struct {
 
 func (x *CreatePinStartResponse) Reset() {
 	*x = CreatePinStartResponse{}
-	mi := &file_gopay_app_proto_msgTypes[35]
+	mi := &file_gopay_app_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2457,7 +2853,7 @@ func (x *CreatePinStartResponse) String() string {
 func (*CreatePinStartResponse) ProtoMessage() {}
 
 func (x *CreatePinStartResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[35]
+	mi := &file_gopay_app_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2470,7 +2866,7 @@ func (x *CreatePinStartResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreatePinStartResponse.ProtoReflect.Descriptor instead.
 func (*CreatePinStartResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{35}
+	return file_gopay_app_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *CreatePinStartResponse) GetSuccess() bool {
@@ -2524,7 +2920,7 @@ type CreatePinRetryRequest struct {
 
 func (x *CreatePinRetryRequest) Reset() {
 	*x = CreatePinRetryRequest{}
-	mi := &file_gopay_app_proto_msgTypes[36]
+	mi := &file_gopay_app_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2536,7 +2932,7 @@ func (x *CreatePinRetryRequest) String() string {
 func (*CreatePinRetryRequest) ProtoMessage() {}
 
 func (x *CreatePinRetryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[36]
+	mi := &file_gopay_app_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2549,7 +2945,7 @@ func (x *CreatePinRetryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreatePinRetryRequest.ProtoReflect.Descriptor instead.
 func (*CreatePinRetryRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{36}
+	return file_gopay_app_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *CreatePinRetryRequest) GetStateJson() string {
@@ -2571,7 +2967,7 @@ type CreatePinRetryResponse struct {
 
 func (x *CreatePinRetryResponse) Reset() {
 	*x = CreatePinRetryResponse{}
-	mi := &file_gopay_app_proto_msgTypes[37]
+	mi := &file_gopay_app_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2583,7 +2979,7 @@ func (x *CreatePinRetryResponse) String() string {
 func (*CreatePinRetryResponse) ProtoMessage() {}
 
 func (x *CreatePinRetryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[37]
+	mi := &file_gopay_app_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2596,7 +2992,7 @@ func (x *CreatePinRetryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreatePinRetryResponse.ProtoReflect.Descriptor instead.
 func (*CreatePinRetryResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{37}
+	return file_gopay_app_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *CreatePinRetryResponse) GetSuccess() bool {
@@ -2638,7 +3034,7 @@ type CreatePinCompleteRequest struct {
 
 func (x *CreatePinCompleteRequest) Reset() {
 	*x = CreatePinCompleteRequest{}
-	mi := &file_gopay_app_proto_msgTypes[38]
+	mi := &file_gopay_app_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2650,7 +3046,7 @@ func (x *CreatePinCompleteRequest) String() string {
 func (*CreatePinCompleteRequest) ProtoMessage() {}
 
 func (x *CreatePinCompleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[38]
+	mi := &file_gopay_app_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2663,7 +3059,7 @@ func (x *CreatePinCompleteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreatePinCompleteRequest.ProtoReflect.Descriptor instead.
 func (*CreatePinCompleteRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{38}
+	return file_gopay_app_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *CreatePinCompleteRequest) GetOtp() string {
@@ -2700,7 +3096,7 @@ type CreatePinCompleteResponse struct {
 
 func (x *CreatePinCompleteResponse) Reset() {
 	*x = CreatePinCompleteResponse{}
-	mi := &file_gopay_app_proto_msgTypes[39]
+	mi := &file_gopay_app_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2712,7 +3108,7 @@ func (x *CreatePinCompleteResponse) String() string {
 func (*CreatePinCompleteResponse) ProtoMessage() {}
 
 func (x *CreatePinCompleteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[39]
+	mi := &file_gopay_app_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2725,7 +3121,7 @@ func (x *CreatePinCompleteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreatePinCompleteResponse.ProtoReflect.Descriptor instead.
 func (*CreatePinCompleteResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{39}
+	return file_gopay_app_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *CreatePinCompleteResponse) GetSuccess() bool {
@@ -2776,7 +3172,7 @@ type AuthStartRequest struct {
 
 func (x *AuthStartRequest) Reset() {
 	*x = AuthStartRequest{}
-	mi := &file_gopay_app_proto_msgTypes[40]
+	mi := &file_gopay_app_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2788,7 +3184,7 @@ func (x *AuthStartRequest) String() string {
 func (*AuthStartRequest) ProtoMessage() {}
 
 func (x *AuthStartRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[40]
+	mi := &file_gopay_app_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2801,7 +3197,7 @@ func (x *AuthStartRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthStartRequest.ProtoReflect.Descriptor instead.
 func (*AuthStartRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{40}
+	return file_gopay_app_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *AuthStartRequest) GetPhone() string {
@@ -2857,7 +3253,7 @@ type AuthStartResponse struct {
 
 func (x *AuthStartResponse) Reset() {
 	*x = AuthStartResponse{}
-	mi := &file_gopay_app_proto_msgTypes[41]
+	mi := &file_gopay_app_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2869,7 +3265,7 @@ func (x *AuthStartResponse) String() string {
 func (*AuthStartResponse) ProtoMessage() {}
 
 func (x *AuthStartResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[41]
+	mi := &file_gopay_app_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2882,7 +3278,7 @@ func (x *AuthStartResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthStartResponse.ProtoReflect.Descriptor instead.
 func (*AuthStartResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{41}
+	return file_gopay_app_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *AuthStartResponse) GetSuccess() bool {
@@ -2966,7 +3362,7 @@ type AuthCompleteRequest struct {
 
 func (x *AuthCompleteRequest) Reset() {
 	*x = AuthCompleteRequest{}
-	mi := &file_gopay_app_proto_msgTypes[42]
+	mi := &file_gopay_app_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2978,7 +3374,7 @@ func (x *AuthCompleteRequest) String() string {
 func (*AuthCompleteRequest) ProtoMessage() {}
 
 func (x *AuthCompleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[42]
+	mi := &file_gopay_app_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2991,7 +3387,7 @@ func (x *AuthCompleteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthCompleteRequest.ProtoReflect.Descriptor instead.
 func (*AuthCompleteRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{42}
+	return file_gopay_app_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *AuthCompleteRequest) GetOtp() string {
@@ -3035,7 +3431,7 @@ type AuthCompleteResponse struct {
 
 func (x *AuthCompleteResponse) Reset() {
 	*x = AuthCompleteResponse{}
-	mi := &file_gopay_app_proto_msgTypes[43]
+	mi := &file_gopay_app_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3047,7 +3443,7 @@ func (x *AuthCompleteResponse) String() string {
 func (*AuthCompleteResponse) ProtoMessage() {}
 
 func (x *AuthCompleteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[43]
+	mi := &file_gopay_app_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3060,7 +3456,7 @@ func (x *AuthCompleteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthCompleteResponse.ProtoReflect.Descriptor instead.
 func (*AuthCompleteResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{43}
+	return file_gopay_app_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *AuthCompleteResponse) GetSuccess() bool {
@@ -3156,7 +3552,7 @@ type CheckTokenValidRequest struct {
 
 func (x *CheckTokenValidRequest) Reset() {
 	*x = CheckTokenValidRequest{}
-	mi := &file_gopay_app_proto_msgTypes[44]
+	mi := &file_gopay_app_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3168,7 +3564,7 @@ func (x *CheckTokenValidRequest) String() string {
 func (*CheckTokenValidRequest) ProtoMessage() {}
 
 func (x *CheckTokenValidRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[44]
+	mi := &file_gopay_app_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3181,7 +3577,7 @@ func (x *CheckTokenValidRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckTokenValidRequest.ProtoReflect.Descriptor instead.
 func (*CheckTokenValidRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{44}
+	return file_gopay_app_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *CheckTokenValidRequest) GetStateJson() string {
@@ -3209,7 +3605,7 @@ type CheckTokenValidResponse struct {
 
 func (x *CheckTokenValidResponse) Reset() {
 	*x = CheckTokenValidResponse{}
-	mi := &file_gopay_app_proto_msgTypes[45]
+	mi := &file_gopay_app_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3221,7 +3617,7 @@ func (x *CheckTokenValidResponse) String() string {
 func (*CheckTokenValidResponse) ProtoMessage() {}
 
 func (x *CheckTokenValidResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[45]
+	mi := &file_gopay_app_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3234,7 +3630,7 @@ func (x *CheckTokenValidResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckTokenValidResponse.ProtoReflect.Descriptor instead.
 func (*CheckTokenValidResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{45}
+	return file_gopay_app_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *CheckTokenValidResponse) GetSuccess() bool {
@@ -3318,7 +3714,7 @@ type ClaimEnvelopeRequest struct {
 
 func (x *ClaimEnvelopeRequest) Reset() {
 	*x = ClaimEnvelopeRequest{}
-	mi := &file_gopay_app_proto_msgTypes[46]
+	mi := &file_gopay_app_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3330,7 +3726,7 @@ func (x *ClaimEnvelopeRequest) String() string {
 func (*ClaimEnvelopeRequest) ProtoMessage() {}
 
 func (x *ClaimEnvelopeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[46]
+	mi := &file_gopay_app_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3343,7 +3739,7 @@ func (x *ClaimEnvelopeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClaimEnvelopeRequest.ProtoReflect.Descriptor instead.
 func (*ClaimEnvelopeRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{46}
+	return file_gopay_app_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *ClaimEnvelopeRequest) GetEnvelopeRequestId() string {
@@ -3383,7 +3779,7 @@ type ClaimEnvelopeResponse struct {
 
 func (x *ClaimEnvelopeResponse) Reset() {
 	*x = ClaimEnvelopeResponse{}
-	mi := &file_gopay_app_proto_msgTypes[47]
+	mi := &file_gopay_app_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3395,7 +3791,7 @@ func (x *ClaimEnvelopeResponse) String() string {
 func (*ClaimEnvelopeResponse) ProtoMessage() {}
 
 func (x *ClaimEnvelopeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[47]
+	mi := &file_gopay_app_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3408,7 +3804,7 @@ func (x *ClaimEnvelopeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClaimEnvelopeResponse.ProtoReflect.Descriptor instead.
 func (*ClaimEnvelopeResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{47}
+	return file_gopay_app_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *ClaimEnvelopeResponse) GetSuccess() bool {
@@ -3476,7 +3872,7 @@ type UnlinkRequest struct {
 
 func (x *UnlinkRequest) Reset() {
 	*x = UnlinkRequest{}
-	mi := &file_gopay_app_proto_msgTypes[48]
+	mi := &file_gopay_app_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3488,7 +3884,7 @@ func (x *UnlinkRequest) String() string {
 func (*UnlinkRequest) ProtoMessage() {}
 
 func (x *UnlinkRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[48]
+	mi := &file_gopay_app_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3501,7 +3897,7 @@ func (x *UnlinkRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnlinkRequest.ProtoReflect.Descriptor instead.
 func (*UnlinkRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{48}
+	return file_gopay_app_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *UnlinkRequest) GetStateJson() string {
@@ -3523,7 +3919,7 @@ type UnlinkResponse struct {
 
 func (x *UnlinkResponse) Reset() {
 	*x = UnlinkResponse{}
-	mi := &file_gopay_app_proto_msgTypes[49]
+	mi := &file_gopay_app_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3535,7 +3931,7 @@ func (x *UnlinkResponse) String() string {
 func (*UnlinkResponse) ProtoMessage() {}
 
 func (x *UnlinkResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[49]
+	mi := &file_gopay_app_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3548,7 +3944,7 @@ func (x *UnlinkResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnlinkResponse.ProtoReflect.Descriptor instead.
 func (*UnlinkResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{49}
+	return file_gopay_app_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *UnlinkResponse) GetSuccess() bool {
@@ -3588,7 +3984,7 @@ type StatusRequest struct {
 
 func (x *StatusRequest) Reset() {
 	*x = StatusRequest{}
-	mi := &file_gopay_app_proto_msgTypes[50]
+	mi := &file_gopay_app_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3600,7 +3996,7 @@ func (x *StatusRequest) String() string {
 func (*StatusRequest) ProtoMessage() {}
 
 func (x *StatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[50]
+	mi := &file_gopay_app_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3613,7 +4009,7 @@ func (x *StatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StatusRequest.ProtoReflect.Descriptor instead.
 func (*StatusRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{50}
+	return file_gopay_app_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *StatusRequest) GetStateJson() string {
@@ -3649,7 +4045,7 @@ type StatusResponse struct {
 
 func (x *StatusResponse) Reset() {
 	*x = StatusResponse{}
-	mi := &file_gopay_app_proto_msgTypes[51]
+	mi := &file_gopay_app_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3661,7 +4057,7 @@ func (x *StatusResponse) String() string {
 func (*StatusResponse) ProtoMessage() {}
 
 func (x *StatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[51]
+	mi := &file_gopay_app_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3674,7 +4070,7 @@ func (x *StatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StatusResponse.ProtoReflect.Descriptor instead.
 func (*StatusResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{51}
+	return file_gopay_app_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *StatusResponse) GetStage() string {
@@ -3812,7 +4208,7 @@ type GetReadyAccountTokenRequest struct {
 
 func (x *GetReadyAccountTokenRequest) Reset() {
 	*x = GetReadyAccountTokenRequest{}
-	mi := &file_gopay_app_proto_msgTypes[52]
+	mi := &file_gopay_app_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3824,7 +4220,7 @@ func (x *GetReadyAccountTokenRequest) String() string {
 func (*GetReadyAccountTokenRequest) ProtoMessage() {}
 
 func (x *GetReadyAccountTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[52]
+	mi := &file_gopay_app_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3837,7 +4233,7 @@ func (x *GetReadyAccountTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReadyAccountTokenRequest.ProtoReflect.Descriptor instead.
 func (*GetReadyAccountTokenRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{52}
+	return file_gopay_app_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *GetReadyAccountTokenRequest) GetStateJson() string {
@@ -3860,7 +4256,7 @@ type GetReadyAccountTokenResponse struct {
 
 func (x *GetReadyAccountTokenResponse) Reset() {
 	*x = GetReadyAccountTokenResponse{}
-	mi := &file_gopay_app_proto_msgTypes[53]
+	mi := &file_gopay_app_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3872,7 +4268,7 @@ func (x *GetReadyAccountTokenResponse) String() string {
 func (*GetReadyAccountTokenResponse) ProtoMessage() {}
 
 func (x *GetReadyAccountTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[53]
+	mi := &file_gopay_app_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3885,7 +4281,7 @@ func (x *GetReadyAccountTokenResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReadyAccountTokenResponse.ProtoReflect.Descriptor instead.
 func (*GetReadyAccountTokenResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{53}
+	return file_gopay_app_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *GetReadyAccountTokenResponse) GetSuccess() bool {
@@ -3932,7 +4328,7 @@ type CheckDeactivationRequest struct {
 
 func (x *CheckDeactivationRequest) Reset() {
 	*x = CheckDeactivationRequest{}
-	mi := &file_gopay_app_proto_msgTypes[54]
+	mi := &file_gopay_app_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3944,7 +4340,7 @@ func (x *CheckDeactivationRequest) String() string {
 func (*CheckDeactivationRequest) ProtoMessage() {}
 
 func (x *CheckDeactivationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[54]
+	mi := &file_gopay_app_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3957,7 +4353,7 @@ func (x *CheckDeactivationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckDeactivationRequest.ProtoReflect.Descriptor instead.
 func (*CheckDeactivationRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{54}
+	return file_gopay_app_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *CheckDeactivationRequest) GetStateJson() string {
@@ -3978,7 +4374,7 @@ type CheckDeactivationResponse struct {
 
 func (x *CheckDeactivationResponse) Reset() {
 	*x = CheckDeactivationResponse{}
-	mi := &file_gopay_app_proto_msgTypes[55]
+	mi := &file_gopay_app_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3990,7 +4386,7 @@ func (x *CheckDeactivationResponse) String() string {
 func (*CheckDeactivationResponse) ProtoMessage() {}
 
 func (x *CheckDeactivationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[55]
+	mi := &file_gopay_app_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4003,7 +4399,7 @@ func (x *CheckDeactivationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckDeactivationResponse.ProtoReflect.Descriptor instead.
 func (*CheckDeactivationResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{55}
+	return file_gopay_app_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *CheckDeactivationResponse) GetCompleted() bool {
@@ -4036,7 +4432,7 @@ type GetQrIdRequest struct {
 
 func (x *GetQrIdRequest) Reset() {
 	*x = GetQrIdRequest{}
-	mi := &file_gopay_app_proto_msgTypes[56]
+	mi := &file_gopay_app_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4048,7 +4444,7 @@ func (x *GetQrIdRequest) String() string {
 func (*GetQrIdRequest) ProtoMessage() {}
 
 func (x *GetQrIdRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[56]
+	mi := &file_gopay_app_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4061,7 +4457,7 @@ func (x *GetQrIdRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetQrIdRequest.ProtoReflect.Descriptor instead.
 func (*GetQrIdRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{56}
+	return file_gopay_app_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *GetQrIdRequest) GetStateJson() string {
@@ -4083,7 +4479,7 @@ type GetQrIdResponse struct {
 
 func (x *GetQrIdResponse) Reset() {
 	*x = GetQrIdResponse{}
-	mi := &file_gopay_app_proto_msgTypes[57]
+	mi := &file_gopay_app_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4095,7 +4491,7 @@ func (x *GetQrIdResponse) String() string {
 func (*GetQrIdResponse) ProtoMessage() {}
 
 func (x *GetQrIdResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[57]
+	mi := &file_gopay_app_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4108,7 +4504,7 @@ func (x *GetQrIdResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetQrIdResponse.ProtoReflect.Descriptor instead.
 func (*GetQrIdResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{57}
+	return file_gopay_app_proto_rawDescGZIP(), []int{62}
 }
 
 func (x *GetQrIdResponse) GetSuccess() bool {
@@ -4150,7 +4546,7 @@ type CheckPhoneRequest struct {
 
 func (x *CheckPhoneRequest) Reset() {
 	*x = CheckPhoneRequest{}
-	mi := &file_gopay_app_proto_msgTypes[58]
+	mi := &file_gopay_app_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4162,7 +4558,7 @@ func (x *CheckPhoneRequest) String() string {
 func (*CheckPhoneRequest) ProtoMessage() {}
 
 func (x *CheckPhoneRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[58]
+	mi := &file_gopay_app_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4175,7 +4571,7 @@ func (x *CheckPhoneRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckPhoneRequest.ProtoReflect.Descriptor instead.
 func (*CheckPhoneRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{58}
+	return file_gopay_app_proto_rawDescGZIP(), []int{63}
 }
 
 func (x *CheckPhoneRequest) GetPhone() string {
@@ -4215,7 +4611,7 @@ type CheckPhoneResponse struct {
 
 func (x *CheckPhoneResponse) Reset() {
 	*x = CheckPhoneResponse{}
-	mi := &file_gopay_app_proto_msgTypes[59]
+	mi := &file_gopay_app_proto_msgTypes[64]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4227,7 +4623,7 @@ func (x *CheckPhoneResponse) String() string {
 func (*CheckPhoneResponse) ProtoMessage() {}
 
 func (x *CheckPhoneResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[59]
+	mi := &file_gopay_app_proto_msgTypes[64]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4240,7 +4636,7 @@ func (x *CheckPhoneResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckPhoneResponse.ProtoReflect.Descriptor instead.
 func (*CheckPhoneResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{59}
+	return file_gopay_app_proto_rawDescGZIP(), []int{64}
 }
 
 func (x *CheckPhoneResponse) GetAvailable() bool {
@@ -4299,6 +4695,870 @@ func (x *CheckPhoneResponse) GetStateJson() string {
 	return ""
 }
 
+type CheckGopayPhoneAvailabilityRequest struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Phone             string                 `protobuf:"bytes,1,opt,name=phone,proto3" json:"phone,omitempty"`
+	CountryCode       string                 `protobuf:"bytes,2,opt,name=country_code,json=countryCode,proto3" json:"country_code,omitempty"`
+	StateJson         string                 `protobuf:"bytes,3,opt,name=state_json,json=stateJson,proto3" json:"state_json,omitempty"`
+	ReleaseProxyState bool                   `protobuf:"varint,4,opt,name=release_proxy_state,json=releaseProxyState,proto3" json:"release_proxy_state,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *CheckGopayPhoneAvailabilityRequest) Reset() {
+	*x = CheckGopayPhoneAvailabilityRequest{}
+	mi := &file_gopay_app_proto_msgTypes[65]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckGopayPhoneAvailabilityRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckGopayPhoneAvailabilityRequest) ProtoMessage() {}
+
+func (x *CheckGopayPhoneAvailabilityRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_gopay_app_proto_msgTypes[65]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckGopayPhoneAvailabilityRequest.ProtoReflect.Descriptor instead.
+func (*CheckGopayPhoneAvailabilityRequest) Descriptor() ([]byte, []int) {
+	return file_gopay_app_proto_rawDescGZIP(), []int{65}
+}
+
+func (x *CheckGopayPhoneAvailabilityRequest) GetPhone() string {
+	if x != nil {
+		return x.Phone
+	}
+	return ""
+}
+
+func (x *CheckGopayPhoneAvailabilityRequest) GetCountryCode() string {
+	if x != nil {
+		return x.CountryCode
+	}
+	return ""
+}
+
+func (x *CheckGopayPhoneAvailabilityRequest) GetStateJson() string {
+	if x != nil {
+		return x.StateJson
+	}
+	return ""
+}
+
+func (x *CheckGopayPhoneAvailabilityRequest) GetReleaseProxyState() bool {
+	if x != nil {
+		return x.ReleaseProxyState
+	}
+	return false
+}
+
+type CheckGopayPhoneAvailabilityResponse struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	Success             bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Available           bool                   `protobuf:"varint,2,opt,name=available,proto3" json:"available,omitempty"`
+	Phone               string                 `protobuf:"bytes,3,opt,name=phone,proto3" json:"phone,omitempty"`
+	CountryCode         string                 `protobuf:"bytes,4,opt,name=country_code,json=countryCode,proto3" json:"country_code,omitempty"`
+	Status              string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
+	ErrorMessage        string                 `protobuf:"bytes,6,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	ProxyHash           string                 `protobuf:"bytes,7,opt,name=proxy_hash,json=proxyHash,proto3" json:"proxy_hash,omitempty"`
+	DeviceFingerprint   string                 `protobuf:"bytes,8,opt,name=device_fingerprint,json=deviceFingerprint,proto3" json:"device_fingerprint,omitempty"`
+	GeneratedProxyState bool                   `protobuf:"varint,9,opt,name=generated_proxy_state,json=generatedProxyState,proto3" json:"generated_proxy_state,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *CheckGopayPhoneAvailabilityResponse) Reset() {
+	*x = CheckGopayPhoneAvailabilityResponse{}
+	mi := &file_gopay_app_proto_msgTypes[66]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckGopayPhoneAvailabilityResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckGopayPhoneAvailabilityResponse) ProtoMessage() {}
+
+func (x *CheckGopayPhoneAvailabilityResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_gopay_app_proto_msgTypes[66]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckGopayPhoneAvailabilityResponse.ProtoReflect.Descriptor instead.
+func (*CheckGopayPhoneAvailabilityResponse) Descriptor() ([]byte, []int) {
+	return file_gopay_app_proto_rawDescGZIP(), []int{66}
+}
+
+func (x *CheckGopayPhoneAvailabilityResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *CheckGopayPhoneAvailabilityResponse) GetAvailable() bool {
+	if x != nil {
+		return x.Available
+	}
+	return false
+}
+
+func (x *CheckGopayPhoneAvailabilityResponse) GetPhone() string {
+	if x != nil {
+		return x.Phone
+	}
+	return ""
+}
+
+func (x *CheckGopayPhoneAvailabilityResponse) GetCountryCode() string {
+	if x != nil {
+		return x.CountryCode
+	}
+	return ""
+}
+
+func (x *CheckGopayPhoneAvailabilityResponse) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *CheckGopayPhoneAvailabilityResponse) GetErrorMessage() string {
+	if x != nil {
+		return x.ErrorMessage
+	}
+	return ""
+}
+
+func (x *CheckGopayPhoneAvailabilityResponse) GetProxyHash() string {
+	if x != nil {
+		return x.ProxyHash
+	}
+	return ""
+}
+
+func (x *CheckGopayPhoneAvailabilityResponse) GetDeviceFingerprint() string {
+	if x != nil {
+		return x.DeviceFingerprint
+	}
+	return ""
+}
+
+func (x *CheckGopayPhoneAvailabilityResponse) GetGeneratedProxyState() bool {
+	if x != nil {
+		return x.GeneratedProxyState
+	}
+	return false
+}
+
+type SubmitChannelOTPRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	GopayAccountId string                 `protobuf:"bytes,1,opt,name=gopay_account_id,json=gopayAccountId,proto3" json:"gopay_account_id,omitempty"`
+	Channel        string                 `protobuf:"bytes,2,opt,name=channel,proto3" json:"channel,omitempty"`
+	Target         string                 `protobuf:"bytes,3,opt,name=target,proto3" json:"target,omitempty"`
+	Otp            string                 `protobuf:"bytes,4,opt,name=otp,proto3" json:"otp,omitempty"`
+	OtpSource      string                 `protobuf:"bytes,5,opt,name=otp_source,json=otpSource,proto3" json:"otp_source,omitempty"`
+	ManualOnce     bool                   `protobuf:"varint,6,opt,name=manual_once,json=manualOnce,proto3" json:"manual_once,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *SubmitChannelOTPRequest) Reset() {
+	*x = SubmitChannelOTPRequest{}
+	mi := &file_gopay_app_proto_msgTypes[67]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SubmitChannelOTPRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SubmitChannelOTPRequest) ProtoMessage() {}
+
+func (x *SubmitChannelOTPRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_gopay_app_proto_msgTypes[67]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SubmitChannelOTPRequest.ProtoReflect.Descriptor instead.
+func (*SubmitChannelOTPRequest) Descriptor() ([]byte, []int) {
+	return file_gopay_app_proto_rawDescGZIP(), []int{67}
+}
+
+func (x *SubmitChannelOTPRequest) GetGopayAccountId() string {
+	if x != nil {
+		return x.GopayAccountId
+	}
+	return ""
+}
+
+func (x *SubmitChannelOTPRequest) GetChannel() string {
+	if x != nil {
+		return x.Channel
+	}
+	return ""
+}
+
+func (x *SubmitChannelOTPRequest) GetTarget() string {
+	if x != nil {
+		return x.Target
+	}
+	return ""
+}
+
+func (x *SubmitChannelOTPRequest) GetOtp() string {
+	if x != nil {
+		return x.Otp
+	}
+	return ""
+}
+
+func (x *SubmitChannelOTPRequest) GetOtpSource() string {
+	if x != nil {
+		return x.OtpSource
+	}
+	return ""
+}
+
+func (x *SubmitChannelOTPRequest) GetManualOnce() bool {
+	if x != nil {
+		return x.ManualOnce
+	}
+	return false
+}
+
+type SubmitChannelOTPResponse struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Success           bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	ManualOnce        bool                   `protobuf:"varint,2,opt,name=manual_once,json=manualOnce,proto3" json:"manual_once,omitempty"`
+	GopayAccountId    string                 `protobuf:"bytes,3,opt,name=gopay_account_id,json=gopayAccountId,proto3" json:"gopay_account_id,omitempty"`
+	Channel           string                 `protobuf:"bytes,4,opt,name=channel,proto3" json:"channel,omitempty"`
+	Target            string                 `protobuf:"bytes,5,opt,name=target,proto3" json:"target,omitempty"`
+	OtpReceivedAtUnix int64                  `protobuf:"varint,6,opt,name=otp_received_at_unix,json=otpReceivedAtUnix,proto3" json:"otp_received_at_unix,omitempty"`
+	ResumeCount       int32                  `protobuf:"varint,7,opt,name=resume_count,json=resumeCount,proto3" json:"resume_count,omitempty"`
+	ResumedJobIds     []string               `protobuf:"bytes,8,rep,name=resumed_job_ids,json=resumedJobIds,proto3" json:"resumed_job_ids,omitempty"`
+	ErrorMessage      string                 `protobuf:"bytes,9,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *SubmitChannelOTPResponse) Reset() {
+	*x = SubmitChannelOTPResponse{}
+	mi := &file_gopay_app_proto_msgTypes[68]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SubmitChannelOTPResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SubmitChannelOTPResponse) ProtoMessage() {}
+
+func (x *SubmitChannelOTPResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_gopay_app_proto_msgTypes[68]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SubmitChannelOTPResponse.ProtoReflect.Descriptor instead.
+func (*SubmitChannelOTPResponse) Descriptor() ([]byte, []int) {
+	return file_gopay_app_proto_rawDescGZIP(), []int{68}
+}
+
+func (x *SubmitChannelOTPResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *SubmitChannelOTPResponse) GetManualOnce() bool {
+	if x != nil {
+		return x.ManualOnce
+	}
+	return false
+}
+
+func (x *SubmitChannelOTPResponse) GetGopayAccountId() string {
+	if x != nil {
+		return x.GopayAccountId
+	}
+	return ""
+}
+
+func (x *SubmitChannelOTPResponse) GetChannel() string {
+	if x != nil {
+		return x.Channel
+	}
+	return ""
+}
+
+func (x *SubmitChannelOTPResponse) GetTarget() string {
+	if x != nil {
+		return x.Target
+	}
+	return ""
+}
+
+func (x *SubmitChannelOTPResponse) GetOtpReceivedAtUnix() int64 {
+	if x != nil {
+		return x.OtpReceivedAtUnix
+	}
+	return 0
+}
+
+func (x *SubmitChannelOTPResponse) GetResumeCount() int32 {
+	if x != nil {
+		return x.ResumeCount
+	}
+	return 0
+}
+
+func (x *SubmitChannelOTPResponse) GetResumedJobIds() []string {
+	if x != nil {
+		return x.ResumedJobIds
+	}
+	return nil
+}
+
+func (x *SubmitChannelOTPResponse) GetErrorMessage() string {
+	if x != nil {
+		return x.ErrorMessage
+	}
+	return ""
+}
+
+type ChannelOTPResumeData struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	OtpFound           bool                   `protobuf:"varint,1,opt,name=otp_found,json=otpFound,proto3" json:"otp_found,omitempty"`
+	OtpChannel         string                 `protobuf:"bytes,2,opt,name=otp_channel,json=otpChannel,proto3" json:"otp_channel,omitempty"`
+	ChannelOtpTarget   string                 `protobuf:"bytes,3,opt,name=channel_otp_target,json=channelOtpTarget,proto3" json:"channel_otp_target,omitempty"`
+	OtpIssuedAfterUnix int64                  `protobuf:"varint,4,opt,name=otp_issued_after_unix,json=otpIssuedAfterUnix,proto3" json:"otp_issued_after_unix,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *ChannelOTPResumeData) Reset() {
+	*x = ChannelOTPResumeData{}
+	mi := &file_gopay_app_proto_msgTypes[69]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChannelOTPResumeData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChannelOTPResumeData) ProtoMessage() {}
+
+func (x *ChannelOTPResumeData) ProtoReflect() protoreflect.Message {
+	mi := &file_gopay_app_proto_msgTypes[69]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChannelOTPResumeData.ProtoReflect.Descriptor instead.
+func (*ChannelOTPResumeData) Descriptor() ([]byte, []int) {
+	return file_gopay_app_proto_rawDescGZIP(), []int{69}
+}
+
+func (x *ChannelOTPResumeData) GetOtpFound() bool {
+	if x != nil {
+		return x.OtpFound
+	}
+	return false
+}
+
+func (x *ChannelOTPResumeData) GetOtpChannel() string {
+	if x != nil {
+		return x.OtpChannel
+	}
+	return ""
+}
+
+func (x *ChannelOTPResumeData) GetChannelOtpTarget() string {
+	if x != nil {
+		return x.ChannelOtpTarget
+	}
+	return ""
+}
+
+func (x *ChannelOTPResumeData) GetOtpIssuedAfterUnix() int64 {
+	if x != nil {
+		return x.OtpIssuedAfterUnix
+	}
+	return 0
+}
+
+type ChannelOTPWaitEntry struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	JobId           string                 `protobuf:"bytes,1,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"`
+	AccountId       string                 `protobuf:"bytes,2,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	N8NExecutionId  string                 `protobuf:"bytes,3,opt,name=n8n_execution_id,json=n8nExecutionId,proto3" json:"n8n_execution_id,omitempty"`
+	Action          string                 `protobuf:"bytes,4,opt,name=action,proto3" json:"action,omitempty"`
+	StepName        string                 `protobuf:"bytes,5,opt,name=step_name,json=stepName,proto3" json:"step_name,omitempty"`
+	Channel         string                 `protobuf:"bytes,6,opt,name=channel,proto3" json:"channel,omitempty"`
+	Target          string                 `protobuf:"bytes,7,opt,name=target,proto3" json:"target,omitempty"`
+	IssuedAfterUnix int64                  `protobuf:"varint,8,opt,name=issued_after_unix,json=issuedAfterUnix,proto3" json:"issued_after_unix,omitempty"`
+	TimeoutSeconds  int32                  `protobuf:"varint,9,opt,name=timeout_seconds,json=timeoutSeconds,proto3" json:"timeout_seconds,omitempty"`
+	ResumeUrl       string                 `protobuf:"bytes,10,opt,name=resume_url,json=resumeUrl,proto3" json:"resume_url,omitempty"`
+	CreatedAtUnix   int64                  `protobuf:"varint,11,opt,name=created_at_unix,json=createdAtUnix,proto3" json:"created_at_unix,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *ChannelOTPWaitEntry) Reset() {
+	*x = ChannelOTPWaitEntry{}
+	mi := &file_gopay_app_proto_msgTypes[70]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChannelOTPWaitEntry) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChannelOTPWaitEntry) ProtoMessage() {}
+
+func (x *ChannelOTPWaitEntry) ProtoReflect() protoreflect.Message {
+	mi := &file_gopay_app_proto_msgTypes[70]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChannelOTPWaitEntry.ProtoReflect.Descriptor instead.
+func (*ChannelOTPWaitEntry) Descriptor() ([]byte, []int) {
+	return file_gopay_app_proto_rawDescGZIP(), []int{70}
+}
+
+func (x *ChannelOTPWaitEntry) GetJobId() string {
+	if x != nil {
+		return x.JobId
+	}
+	return ""
+}
+
+func (x *ChannelOTPWaitEntry) GetAccountId() string {
+	if x != nil {
+		return x.AccountId
+	}
+	return ""
+}
+
+func (x *ChannelOTPWaitEntry) GetN8NExecutionId() string {
+	if x != nil {
+		return x.N8NExecutionId
+	}
+	return ""
+}
+
+func (x *ChannelOTPWaitEntry) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
+func (x *ChannelOTPWaitEntry) GetStepName() string {
+	if x != nil {
+		return x.StepName
+	}
+	return ""
+}
+
+func (x *ChannelOTPWaitEntry) GetChannel() string {
+	if x != nil {
+		return x.Channel
+	}
+	return ""
+}
+
+func (x *ChannelOTPWaitEntry) GetTarget() string {
+	if x != nil {
+		return x.Target
+	}
+	return ""
+}
+
+func (x *ChannelOTPWaitEntry) GetIssuedAfterUnix() int64 {
+	if x != nil {
+		return x.IssuedAfterUnix
+	}
+	return 0
+}
+
+func (x *ChannelOTPWaitEntry) GetTimeoutSeconds() int32 {
+	if x != nil {
+		return x.TimeoutSeconds
+	}
+	return 0
+}
+
+func (x *ChannelOTPWaitEntry) GetResumeUrl() string {
+	if x != nil {
+		return x.ResumeUrl
+	}
+	return ""
+}
+
+func (x *ChannelOTPWaitEntry) GetCreatedAtUnix() int64 {
+	if x != nil {
+		return x.CreatedAtUnix
+	}
+	return 0
+}
+
+type LatestChannelOTP struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Channel        string                 `protobuf:"bytes,1,opt,name=channel,proto3" json:"channel,omitempty"`
+	Target         string                 `protobuf:"bytes,2,opt,name=target,proto3" json:"target,omitempty"`
+	Otp            string                 `protobuf:"bytes,3,opt,name=otp,proto3" json:"otp,omitempty"`
+	ReceivedAtUnix int64                  `protobuf:"varint,4,opt,name=received_at_unix,json=receivedAtUnix,proto3" json:"received_at_unix,omitempty"`
+	Source         string                 `protobuf:"bytes,5,opt,name=source,proto3" json:"source,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *LatestChannelOTP) Reset() {
+	*x = LatestChannelOTP{}
+	mi := &file_gopay_app_proto_msgTypes[71]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LatestChannelOTP) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LatestChannelOTP) ProtoMessage() {}
+
+func (x *LatestChannelOTP) ProtoReflect() protoreflect.Message {
+	mi := &file_gopay_app_proto_msgTypes[71]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LatestChannelOTP.ProtoReflect.Descriptor instead.
+func (*LatestChannelOTP) Descriptor() ([]byte, []int) {
+	return file_gopay_app_proto_rawDescGZIP(), []int{71}
+}
+
+func (x *LatestChannelOTP) GetChannel() string {
+	if x != nil {
+		return x.Channel
+	}
+	return ""
+}
+
+func (x *LatestChannelOTP) GetTarget() string {
+	if x != nil {
+		return x.Target
+	}
+	return ""
+}
+
+func (x *LatestChannelOTP) GetOtp() string {
+	if x != nil {
+		return x.Otp
+	}
+	return ""
+}
+
+func (x *LatestChannelOTP) GetReceivedAtUnix() int64 {
+	if x != nil {
+		return x.ReceivedAtUnix
+	}
+	return 0
+}
+
+func (x *LatestChannelOTP) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
+}
+
+type ChannelOTPResumeRequest struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	JobId             string                 `protobuf:"bytes,1,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"`
+	AccountId         string                 `protobuf:"bytes,2,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	N8NExecutionId    string                 `protobuf:"bytes,3,opt,name=n8n_execution_id,json=n8nExecutionId,proto3" json:"n8n_execution_id,omitempty"`
+	Action            string                 `protobuf:"bytes,4,opt,name=action,proto3" json:"action,omitempty"`
+	Step              string                 `protobuf:"bytes,5,opt,name=step,proto3" json:"step,omitempty"`
+	Channel           string                 `protobuf:"bytes,6,opt,name=channel,proto3" json:"channel,omitempty"`
+	Target            string                 `protobuf:"bytes,7,opt,name=target,proto3" json:"target,omitempty"`
+	Otp               string                 `protobuf:"bytes,8,opt,name=otp,proto3" json:"otp,omitempty"`
+	OtpSource         string                 `protobuf:"bytes,9,opt,name=otp_source,json=otpSource,proto3" json:"otp_source,omitempty"`
+	OtpReceivedAtUnix int64                  `protobuf:"varint,10,opt,name=otp_received_at_unix,json=otpReceivedAtUnix,proto3" json:"otp_received_at_unix,omitempty"`
+	Data              *ChannelOTPResumeData  `protobuf:"bytes,11,opt,name=data,proto3" json:"data,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *ChannelOTPResumeRequest) Reset() {
+	*x = ChannelOTPResumeRequest{}
+	mi := &file_gopay_app_proto_msgTypes[72]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChannelOTPResumeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChannelOTPResumeRequest) ProtoMessage() {}
+
+func (x *ChannelOTPResumeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_gopay_app_proto_msgTypes[72]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChannelOTPResumeRequest.ProtoReflect.Descriptor instead.
+func (*ChannelOTPResumeRequest) Descriptor() ([]byte, []int) {
+	return file_gopay_app_proto_rawDescGZIP(), []int{72}
+}
+
+func (x *ChannelOTPResumeRequest) GetJobId() string {
+	if x != nil {
+		return x.JobId
+	}
+	return ""
+}
+
+func (x *ChannelOTPResumeRequest) GetAccountId() string {
+	if x != nil {
+		return x.AccountId
+	}
+	return ""
+}
+
+func (x *ChannelOTPResumeRequest) GetN8NExecutionId() string {
+	if x != nil {
+		return x.N8NExecutionId
+	}
+	return ""
+}
+
+func (x *ChannelOTPResumeRequest) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
+func (x *ChannelOTPResumeRequest) GetStep() string {
+	if x != nil {
+		return x.Step
+	}
+	return ""
+}
+
+func (x *ChannelOTPResumeRequest) GetChannel() string {
+	if x != nil {
+		return x.Channel
+	}
+	return ""
+}
+
+func (x *ChannelOTPResumeRequest) GetTarget() string {
+	if x != nil {
+		return x.Target
+	}
+	return ""
+}
+
+func (x *ChannelOTPResumeRequest) GetOtp() string {
+	if x != nil {
+		return x.Otp
+	}
+	return ""
+}
+
+func (x *ChannelOTPResumeRequest) GetOtpSource() string {
+	if x != nil {
+		return x.OtpSource
+	}
+	return ""
+}
+
+func (x *ChannelOTPResumeRequest) GetOtpReceivedAtUnix() int64 {
+	if x != nil {
+		return x.OtpReceivedAtUnix
+	}
+	return 0
+}
+
+func (x *ChannelOTPResumeRequest) GetData() *ChannelOTPResumeData {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+type GopayOTPWebhookRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Otp           string                 `protobuf:"bytes,1,opt,name=otp,proto3" json:"otp,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GopayOTPWebhookRequest) Reset() {
+	*x = GopayOTPWebhookRequest{}
+	mi := &file_gopay_app_proto_msgTypes[73]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GopayOTPWebhookRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GopayOTPWebhookRequest) ProtoMessage() {}
+
+func (x *GopayOTPWebhookRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_gopay_app_proto_msgTypes[73]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GopayOTPWebhookRequest.ProtoReflect.Descriptor instead.
+func (*GopayOTPWebhookRequest) Descriptor() ([]byte, []int) {
+	return file_gopay_app_proto_rawDescGZIP(), []int{73}
+}
+
+func (x *GopayOTPWebhookRequest) GetOtp() string {
+	if x != nil {
+		return x.Otp
+	}
+	return ""
+}
+
+type GopayOTPWebhookResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Purpose       string                 `protobuf:"bytes,2,opt,name=purpose,proto3" json:"purpose,omitempty"`
+	ErrorMessage  string                 `protobuf:"bytes,3,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GopayOTPWebhookResponse) Reset() {
+	*x = GopayOTPWebhookResponse{}
+	mi := &file_gopay_app_proto_msgTypes[74]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GopayOTPWebhookResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GopayOTPWebhookResponse) ProtoMessage() {}
+
+func (x *GopayOTPWebhookResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_gopay_app_proto_msgTypes[74]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GopayOTPWebhookResponse.ProtoReflect.Descriptor instead.
+func (*GopayOTPWebhookResponse) Descriptor() ([]byte, []int) {
+	return file_gopay_app_proto_rawDescGZIP(), []int{74}
+}
+
+func (x *GopayOTPWebhookResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *GopayOTPWebhookResponse) GetPurpose() string {
+	if x != nil {
+		return x.Purpose
+	}
+	return ""
+}
+
+func (x *GopayOTPWebhookResponse) GetErrorMessage() string {
+	if x != nil {
+		return x.ErrorMessage
+	}
+	return ""
+}
+
 type GopayAccount struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Account         *v1.Account            `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"`
@@ -4313,7 +5573,7 @@ type GopayAccount struct {
 
 func (x *GopayAccount) Reset() {
 	*x = GopayAccount{}
-	mi := &file_gopay_app_proto_msgTypes[60]
+	mi := &file_gopay_app_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4325,7 +5585,7 @@ func (x *GopayAccount) String() string {
 func (*GopayAccount) ProtoMessage() {}
 
 func (x *GopayAccount) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[60]
+	mi := &file_gopay_app_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4338,7 +5598,7 @@ func (x *GopayAccount) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GopayAccount.ProtoReflect.Descriptor instead.
 func (*GopayAccount) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{60}
+	return file_gopay_app_proto_rawDescGZIP(), []int{75}
 }
 
 func (x *GopayAccount) GetAccount() *v1.Account {
@@ -4392,7 +5652,7 @@ type GetGopayAccountRequest struct {
 
 func (x *GetGopayAccountRequest) Reset() {
 	*x = GetGopayAccountRequest{}
-	mi := &file_gopay_app_proto_msgTypes[61]
+	mi := &file_gopay_app_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4404,7 +5664,7 @@ func (x *GetGopayAccountRequest) String() string {
 func (*GetGopayAccountRequest) ProtoMessage() {}
 
 func (x *GetGopayAccountRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[61]
+	mi := &file_gopay_app_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4417,7 +5677,7 @@ func (x *GetGopayAccountRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGopayAccountRequest.ProtoReflect.Descriptor instead.
 func (*GetGopayAccountRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{61}
+	return file_gopay_app_proto_rawDescGZIP(), []int{76}
 }
 
 func (x *GetGopayAccountRequest) GetGopayAccountId() string {
@@ -4438,7 +5698,7 @@ type GetGopayAccountResponse struct {
 
 func (x *GetGopayAccountResponse) Reset() {
 	*x = GetGopayAccountResponse{}
-	mi := &file_gopay_app_proto_msgTypes[62]
+	mi := &file_gopay_app_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4450,7 +5710,7 @@ func (x *GetGopayAccountResponse) String() string {
 func (*GetGopayAccountResponse) ProtoMessage() {}
 
 func (x *GetGopayAccountResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[62]
+	mi := &file_gopay_app_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4463,7 +5723,7 @@ func (x *GetGopayAccountResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGopayAccountResponse.ProtoReflect.Descriptor instead.
 func (*GetGopayAccountResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{62}
+	return file_gopay_app_proto_rawDescGZIP(), []int{77}
 }
 
 func (x *GetGopayAccountResponse) GetSuccess() bool {
@@ -4497,7 +5757,7 @@ type ListGopayAccountsRequest struct {
 
 func (x *ListGopayAccountsRequest) Reset() {
 	*x = ListGopayAccountsRequest{}
-	mi := &file_gopay_app_proto_msgTypes[63]
+	mi := &file_gopay_app_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4509,7 +5769,7 @@ func (x *ListGopayAccountsRequest) String() string {
 func (*ListGopayAccountsRequest) ProtoMessage() {}
 
 func (x *ListGopayAccountsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[63]
+	mi := &file_gopay_app_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4522,7 +5782,7 @@ func (x *ListGopayAccountsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListGopayAccountsRequest.ProtoReflect.Descriptor instead.
 func (*ListGopayAccountsRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{63}
+	return file_gopay_app_proto_rawDescGZIP(), []int{78}
 }
 
 func (x *ListGopayAccountsRequest) GetLimit() int32 {
@@ -4551,7 +5811,7 @@ type ListGopayAccountsResponse struct {
 
 func (x *ListGopayAccountsResponse) Reset() {
 	*x = ListGopayAccountsResponse{}
-	mi := &file_gopay_app_proto_msgTypes[64]
+	mi := &file_gopay_app_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4563,7 +5823,7 @@ func (x *ListGopayAccountsResponse) String() string {
 func (*ListGopayAccountsResponse) ProtoMessage() {}
 
 func (x *ListGopayAccountsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[64]
+	mi := &file_gopay_app_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4576,7 +5836,7 @@ func (x *ListGopayAccountsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListGopayAccountsResponse.ProtoReflect.Descriptor instead.
 func (*ListGopayAccountsResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{64}
+	return file_gopay_app_proto_rawDescGZIP(), []int{79}
 }
 
 func (x *ListGopayAccountsResponse) GetSuccess() bool {
@@ -4616,7 +5876,7 @@ type LoadGopayAccountStateRequest struct {
 
 func (x *LoadGopayAccountStateRequest) Reset() {
 	*x = LoadGopayAccountStateRequest{}
-	mi := &file_gopay_app_proto_msgTypes[65]
+	mi := &file_gopay_app_proto_msgTypes[80]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4628,7 +5888,7 @@ func (x *LoadGopayAccountStateRequest) String() string {
 func (*LoadGopayAccountStateRequest) ProtoMessage() {}
 
 func (x *LoadGopayAccountStateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[65]
+	mi := &file_gopay_app_proto_msgTypes[80]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4641,7 +5901,7 @@ func (x *LoadGopayAccountStateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoadGopayAccountStateRequest.ProtoReflect.Descriptor instead.
 func (*LoadGopayAccountStateRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{65}
+	return file_gopay_app_proto_rawDescGZIP(), []int{80}
 }
 
 func (x *LoadGopayAccountStateRequest) GetGopayAccountId() string {
@@ -4664,7 +5924,7 @@ type LoadGopayAccountStateResponse struct {
 
 func (x *LoadGopayAccountStateResponse) Reset() {
 	*x = LoadGopayAccountStateResponse{}
-	mi := &file_gopay_app_proto_msgTypes[66]
+	mi := &file_gopay_app_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4676,7 +5936,7 @@ func (x *LoadGopayAccountStateResponse) String() string {
 func (*LoadGopayAccountStateResponse) ProtoMessage() {}
 
 func (x *LoadGopayAccountStateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[66]
+	mi := &file_gopay_app_proto_msgTypes[81]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4689,7 +5949,7 @@ func (x *LoadGopayAccountStateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoadGopayAccountStateResponse.ProtoReflect.Descriptor instead.
 func (*LoadGopayAccountStateResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{66}
+	return file_gopay_app_proto_rawDescGZIP(), []int{81}
 }
 
 func (x *LoadGopayAccountStateResponse) GetSuccess() bool {
@@ -4731,7 +5991,7 @@ type SaveGopayAccountStateRequest struct {
 
 func (x *SaveGopayAccountStateRequest) Reset() {
 	*x = SaveGopayAccountStateRequest{}
-	mi := &file_gopay_app_proto_msgTypes[67]
+	mi := &file_gopay_app_proto_msgTypes[82]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4743,7 +6003,7 @@ func (x *SaveGopayAccountStateRequest) String() string {
 func (*SaveGopayAccountStateRequest) ProtoMessage() {}
 
 func (x *SaveGopayAccountStateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[67]
+	mi := &file_gopay_app_proto_msgTypes[82]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4756,7 +6016,7 @@ func (x *SaveGopayAccountStateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveGopayAccountStateRequest.ProtoReflect.Descriptor instead.
 func (*SaveGopayAccountStateRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{67}
+	return file_gopay_app_proto_rawDescGZIP(), []int{82}
 }
 
 func (x *SaveGopayAccountStateRequest) GetGopayAccountId() string {
@@ -4784,7 +6044,7 @@ type SaveGopayAccountStateResponse struct {
 
 func (x *SaveGopayAccountStateResponse) Reset() {
 	*x = SaveGopayAccountStateResponse{}
-	mi := &file_gopay_app_proto_msgTypes[68]
+	mi := &file_gopay_app_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4796,7 +6056,7 @@ func (x *SaveGopayAccountStateResponse) String() string {
 func (*SaveGopayAccountStateResponse) ProtoMessage() {}
 
 func (x *SaveGopayAccountStateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[68]
+	mi := &file_gopay_app_proto_msgTypes[83]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4809,7 +6069,7 @@ func (x *SaveGopayAccountStateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveGopayAccountStateResponse.ProtoReflect.Descriptor instead.
 func (*SaveGopayAccountStateResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{68}
+	return file_gopay_app_proto_rawDescGZIP(), []int{83}
 }
 
 func (x *SaveGopayAccountStateResponse) GetSuccess() bool {
@@ -4842,7 +6102,7 @@ type DeleteGopayAccountRequest struct {
 
 func (x *DeleteGopayAccountRequest) Reset() {
 	*x = DeleteGopayAccountRequest{}
-	mi := &file_gopay_app_proto_msgTypes[69]
+	mi := &file_gopay_app_proto_msgTypes[84]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4854,7 +6114,7 @@ func (x *DeleteGopayAccountRequest) String() string {
 func (*DeleteGopayAccountRequest) ProtoMessage() {}
 
 func (x *DeleteGopayAccountRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[69]
+	mi := &file_gopay_app_proto_msgTypes[84]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4867,7 +6127,7 @@ func (x *DeleteGopayAccountRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteGopayAccountRequest.ProtoReflect.Descriptor instead.
 func (*DeleteGopayAccountRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{69}
+	return file_gopay_app_proto_rawDescGZIP(), []int{84}
 }
 
 func (x *DeleteGopayAccountRequest) GetGopayAccountId() string {
@@ -4887,7 +6147,7 @@ type DeleteGopayAccountResponse struct {
 
 func (x *DeleteGopayAccountResponse) Reset() {
 	*x = DeleteGopayAccountResponse{}
-	mi := &file_gopay_app_proto_msgTypes[70]
+	mi := &file_gopay_app_proto_msgTypes[85]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4899,7 +6159,7 @@ func (x *DeleteGopayAccountResponse) String() string {
 func (*DeleteGopayAccountResponse) ProtoMessage() {}
 
 func (x *DeleteGopayAccountResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[70]
+	mi := &file_gopay_app_proto_msgTypes[85]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4912,7 +6172,7 @@ func (x *DeleteGopayAccountResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteGopayAccountResponse.ProtoReflect.Descriptor instead.
 func (*DeleteGopayAccountResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{70}
+	return file_gopay_app_proto_rawDescGZIP(), []int{85}
 }
 
 func (x *DeleteGopayAccountResponse) GetSuccess() bool {
@@ -4938,7 +6198,7 @@ type GetGopayAccountProfileRequest struct {
 
 func (x *GetGopayAccountProfileRequest) Reset() {
 	*x = GetGopayAccountProfileRequest{}
-	mi := &file_gopay_app_proto_msgTypes[71]
+	mi := &file_gopay_app_proto_msgTypes[86]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4950,7 +6210,7 @@ func (x *GetGopayAccountProfileRequest) String() string {
 func (*GetGopayAccountProfileRequest) ProtoMessage() {}
 
 func (x *GetGopayAccountProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[71]
+	mi := &file_gopay_app_proto_msgTypes[86]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4963,7 +6223,7 @@ func (x *GetGopayAccountProfileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGopayAccountProfileRequest.ProtoReflect.Descriptor instead.
 func (*GetGopayAccountProfileRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{71}
+	return file_gopay_app_proto_rawDescGZIP(), []int{86}
 }
 
 func (x *GetGopayAccountProfileRequest) GetGopayAccountId() string {
@@ -4990,7 +6250,7 @@ type GetGopayAccountProfileResponse struct {
 
 func (x *GetGopayAccountProfileResponse) Reset() {
 	*x = GetGopayAccountProfileResponse{}
-	mi := &file_gopay_app_proto_msgTypes[72]
+	mi := &file_gopay_app_proto_msgTypes[87]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5002,7 +6262,7 @@ func (x *GetGopayAccountProfileResponse) String() string {
 func (*GetGopayAccountProfileResponse) ProtoMessage() {}
 
 func (x *GetGopayAccountProfileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[72]
+	mi := &file_gopay_app_proto_msgTypes[87]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5015,7 +6275,7 @@ func (x *GetGopayAccountProfileResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGopayAccountProfileResponse.ProtoReflect.Descriptor instead.
 func (*GetGopayAccountProfileResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{72}
+	return file_gopay_app_proto_rawDescGZIP(), []int{87}
 }
 
 func (x *GetGopayAccountProfileResponse) GetSuccess() bool {
@@ -5094,7 +6354,7 @@ type SaveGopayAccountProfileRequest struct {
 
 func (x *SaveGopayAccountProfileRequest) Reset() {
 	*x = SaveGopayAccountProfileRequest{}
-	mi := &file_gopay_app_proto_msgTypes[73]
+	mi := &file_gopay_app_proto_msgTypes[88]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5106,7 +6366,7 @@ func (x *SaveGopayAccountProfileRequest) String() string {
 func (*SaveGopayAccountProfileRequest) ProtoMessage() {}
 
 func (x *SaveGopayAccountProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[73]
+	mi := &file_gopay_app_proto_msgTypes[88]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5119,7 +6379,7 @@ func (x *SaveGopayAccountProfileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveGopayAccountProfileRequest.ProtoReflect.Descriptor instead.
 func (*SaveGopayAccountProfileRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{73}
+	return file_gopay_app_proto_rawDescGZIP(), []int{88}
 }
 
 func (x *SaveGopayAccountProfileRequest) GetGopayAccountId() string {
@@ -5174,7 +6434,7 @@ type SaveGopayAccountProfileResponse struct {
 
 func (x *SaveGopayAccountProfileResponse) Reset() {
 	*x = SaveGopayAccountProfileResponse{}
-	mi := &file_gopay_app_proto_msgTypes[74]
+	mi := &file_gopay_app_proto_msgTypes[89]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5186,7 +6446,7 @@ func (x *SaveGopayAccountProfileResponse) String() string {
 func (*SaveGopayAccountProfileResponse) ProtoMessage() {}
 
 func (x *SaveGopayAccountProfileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[74]
+	mi := &file_gopay_app_proto_msgTypes[89]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5199,7 +6459,7 @@ func (x *SaveGopayAccountProfileResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveGopayAccountProfileResponse.ProtoReflect.Descriptor instead.
 func (*SaveGopayAccountProfileResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{74}
+	return file_gopay_app_proto_rawDescGZIP(), []int{89}
 }
 
 func (x *SaveGopayAccountProfileResponse) GetSuccess() bool {
@@ -5280,7 +6540,7 @@ type StartGopayPaymentRequest struct {
 
 func (x *StartGopayPaymentRequest) Reset() {
 	*x = StartGopayPaymentRequest{}
-	mi := &file_gopay_app_proto_msgTypes[75]
+	mi := &file_gopay_app_proto_msgTypes[90]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5292,7 +6552,7 @@ func (x *StartGopayPaymentRequest) String() string {
 func (*StartGopayPaymentRequest) ProtoMessage() {}
 
 func (x *StartGopayPaymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[75]
+	mi := &file_gopay_app_proto_msgTypes[90]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5305,7 +6565,7 @@ func (x *StartGopayPaymentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartGopayPaymentRequest.ProtoReflect.Descriptor instead.
 func (*StartGopayPaymentRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{75}
+	return file_gopay_app_proto_rawDescGZIP(), []int{90}
 }
 
 func (x *StartGopayPaymentRequest) GetSnapToken() string {
@@ -5379,7 +6639,7 @@ type StartGopayPaymentResponse struct {
 
 func (x *StartGopayPaymentResponse) Reset() {
 	*x = StartGopayPaymentResponse{}
-	mi := &file_gopay_app_proto_msgTypes[76]
+	mi := &file_gopay_app_proto_msgTypes[91]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5391,7 +6651,7 @@ func (x *StartGopayPaymentResponse) String() string {
 func (*StartGopayPaymentResponse) ProtoMessage() {}
 
 func (x *StartGopayPaymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[76]
+	mi := &file_gopay_app_proto_msgTypes[91]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5404,7 +6664,7 @@ func (x *StartGopayPaymentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartGopayPaymentResponse.ProtoReflect.Descriptor instead.
 func (*StartGopayPaymentResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{76}
+	return file_gopay_app_proto_rawDescGZIP(), []int{91}
 }
 
 func (x *StartGopayPaymentResponse) GetSuccess() bool {
@@ -5515,7 +6775,7 @@ type CompleteGopayPaymentRequest struct {
 
 func (x *CompleteGopayPaymentRequest) Reset() {
 	*x = CompleteGopayPaymentRequest{}
-	mi := &file_gopay_app_proto_msgTypes[77]
+	mi := &file_gopay_app_proto_msgTypes[92]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5527,7 +6787,7 @@ func (x *CompleteGopayPaymentRequest) String() string {
 func (*CompleteGopayPaymentRequest) ProtoMessage() {}
 
 func (x *CompleteGopayPaymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[77]
+	mi := &file_gopay_app_proto_msgTypes[92]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5540,7 +6800,7 @@ func (x *CompleteGopayPaymentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CompleteGopayPaymentRequest.ProtoReflect.Descriptor instead.
 func (*CompleteGopayPaymentRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{77}
+	return file_gopay_app_proto_rawDescGZIP(), []int{92}
 }
 
 func (x *CompleteGopayPaymentRequest) GetFlowId() string {
@@ -5566,7 +6826,7 @@ type ResendGopayPaymentOTPRequest struct {
 
 func (x *ResendGopayPaymentOTPRequest) Reset() {
 	*x = ResendGopayPaymentOTPRequest{}
-	mi := &file_gopay_app_proto_msgTypes[78]
+	mi := &file_gopay_app_proto_msgTypes[93]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5578,7 +6838,7 @@ func (x *ResendGopayPaymentOTPRequest) String() string {
 func (*ResendGopayPaymentOTPRequest) ProtoMessage() {}
 
 func (x *ResendGopayPaymentOTPRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[78]
+	mi := &file_gopay_app_proto_msgTypes[93]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5591,7 +6851,7 @@ func (x *ResendGopayPaymentOTPRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResendGopayPaymentOTPRequest.ProtoReflect.Descriptor instead.
 func (*ResendGopayPaymentOTPRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{78}
+	return file_gopay_app_proto_rawDescGZIP(), []int{93}
 }
 
 func (x *ResendGopayPaymentOTPRequest) GetFlowId() string {
@@ -5613,7 +6873,7 @@ type ResendGopayPaymentOTPResponse struct {
 
 func (x *ResendGopayPaymentOTPResponse) Reset() {
 	*x = ResendGopayPaymentOTPResponse{}
-	mi := &file_gopay_app_proto_msgTypes[79]
+	mi := &file_gopay_app_proto_msgTypes[94]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5625,7 +6885,7 @@ func (x *ResendGopayPaymentOTPResponse) String() string {
 func (*ResendGopayPaymentOTPResponse) ProtoMessage() {}
 
 func (x *ResendGopayPaymentOTPResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[79]
+	mi := &file_gopay_app_proto_msgTypes[94]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5638,7 +6898,7 @@ func (x *ResendGopayPaymentOTPResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResendGopayPaymentOTPResponse.ProtoReflect.Descriptor instead.
 func (*ResendGopayPaymentOTPResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{79}
+	return file_gopay_app_proto_rawDescGZIP(), []int{94}
 }
 
 func (x *ResendGopayPaymentOTPResponse) GetSuccess() bool {
@@ -5678,7 +6938,7 @@ type ConfirmGopayPaymentRequest struct {
 
 func (x *ConfirmGopayPaymentRequest) Reset() {
 	*x = ConfirmGopayPaymentRequest{}
-	mi := &file_gopay_app_proto_msgTypes[80]
+	mi := &file_gopay_app_proto_msgTypes[95]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5690,7 +6950,7 @@ func (x *ConfirmGopayPaymentRequest) String() string {
 func (*ConfirmGopayPaymentRequest) ProtoMessage() {}
 
 func (x *ConfirmGopayPaymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[80]
+	mi := &file_gopay_app_proto_msgTypes[95]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5703,7 +6963,7 @@ func (x *ConfirmGopayPaymentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfirmGopayPaymentRequest.ProtoReflect.Descriptor instead.
 func (*ConfirmGopayPaymentRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{80}
+	return file_gopay_app_proto_rawDescGZIP(), []int{95}
 }
 
 func (x *ConfirmGopayPaymentRequest) GetFlowId() string {
@@ -5722,7 +6982,7 @@ type CancelGopayPaymentRequest struct {
 
 func (x *CancelGopayPaymentRequest) Reset() {
 	*x = CancelGopayPaymentRequest{}
-	mi := &file_gopay_app_proto_msgTypes[81]
+	mi := &file_gopay_app_proto_msgTypes[96]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5734,7 +6994,7 @@ func (x *CancelGopayPaymentRequest) String() string {
 func (*CancelGopayPaymentRequest) ProtoMessage() {}
 
 func (x *CancelGopayPaymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[81]
+	mi := &file_gopay_app_proto_msgTypes[96]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5747,7 +7007,7 @@ func (x *CancelGopayPaymentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelGopayPaymentRequest.ProtoReflect.Descriptor instead.
 func (*CancelGopayPaymentRequest) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{81}
+	return file_gopay_app_proto_rawDescGZIP(), []int{96}
 }
 
 func (x *CancelGopayPaymentRequest) GetFlowId() string {
@@ -5767,7 +7027,7 @@ type CancelGopayPaymentResponse struct {
 
 func (x *CancelGopayPaymentResponse) Reset() {
 	*x = CancelGopayPaymentResponse{}
-	mi := &file_gopay_app_proto_msgTypes[82]
+	mi := &file_gopay_app_proto_msgTypes[97]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5779,7 +7039,7 @@ func (x *CancelGopayPaymentResponse) String() string {
 func (*CancelGopayPaymentResponse) ProtoMessage() {}
 
 func (x *CancelGopayPaymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[82]
+	mi := &file_gopay_app_proto_msgTypes[97]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5792,7 +7052,7 @@ func (x *CancelGopayPaymentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelGopayPaymentResponse.ProtoReflect.Descriptor instead.
 func (*CancelGopayPaymentResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{82}
+	return file_gopay_app_proto_rawDescGZIP(), []int{97}
 }
 
 func (x *CancelGopayPaymentResponse) GetSuccess() bool {
@@ -5827,7 +7087,7 @@ type GopayPaymentResponse struct {
 
 func (x *GopayPaymentResponse) Reset() {
 	*x = GopayPaymentResponse{}
-	mi := &file_gopay_app_proto_msgTypes[83]
+	mi := &file_gopay_app_proto_msgTypes[98]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5839,7 +7099,7 @@ func (x *GopayPaymentResponse) String() string {
 func (*GopayPaymentResponse) ProtoMessage() {}
 
 func (x *GopayPaymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gopay_app_proto_msgTypes[83]
+	mi := &file_gopay_app_proto_msgTypes[98]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5852,7 +7112,7 @@ func (x *GopayPaymentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GopayPaymentResponse.ProtoReflect.Descriptor instead.
 func (*GopayPaymentResponse) Descriptor() ([]byte, []int) {
-	return file_gopay_app_proto_rawDescGZIP(), []int{83}
+	return file_gopay_app_proto_rawDescGZIP(), []int{98}
 }
 
 func (x *GopayPaymentResponse) GetSuccess() bool {
@@ -5952,7 +7212,23 @@ const file_gopay_app_proto_rawDesc = "" +
 	"-StartGoPayRegisterIndonesiaWAWorkflowResponse\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12\x18\n" +
 	"\astarted\x18\x02 \x01(\bR\astarted\x12#\n" +
-	"\rerror_message\x18\x03 \x01(\tR\ferrorMessage\"\xbb\x03\n" +
+	"\rerror_message\x18\x03 \x01(\tR\ferrorMessage\"\xc5\x03\n" +
+	"\x10GopayWorkflowJob\x12\x15\n" +
+	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12(\n" +
+	"\x10n8n_execution_id\x18\x02 \x01(\tR\x0en8nExecutionId\x12\x1c\n" +
+	"\toperation\x18\x03 \x01(\tR\toperation\x12(\n" +
+	"\x10gopay_account_id\x18\x04 \x01(\tR\x0egopayAccountId\x12\x14\n" +
+	"\x05phone\x18\x05 \x01(\tR\x05phone\x12!\n" +
+	"\fcountry_code\x18\x06 \x01(\tR\vcountryCode\x12\x10\n" +
+	"\x03pin\x18\a \x01(\tR\x03pin\x12\x1f\n" +
+	"\votp_channel\x18\b \x01(\tR\n" +
+	"otpChannel\x12\x16\n" +
+	"\x06status\x18\t \x01(\tR\x06status\x12#\n" +
+	"\rerror_message\x18\n" +
+	" \x01(\tR\ferrorMessage\x12&\n" +
+	"\x0fcreated_at_unix\x18\v \x01(\x03R\rcreatedAtUnix\x12&\n" +
+	"\x0fupdated_at_unix\x18\f \x01(\x03R\rupdatedAtUnix\x12/\n" +
+	"\x06result\x18\r \x01(\v2\x17.google.protobuf.StructR\x06result\"\xbb\x03\n" +
 	" GoPayRegisterIndonesiaWASettings\x127\n" +
 	"\x18sms_acquire_wait_seconds\x18\x04 \x01(\x05R\x15smsAcquireWaitSeconds\x125\n" +
 	"\x17sms_min_available_count\x18\x05 \x01(\x05R\x14smsMinAvailableCount\x12>\n" +
@@ -5974,7 +7250,26 @@ const file_gopay_app_proto_rawDesc = "" +
 	"\x1dGetGopayActionCatalogResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12#\n" +
 	"\rerror_message\x18\x02 \x01(\tR\ferrorMessage\x12Q\n" +
-	"\acatalog\x18\x03 \x01(\v27.byte.v.forge.contracts.account.v1.AccountActionCatalogR\acatalog\"\x8a\x01\n" +
+	"\acatalog\x18\x03 \x01(\v27.byte.v.forge.contracts.account.v1.AccountActionCatalogR\acatalog\"-\n" +
+	"\x15GopayAPIErrorResponse\x12\x14\n" +
+	"\x05error\x18\x01 \x01(\tR\x05error\"`\n" +
+	"\x13GopayHealthWorkflow\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05label\x18\x02 \x01(\tR\x05label\x12!\n" +
+	"\fwebhook_path\x18\x03 \x01(\tR\vwebhookPath\"\xb9\x02\n" +
+	"\x13GopayHealthResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x0e\n" +
+	"\x02ok\x18\x02 \x01(\bR\x02ok\x12\x18\n" +
+	"\aservice\x18\x03 \x01(\tR\aservice\x124\n" +
+	"\x16n8n_webhook_configured\x18\x04 \x01(\bR\x14n8nWebhookConfigured\x123\n" +
+	"\x16gopay_action_api_owned\x18\x05 \x01(\bR\x13gopayActionApiOwned\x125\n" +
+	"\x17gopay_account_api_owned\x18\x06 \x01(\bR\x14gopayAccountApiOwned\x12<\n" +
+	"\tworkflows\x18\a \x03(\v2\x1e.gopay_app.GopayHealthWorkflowR\tworkflows\"u\n" +
+	"\x19CreateGopayAccountRequest\x12\x14\n" +
+	"\x05phone\x18\x01 \x01(\tR\x05phone\x12!\n" +
+	"\fcountry_code\x18\x02 \x01(\tR\vcountryCode\x12\x1f\n" +
+	"\votp_channel\x18\x03 \x01(\tR\n" +
+	"otpChannel\"\x8a\x01\n" +
 	"\x17ChangePhoneStartRequest\x12\x10\n" +
 	"\x03pin\x18\x01 \x01(\tR\x03pin\x12\x1b\n" +
 	"\tnew_phone\x18\x02 \x01(\tR\bnewPhone\x12!\n" +
@@ -6300,7 +7595,92 @@ const file_gopay_app_proto_rawDesc = "" +
 	"proxy_hash\x18\x06 \x01(\tR\tproxyHash\x12-\n" +
 	"\x12device_fingerprint\x18\a \x01(\tR\x11deviceFingerprint\x12\x1d\n" +
 	"\n" +
-	"state_json\x18d \x01(\tR\tstateJson\"\xb3\x02\n" +
+	"state_json\x18d \x01(\tR\tstateJson\"\xac\x01\n" +
+	"\"CheckGopayPhoneAvailabilityRequest\x12\x14\n" +
+	"\x05phone\x18\x01 \x01(\tR\x05phone\x12!\n" +
+	"\fcountry_code\x18\x02 \x01(\tR\vcountryCode\x12\x1d\n" +
+	"\n" +
+	"state_json\x18\x03 \x01(\tR\tstateJson\x12.\n" +
+	"\x13release_proxy_state\x18\x04 \x01(\bR\x11releaseProxyState\"\xd5\x02\n" +
+	"#CheckGopayPhoneAvailabilityResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x1c\n" +
+	"\tavailable\x18\x02 \x01(\bR\tavailable\x12\x14\n" +
+	"\x05phone\x18\x03 \x01(\tR\x05phone\x12!\n" +
+	"\fcountry_code\x18\x04 \x01(\tR\vcountryCode\x12\x16\n" +
+	"\x06status\x18\x05 \x01(\tR\x06status\x12#\n" +
+	"\rerror_message\x18\x06 \x01(\tR\ferrorMessage\x12\x1d\n" +
+	"\n" +
+	"proxy_hash\x18\a \x01(\tR\tproxyHash\x12-\n" +
+	"\x12device_fingerprint\x18\b \x01(\tR\x11deviceFingerprint\x122\n" +
+	"\x15generated_proxy_state\x18\t \x01(\bR\x13generatedProxyState\"\xc7\x01\n" +
+	"\x17SubmitChannelOTPRequest\x12(\n" +
+	"\x10gopay_account_id\x18\x01 \x01(\tR\x0egopayAccountId\x12\x18\n" +
+	"\achannel\x18\x02 \x01(\tR\achannel\x12\x16\n" +
+	"\x06target\x18\x03 \x01(\tR\x06target\x12\x10\n" +
+	"\x03otp\x18\x04 \x01(\tR\x03otp\x12\x1d\n" +
+	"\n" +
+	"otp_source\x18\x05 \x01(\tR\totpSource\x12\x1f\n" +
+	"\vmanual_once\x18\x06 \x01(\bR\n" +
+	"manualOnce\"\xd2\x02\n" +
+	"\x18SubmitChannelOTPResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x1f\n" +
+	"\vmanual_once\x18\x02 \x01(\bR\n" +
+	"manualOnce\x12(\n" +
+	"\x10gopay_account_id\x18\x03 \x01(\tR\x0egopayAccountId\x12\x18\n" +
+	"\achannel\x18\x04 \x01(\tR\achannel\x12\x16\n" +
+	"\x06target\x18\x05 \x01(\tR\x06target\x12/\n" +
+	"\x14otp_received_at_unix\x18\x06 \x01(\x03R\x11otpReceivedAtUnix\x12!\n" +
+	"\fresume_count\x18\a \x01(\x05R\vresumeCount\x12&\n" +
+	"\x0fresumed_job_ids\x18\b \x03(\tR\rresumedJobIds\x12#\n" +
+	"\rerror_message\x18\t \x01(\tR\ferrorMessage\"\xb5\x01\n" +
+	"\x14ChannelOTPResumeData\x12\x1b\n" +
+	"\totp_found\x18\x01 \x01(\bR\botpFound\x12\x1f\n" +
+	"\votp_channel\x18\x02 \x01(\tR\n" +
+	"otpChannel\x12,\n" +
+	"\x12channel_otp_target\x18\x03 \x01(\tR\x10channelOtpTarget\x121\n" +
+	"\x15otp_issued_after_unix\x18\x04 \x01(\x03R\x12otpIssuedAfterUnix\"\xf8\x02\n" +
+	"\x13ChannelOTPWaitEntry\x12\x15\n" +
+	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12\x1d\n" +
+	"\n" +
+	"account_id\x18\x02 \x01(\tR\taccountId\x12(\n" +
+	"\x10n8n_execution_id\x18\x03 \x01(\tR\x0en8nExecutionId\x12\x16\n" +
+	"\x06action\x18\x04 \x01(\tR\x06action\x12\x1b\n" +
+	"\tstep_name\x18\x05 \x01(\tR\bstepName\x12\x18\n" +
+	"\achannel\x18\x06 \x01(\tR\achannel\x12\x16\n" +
+	"\x06target\x18\a \x01(\tR\x06target\x12*\n" +
+	"\x11issued_after_unix\x18\b \x01(\x03R\x0fissuedAfterUnix\x12'\n" +
+	"\x0ftimeout_seconds\x18\t \x01(\x05R\x0etimeoutSeconds\x12\x1d\n" +
+	"\n" +
+	"resume_url\x18\n" +
+	" \x01(\tR\tresumeUrl\x12&\n" +
+	"\x0fcreated_at_unix\x18\v \x01(\x03R\rcreatedAtUnix\"\x98\x01\n" +
+	"\x10LatestChannelOTP\x12\x18\n" +
+	"\achannel\x18\x01 \x01(\tR\achannel\x12\x16\n" +
+	"\x06target\x18\x02 \x01(\tR\x06target\x12\x10\n" +
+	"\x03otp\x18\x03 \x01(\tR\x03otp\x12(\n" +
+	"\x10received_at_unix\x18\x04 \x01(\x03R\x0ereceivedAtUnix\x12\x16\n" +
+	"\x06source\x18\x05 \x01(\tR\x06source\"\xee\x02\n" +
+	"\x17ChannelOTPResumeRequest\x12\x15\n" +
+	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12\x1d\n" +
+	"\n" +
+	"account_id\x18\x02 \x01(\tR\taccountId\x12(\n" +
+	"\x10n8n_execution_id\x18\x03 \x01(\tR\x0en8nExecutionId\x12\x16\n" +
+	"\x06action\x18\x04 \x01(\tR\x06action\x12\x12\n" +
+	"\x04step\x18\x05 \x01(\tR\x04step\x12\x18\n" +
+	"\achannel\x18\x06 \x01(\tR\achannel\x12\x16\n" +
+	"\x06target\x18\a \x01(\tR\x06target\x12\x10\n" +
+	"\x03otp\x18\b \x01(\tR\x03otp\x12\x1d\n" +
+	"\n" +
+	"otp_source\x18\t \x01(\tR\totpSource\x12/\n" +
+	"\x14otp_received_at_unix\x18\n" +
+	" \x01(\x03R\x11otpReceivedAtUnix\x123\n" +
+	"\x04data\x18\v \x01(\v2\x1f.gopay_app.ChannelOTPResumeDataR\x04data\"*\n" +
+	"\x16GopayOTPWebhookRequest\x12\x10\n" +
+	"\x03otp\x18\x01 \x01(\tR\x03otp\"r\n" +
+	"\x17GopayOTPWebhookResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
+	"\apurpose\x18\x02 \x01(\tR\apurpose\x12#\n" +
+	"\rerror_message\x18\x03 \x01(\tR\ferrorMessage\"\xb3\x02\n" +
 	"\fGopayAccount\x12D\n" +
 	"\aaccount\x18\x01 \x01(\v2*.byte.v.forge.contracts.account.v1.AccountR\aaccount\x12\x14\n" +
 	"\x05phone\x18\x02 \x01(\tR\x05phone\x12!\n" +
@@ -6504,7 +7884,7 @@ func file_gopay_app_proto_rawDescGZIP() []byte {
 }
 
 var file_gopay_app_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_gopay_app_proto_msgTypes = make([]protoimpl.MessageInfo, 84)
+var file_gopay_app_proto_msgTypes = make([]protoimpl.MessageInfo, 99)
 var file_gopay_app_proto_goTypes = []any{
 	(GoPayOTPChannel)(0),                                  // 0: gopay_app.GoPayOTPChannel
 	(GoPayAccountWorkflowOperation)(0),                    // 1: gopay_app.GoPayAccountWorkflowOperation
@@ -6513,181 +7893,199 @@ var file_gopay_app_proto_goTypes = []any{
 	(*GoPayAccountWorkflowResponse)(nil),                  // 4: gopay_app.GoPayAccountWorkflowResponse
 	(*StartGoPayRegisterIndonesiaWAWorkflowRequest)(nil),  // 5: gopay_app.StartGoPayRegisterIndonesiaWAWorkflowRequest
 	(*StartGoPayRegisterIndonesiaWAWorkflowResponse)(nil), // 6: gopay_app.StartGoPayRegisterIndonesiaWAWorkflowResponse
-	(*GoPayRegisterIndonesiaWASettings)(nil),              // 7: gopay_app.GoPayRegisterIndonesiaWASettings
-	(*GetGoPaySettingsRequest)(nil),                       // 8: gopay_app.GetGoPaySettingsRequest
-	(*GetGoPaySettingsResponse)(nil),                      // 9: gopay_app.GetGoPaySettingsResponse
-	(*SaveGoPaySettingsRequest)(nil),                      // 10: gopay_app.SaveGoPaySettingsRequest
-	(*SaveGoPaySettingsResponse)(nil),                     // 11: gopay_app.SaveGoPaySettingsResponse
-	(*GetGopayActionCatalogRequest)(nil),                  // 12: gopay_app.GetGopayActionCatalogRequest
-	(*GetGopayActionCatalogResponse)(nil),                 // 13: gopay_app.GetGopayActionCatalogResponse
-	(*ChangePhoneStartRequest)(nil),                       // 14: gopay_app.ChangePhoneStartRequest
-	(*ChangePhoneStartResponse)(nil),                      // 15: gopay_app.ChangePhoneStartResponse
-	(*ChangePhoneCompleteRequest)(nil),                    // 16: gopay_app.ChangePhoneCompleteRequest
-	(*ChangePhoneCompleteResponse)(nil),                   // 17: gopay_app.ChangePhoneCompleteResponse
-	(*ChangePhoneRetryRequest)(nil),                       // 18: gopay_app.ChangePhoneRetryRequest
-	(*ChangePhoneRetryResponse)(nil),                      // 19: gopay_app.ChangePhoneRetryResponse
-	(*DeactivateStartRequest)(nil),                        // 20: gopay_app.DeactivateStartRequest
-	(*DeactivateStartResponse)(nil),                       // 21: gopay_app.DeactivateStartResponse
-	(*DeactivateCompleteRequest)(nil),                     // 22: gopay_app.DeactivateCompleteRequest
-	(*DeactivateCompleteResponse)(nil),                    // 23: gopay_app.DeactivateCompleteResponse
-	(*LoginStartRequest)(nil),                             // 24: gopay_app.LoginStartRequest
-	(*LoginStartResponse)(nil),                            // 25: gopay_app.LoginStartResponse
-	(*LoginCompleteRequest)(nil),                          // 26: gopay_app.LoginCompleteRequest
-	(*LoginCompleteResponse)(nil),                         // 27: gopay_app.LoginCompleteResponse
-	(*SignupStartRequest)(nil),                            // 28: gopay_app.SignupStartRequest
-	(*SignupStartResponse)(nil),                           // 29: gopay_app.SignupStartResponse
-	(*SignupRetryRequest)(nil),                            // 30: gopay_app.SignupRetryRequest
-	(*SignupRetryResponse)(nil),                           // 31: gopay_app.SignupRetryResponse
-	(*SignupCompleteRequest)(nil),                         // 32: gopay_app.SignupCompleteRequest
-	(*SignupCompleteResponse)(nil),                        // 33: gopay_app.SignupCompleteResponse
-	(*GenerateDeviceProxyRequest)(nil),                    // 34: gopay_app.GenerateDeviceProxyRequest
-	(*GenerateDeviceProxyResponse)(nil),                   // 35: gopay_app.GenerateDeviceProxyResponse
-	(*CreatePinStartRequest)(nil),                         // 36: gopay_app.CreatePinStartRequest
-	(*CreatePinStartResponse)(nil),                        // 37: gopay_app.CreatePinStartResponse
-	(*CreatePinRetryRequest)(nil),                         // 38: gopay_app.CreatePinRetryRequest
-	(*CreatePinRetryResponse)(nil),                        // 39: gopay_app.CreatePinRetryResponse
-	(*CreatePinCompleteRequest)(nil),                      // 40: gopay_app.CreatePinCompleteRequest
-	(*CreatePinCompleteResponse)(nil),                     // 41: gopay_app.CreatePinCompleteResponse
-	(*AuthStartRequest)(nil),                              // 42: gopay_app.AuthStartRequest
-	(*AuthStartResponse)(nil),                             // 43: gopay_app.AuthStartResponse
-	(*AuthCompleteRequest)(nil),                           // 44: gopay_app.AuthCompleteRequest
-	(*AuthCompleteResponse)(nil),                          // 45: gopay_app.AuthCompleteResponse
-	(*CheckTokenValidRequest)(nil),                        // 46: gopay_app.CheckTokenValidRequest
-	(*CheckTokenValidResponse)(nil),                       // 47: gopay_app.CheckTokenValidResponse
-	(*ClaimEnvelopeRequest)(nil),                          // 48: gopay_app.ClaimEnvelopeRequest
-	(*ClaimEnvelopeResponse)(nil),                         // 49: gopay_app.ClaimEnvelopeResponse
-	(*UnlinkRequest)(nil),                                 // 50: gopay_app.UnlinkRequest
-	(*UnlinkResponse)(nil),                                // 51: gopay_app.UnlinkResponse
-	(*StatusRequest)(nil),                                 // 52: gopay_app.StatusRequest
-	(*StatusResponse)(nil),                                // 53: gopay_app.StatusResponse
-	(*GetReadyAccountTokenRequest)(nil),                   // 54: gopay_app.GetReadyAccountTokenRequest
-	(*GetReadyAccountTokenResponse)(nil),                  // 55: gopay_app.GetReadyAccountTokenResponse
-	(*CheckDeactivationRequest)(nil),                      // 56: gopay_app.CheckDeactivationRequest
-	(*CheckDeactivationResponse)(nil),                     // 57: gopay_app.CheckDeactivationResponse
-	(*GetQrIdRequest)(nil),                                // 58: gopay_app.GetQrIdRequest
-	(*GetQrIdResponse)(nil),                               // 59: gopay_app.GetQrIdResponse
-	(*CheckPhoneRequest)(nil),                             // 60: gopay_app.CheckPhoneRequest
-	(*CheckPhoneResponse)(nil),                            // 61: gopay_app.CheckPhoneResponse
-	(*GopayAccount)(nil),                                  // 62: gopay_app.GopayAccount
-	(*GetGopayAccountRequest)(nil),                        // 63: gopay_app.GetGopayAccountRequest
-	(*GetGopayAccountResponse)(nil),                       // 64: gopay_app.GetGopayAccountResponse
-	(*ListGopayAccountsRequest)(nil),                      // 65: gopay_app.ListGopayAccountsRequest
-	(*ListGopayAccountsResponse)(nil),                     // 66: gopay_app.ListGopayAccountsResponse
-	(*LoadGopayAccountStateRequest)(nil),                  // 67: gopay_app.LoadGopayAccountStateRequest
-	(*LoadGopayAccountStateResponse)(nil),                 // 68: gopay_app.LoadGopayAccountStateResponse
-	(*SaveGopayAccountStateRequest)(nil),                  // 69: gopay_app.SaveGopayAccountStateRequest
-	(*SaveGopayAccountStateResponse)(nil),                 // 70: gopay_app.SaveGopayAccountStateResponse
-	(*DeleteGopayAccountRequest)(nil),                     // 71: gopay_app.DeleteGopayAccountRequest
-	(*DeleteGopayAccountResponse)(nil),                    // 72: gopay_app.DeleteGopayAccountResponse
-	(*GetGopayAccountProfileRequest)(nil),                 // 73: gopay_app.GetGopayAccountProfileRequest
-	(*GetGopayAccountProfileResponse)(nil),                // 74: gopay_app.GetGopayAccountProfileResponse
-	(*SaveGopayAccountProfileRequest)(nil),                // 75: gopay_app.SaveGopayAccountProfileRequest
-	(*SaveGopayAccountProfileResponse)(nil),               // 76: gopay_app.SaveGopayAccountProfileResponse
-	(*StartGopayPaymentRequest)(nil),                      // 77: gopay_app.StartGopayPaymentRequest
-	(*StartGopayPaymentResponse)(nil),                     // 78: gopay_app.StartGopayPaymentResponse
-	(*CompleteGopayPaymentRequest)(nil),                   // 79: gopay_app.CompleteGopayPaymentRequest
-	(*ResendGopayPaymentOTPRequest)(nil),                  // 80: gopay_app.ResendGopayPaymentOTPRequest
-	(*ResendGopayPaymentOTPResponse)(nil),                 // 81: gopay_app.ResendGopayPaymentOTPResponse
-	(*ConfirmGopayPaymentRequest)(nil),                    // 82: gopay_app.ConfirmGopayPaymentRequest
-	(*CancelGopayPaymentRequest)(nil),                     // 83: gopay_app.CancelGopayPaymentRequest
-	(*CancelGopayPaymentResponse)(nil),                    // 84: gopay_app.CancelGopayPaymentResponse
-	(*GopayPaymentResponse)(nil),                          // 85: gopay_app.GopayPaymentResponse
-	(*v1.AccountActionCatalog)(nil),                       // 86: byte.v.forge.contracts.account.v1.AccountActionCatalog
-	(*structpb.Struct)(nil),                               // 87: google.protobuf.Struct
-	(*v1.Account)(nil),                                    // 88: byte.v.forge.contracts.account.v1.Account
+	(*GopayWorkflowJob)(nil),                              // 7: gopay_app.GopayWorkflowJob
+	(*GoPayRegisterIndonesiaWASettings)(nil),              // 8: gopay_app.GoPayRegisterIndonesiaWASettings
+	(*GetGoPaySettingsRequest)(nil),                       // 9: gopay_app.GetGoPaySettingsRequest
+	(*GetGoPaySettingsResponse)(nil),                      // 10: gopay_app.GetGoPaySettingsResponse
+	(*SaveGoPaySettingsRequest)(nil),                      // 11: gopay_app.SaveGoPaySettingsRequest
+	(*SaveGoPaySettingsResponse)(nil),                     // 12: gopay_app.SaveGoPaySettingsResponse
+	(*GetGopayActionCatalogRequest)(nil),                  // 13: gopay_app.GetGopayActionCatalogRequest
+	(*GetGopayActionCatalogResponse)(nil),                 // 14: gopay_app.GetGopayActionCatalogResponse
+	(*GopayAPIErrorResponse)(nil),                         // 15: gopay_app.GopayAPIErrorResponse
+	(*GopayHealthWorkflow)(nil),                           // 16: gopay_app.GopayHealthWorkflow
+	(*GopayHealthResponse)(nil),                           // 17: gopay_app.GopayHealthResponse
+	(*CreateGopayAccountRequest)(nil),                     // 18: gopay_app.CreateGopayAccountRequest
+	(*ChangePhoneStartRequest)(nil),                       // 19: gopay_app.ChangePhoneStartRequest
+	(*ChangePhoneStartResponse)(nil),                      // 20: gopay_app.ChangePhoneStartResponse
+	(*ChangePhoneCompleteRequest)(nil),                    // 21: gopay_app.ChangePhoneCompleteRequest
+	(*ChangePhoneCompleteResponse)(nil),                   // 22: gopay_app.ChangePhoneCompleteResponse
+	(*ChangePhoneRetryRequest)(nil),                       // 23: gopay_app.ChangePhoneRetryRequest
+	(*ChangePhoneRetryResponse)(nil),                      // 24: gopay_app.ChangePhoneRetryResponse
+	(*DeactivateStartRequest)(nil),                        // 25: gopay_app.DeactivateStartRequest
+	(*DeactivateStartResponse)(nil),                       // 26: gopay_app.DeactivateStartResponse
+	(*DeactivateCompleteRequest)(nil),                     // 27: gopay_app.DeactivateCompleteRequest
+	(*DeactivateCompleteResponse)(nil),                    // 28: gopay_app.DeactivateCompleteResponse
+	(*LoginStartRequest)(nil),                             // 29: gopay_app.LoginStartRequest
+	(*LoginStartResponse)(nil),                            // 30: gopay_app.LoginStartResponse
+	(*LoginCompleteRequest)(nil),                          // 31: gopay_app.LoginCompleteRequest
+	(*LoginCompleteResponse)(nil),                         // 32: gopay_app.LoginCompleteResponse
+	(*SignupStartRequest)(nil),                            // 33: gopay_app.SignupStartRequest
+	(*SignupStartResponse)(nil),                           // 34: gopay_app.SignupStartResponse
+	(*SignupRetryRequest)(nil),                            // 35: gopay_app.SignupRetryRequest
+	(*SignupRetryResponse)(nil),                           // 36: gopay_app.SignupRetryResponse
+	(*SignupCompleteRequest)(nil),                         // 37: gopay_app.SignupCompleteRequest
+	(*SignupCompleteResponse)(nil),                        // 38: gopay_app.SignupCompleteResponse
+	(*GenerateDeviceProxyRequest)(nil),                    // 39: gopay_app.GenerateDeviceProxyRequest
+	(*GenerateDeviceProxyResponse)(nil),                   // 40: gopay_app.GenerateDeviceProxyResponse
+	(*CreatePinStartRequest)(nil),                         // 41: gopay_app.CreatePinStartRequest
+	(*CreatePinStartResponse)(nil),                        // 42: gopay_app.CreatePinStartResponse
+	(*CreatePinRetryRequest)(nil),                         // 43: gopay_app.CreatePinRetryRequest
+	(*CreatePinRetryResponse)(nil),                        // 44: gopay_app.CreatePinRetryResponse
+	(*CreatePinCompleteRequest)(nil),                      // 45: gopay_app.CreatePinCompleteRequest
+	(*CreatePinCompleteResponse)(nil),                     // 46: gopay_app.CreatePinCompleteResponse
+	(*AuthStartRequest)(nil),                              // 47: gopay_app.AuthStartRequest
+	(*AuthStartResponse)(nil),                             // 48: gopay_app.AuthStartResponse
+	(*AuthCompleteRequest)(nil),                           // 49: gopay_app.AuthCompleteRequest
+	(*AuthCompleteResponse)(nil),                          // 50: gopay_app.AuthCompleteResponse
+	(*CheckTokenValidRequest)(nil),                        // 51: gopay_app.CheckTokenValidRequest
+	(*CheckTokenValidResponse)(nil),                       // 52: gopay_app.CheckTokenValidResponse
+	(*ClaimEnvelopeRequest)(nil),                          // 53: gopay_app.ClaimEnvelopeRequest
+	(*ClaimEnvelopeResponse)(nil),                         // 54: gopay_app.ClaimEnvelopeResponse
+	(*UnlinkRequest)(nil),                                 // 55: gopay_app.UnlinkRequest
+	(*UnlinkResponse)(nil),                                // 56: gopay_app.UnlinkResponse
+	(*StatusRequest)(nil),                                 // 57: gopay_app.StatusRequest
+	(*StatusResponse)(nil),                                // 58: gopay_app.StatusResponse
+	(*GetReadyAccountTokenRequest)(nil),                   // 59: gopay_app.GetReadyAccountTokenRequest
+	(*GetReadyAccountTokenResponse)(nil),                  // 60: gopay_app.GetReadyAccountTokenResponse
+	(*CheckDeactivationRequest)(nil),                      // 61: gopay_app.CheckDeactivationRequest
+	(*CheckDeactivationResponse)(nil),                     // 62: gopay_app.CheckDeactivationResponse
+	(*GetQrIdRequest)(nil),                                // 63: gopay_app.GetQrIdRequest
+	(*GetQrIdResponse)(nil),                               // 64: gopay_app.GetQrIdResponse
+	(*CheckPhoneRequest)(nil),                             // 65: gopay_app.CheckPhoneRequest
+	(*CheckPhoneResponse)(nil),                            // 66: gopay_app.CheckPhoneResponse
+	(*CheckGopayPhoneAvailabilityRequest)(nil),            // 67: gopay_app.CheckGopayPhoneAvailabilityRequest
+	(*CheckGopayPhoneAvailabilityResponse)(nil),           // 68: gopay_app.CheckGopayPhoneAvailabilityResponse
+	(*SubmitChannelOTPRequest)(nil),                       // 69: gopay_app.SubmitChannelOTPRequest
+	(*SubmitChannelOTPResponse)(nil),                      // 70: gopay_app.SubmitChannelOTPResponse
+	(*ChannelOTPResumeData)(nil),                          // 71: gopay_app.ChannelOTPResumeData
+	(*ChannelOTPWaitEntry)(nil),                           // 72: gopay_app.ChannelOTPWaitEntry
+	(*LatestChannelOTP)(nil),                              // 73: gopay_app.LatestChannelOTP
+	(*ChannelOTPResumeRequest)(nil),                       // 74: gopay_app.ChannelOTPResumeRequest
+	(*GopayOTPWebhookRequest)(nil),                        // 75: gopay_app.GopayOTPWebhookRequest
+	(*GopayOTPWebhookResponse)(nil),                       // 76: gopay_app.GopayOTPWebhookResponse
+	(*GopayAccount)(nil),                                  // 77: gopay_app.GopayAccount
+	(*GetGopayAccountRequest)(nil),                        // 78: gopay_app.GetGopayAccountRequest
+	(*GetGopayAccountResponse)(nil),                       // 79: gopay_app.GetGopayAccountResponse
+	(*ListGopayAccountsRequest)(nil),                      // 80: gopay_app.ListGopayAccountsRequest
+	(*ListGopayAccountsResponse)(nil),                     // 81: gopay_app.ListGopayAccountsResponse
+	(*LoadGopayAccountStateRequest)(nil),                  // 82: gopay_app.LoadGopayAccountStateRequest
+	(*LoadGopayAccountStateResponse)(nil),                 // 83: gopay_app.LoadGopayAccountStateResponse
+	(*SaveGopayAccountStateRequest)(nil),                  // 84: gopay_app.SaveGopayAccountStateRequest
+	(*SaveGopayAccountStateResponse)(nil),                 // 85: gopay_app.SaveGopayAccountStateResponse
+	(*DeleteGopayAccountRequest)(nil),                     // 86: gopay_app.DeleteGopayAccountRequest
+	(*DeleteGopayAccountResponse)(nil),                    // 87: gopay_app.DeleteGopayAccountResponse
+	(*GetGopayAccountProfileRequest)(nil),                 // 88: gopay_app.GetGopayAccountProfileRequest
+	(*GetGopayAccountProfileResponse)(nil),                // 89: gopay_app.GetGopayAccountProfileResponse
+	(*SaveGopayAccountProfileRequest)(nil),                // 90: gopay_app.SaveGopayAccountProfileRequest
+	(*SaveGopayAccountProfileResponse)(nil),               // 91: gopay_app.SaveGopayAccountProfileResponse
+	(*StartGopayPaymentRequest)(nil),                      // 92: gopay_app.StartGopayPaymentRequest
+	(*StartGopayPaymentResponse)(nil),                     // 93: gopay_app.StartGopayPaymentResponse
+	(*CompleteGopayPaymentRequest)(nil),                   // 94: gopay_app.CompleteGopayPaymentRequest
+	(*ResendGopayPaymentOTPRequest)(nil),                  // 95: gopay_app.ResendGopayPaymentOTPRequest
+	(*ResendGopayPaymentOTPResponse)(nil),                 // 96: gopay_app.ResendGopayPaymentOTPResponse
+	(*ConfirmGopayPaymentRequest)(nil),                    // 97: gopay_app.ConfirmGopayPaymentRequest
+	(*CancelGopayPaymentRequest)(nil),                     // 98: gopay_app.CancelGopayPaymentRequest
+	(*CancelGopayPaymentResponse)(nil),                    // 99: gopay_app.CancelGopayPaymentResponse
+	(*GopayPaymentResponse)(nil),                          // 100: gopay_app.GopayPaymentResponse
+	(*structpb.Struct)(nil),                               // 101: google.protobuf.Struct
+	(*v1.AccountActionCatalog)(nil),                       // 102: byte.v.forge.contracts.account.v1.AccountActionCatalog
+	(*v1.Account)(nil),                                    // 103: byte.v.forge.contracts.account.v1.Account
 }
 var file_gopay_app_proto_depIdxs = []int32{
-	0,  // 0: gopay_app.GoPayOTPChannelDescriptor.channel:type_name -> gopay_app.GoPayOTPChannel
-	1,  // 1: gopay_app.GoPayAccountWorkflowRequest.operation:type_name -> gopay_app.GoPayAccountWorkflowOperation
-	7,  // 2: gopay_app.GetGoPaySettingsResponse.register_indonesia_wa:type_name -> gopay_app.GoPayRegisterIndonesiaWASettings
-	7,  // 3: gopay_app.SaveGoPaySettingsRequest.register_indonesia_wa:type_name -> gopay_app.GoPayRegisterIndonesiaWASettings
-	7,  // 4: gopay_app.SaveGoPaySettingsResponse.register_indonesia_wa:type_name -> gopay_app.GoPayRegisterIndonesiaWASettings
-	86, // 5: gopay_app.GetGopayActionCatalogResponse.catalog:type_name -> byte.v.forge.contracts.account.v1.AccountActionCatalog
-	87, // 6: gopay_app.GenerateDeviceProxyResponse.data:type_name -> google.protobuf.Struct
-	88, // 7: gopay_app.GopayAccount.account:type_name -> byte.v.forge.contracts.account.v1.Account
-	62, // 8: gopay_app.GetGopayAccountResponse.account:type_name -> gopay_app.GopayAccount
-	62, // 9: gopay_app.ListGopayAccountsResponse.accounts:type_name -> gopay_app.GopayAccount
-	62, // 10: gopay_app.LoadGopayAccountStateResponse.account:type_name -> gopay_app.GopayAccount
-	62, // 11: gopay_app.SaveGopayAccountStateResponse.account:type_name -> gopay_app.GopayAccount
-	12, // 12: gopay_app.GopayAppService.GetActionCatalog:input_type -> gopay_app.GetGopayActionCatalogRequest
-	63, // 13: gopay_app.GopayAppService.GetGopayAccount:input_type -> gopay_app.GetGopayAccountRequest
-	65, // 14: gopay_app.GopayAppService.ListGopayAccounts:input_type -> gopay_app.ListGopayAccountsRequest
-	67, // 15: gopay_app.GopayAppService.LoadGopayAccountState:input_type -> gopay_app.LoadGopayAccountStateRequest
-	69, // 16: gopay_app.GopayAppService.SaveGopayAccountState:input_type -> gopay_app.SaveGopayAccountStateRequest
-	71, // 17: gopay_app.GopayAppService.DeleteGopayAccount:input_type -> gopay_app.DeleteGopayAccountRequest
-	73, // 18: gopay_app.GopayAppService.GetGopayAccountProfile:input_type -> gopay_app.GetGopayAccountProfileRequest
-	75, // 19: gopay_app.GopayAppService.SaveGopayAccountProfile:input_type -> gopay_app.SaveGopayAccountProfileRequest
-	34, // 20: gopay_app.GopayAppService.GenerateDeviceProxy:input_type -> gopay_app.GenerateDeviceProxyRequest
-	60, // 21: gopay_app.GopayAppService.CheckPhone:input_type -> gopay_app.CheckPhoneRequest
-	14, // 22: gopay_app.GopayAppService.ChangePhoneStart:input_type -> gopay_app.ChangePhoneStartRequest
-	18, // 23: gopay_app.GopayAppService.ChangePhoneRetry:input_type -> gopay_app.ChangePhoneRetryRequest
-	16, // 24: gopay_app.GopayAppService.ChangePhoneComplete:input_type -> gopay_app.ChangePhoneCompleteRequest
-	20, // 25: gopay_app.GopayAppService.DeactivateStart:input_type -> gopay_app.DeactivateStartRequest
-	22, // 26: gopay_app.GopayAppService.DeactivateComplete:input_type -> gopay_app.DeactivateCompleteRequest
-	24, // 27: gopay_app.GopayAppService.LoginStart:input_type -> gopay_app.LoginStartRequest
-	26, // 28: gopay_app.GopayAppService.LoginComplete:input_type -> gopay_app.LoginCompleteRequest
-	28, // 29: gopay_app.GopayAppService.SignupStart:input_type -> gopay_app.SignupStartRequest
-	30, // 30: gopay_app.GopayAppService.SignupRetry:input_type -> gopay_app.SignupRetryRequest
-	32, // 31: gopay_app.GopayAppService.SignupComplete:input_type -> gopay_app.SignupCompleteRequest
-	36, // 32: gopay_app.GopayAppService.CreatePinStart:input_type -> gopay_app.CreatePinStartRequest
-	38, // 33: gopay_app.GopayAppService.CreatePinRetry:input_type -> gopay_app.CreatePinRetryRequest
-	40, // 34: gopay_app.GopayAppService.CreatePinComplete:input_type -> gopay_app.CreatePinCompleteRequest
-	42, // 35: gopay_app.GopayAppService.AuthStart:input_type -> gopay_app.AuthStartRequest
-	44, // 36: gopay_app.GopayAppService.AuthComplete:input_type -> gopay_app.AuthCompleteRequest
-	46, // 37: gopay_app.GopayAppService.CheckTokenValid:input_type -> gopay_app.CheckTokenValidRequest
-	48, // 38: gopay_app.GopayAppService.ClaimEnvelope:input_type -> gopay_app.ClaimEnvelopeRequest
-	50, // 39: gopay_app.GopayAppService.Unlink:input_type -> gopay_app.UnlinkRequest
-	52, // 40: gopay_app.GopayAppService.Status:input_type -> gopay_app.StatusRequest
-	58, // 41: gopay_app.GopayAppService.GetQrId:input_type -> gopay_app.GetQrIdRequest
-	54, // 42: gopay_app.GopayAppService.GetReadyAccountToken:input_type -> gopay_app.GetReadyAccountTokenRequest
-	56, // 43: gopay_app.GopayAppService.CheckDeactivation:input_type -> gopay_app.CheckDeactivationRequest
-	77, // 44: gopay_app.GopayAppService.StartGopayPayment:input_type -> gopay_app.StartGopayPaymentRequest
-	79, // 45: gopay_app.GopayAppService.CompleteGopayPayment:input_type -> gopay_app.CompleteGopayPaymentRequest
-	80, // 46: gopay_app.GopayAppService.ResendGopayPaymentOTP:input_type -> gopay_app.ResendGopayPaymentOTPRequest
-	82, // 47: gopay_app.GopayAppService.ConfirmGopayPayment:input_type -> gopay_app.ConfirmGopayPaymentRequest
-	83, // 48: gopay_app.GopayAppService.CancelGopayPayment:input_type -> gopay_app.CancelGopayPaymentRequest
-	13, // 49: gopay_app.GopayAppService.GetActionCatalog:output_type -> gopay_app.GetGopayActionCatalogResponse
-	64, // 50: gopay_app.GopayAppService.GetGopayAccount:output_type -> gopay_app.GetGopayAccountResponse
-	66, // 51: gopay_app.GopayAppService.ListGopayAccounts:output_type -> gopay_app.ListGopayAccountsResponse
-	68, // 52: gopay_app.GopayAppService.LoadGopayAccountState:output_type -> gopay_app.LoadGopayAccountStateResponse
-	70, // 53: gopay_app.GopayAppService.SaveGopayAccountState:output_type -> gopay_app.SaveGopayAccountStateResponse
-	72, // 54: gopay_app.GopayAppService.DeleteGopayAccount:output_type -> gopay_app.DeleteGopayAccountResponse
-	74, // 55: gopay_app.GopayAppService.GetGopayAccountProfile:output_type -> gopay_app.GetGopayAccountProfileResponse
-	76, // 56: gopay_app.GopayAppService.SaveGopayAccountProfile:output_type -> gopay_app.SaveGopayAccountProfileResponse
-	35, // 57: gopay_app.GopayAppService.GenerateDeviceProxy:output_type -> gopay_app.GenerateDeviceProxyResponse
-	61, // 58: gopay_app.GopayAppService.CheckPhone:output_type -> gopay_app.CheckPhoneResponse
-	15, // 59: gopay_app.GopayAppService.ChangePhoneStart:output_type -> gopay_app.ChangePhoneStartResponse
-	19, // 60: gopay_app.GopayAppService.ChangePhoneRetry:output_type -> gopay_app.ChangePhoneRetryResponse
-	17, // 61: gopay_app.GopayAppService.ChangePhoneComplete:output_type -> gopay_app.ChangePhoneCompleteResponse
-	21, // 62: gopay_app.GopayAppService.DeactivateStart:output_type -> gopay_app.DeactivateStartResponse
-	23, // 63: gopay_app.GopayAppService.DeactivateComplete:output_type -> gopay_app.DeactivateCompleteResponse
-	25, // 64: gopay_app.GopayAppService.LoginStart:output_type -> gopay_app.LoginStartResponse
-	27, // 65: gopay_app.GopayAppService.LoginComplete:output_type -> gopay_app.LoginCompleteResponse
-	29, // 66: gopay_app.GopayAppService.SignupStart:output_type -> gopay_app.SignupStartResponse
-	31, // 67: gopay_app.GopayAppService.SignupRetry:output_type -> gopay_app.SignupRetryResponse
-	33, // 68: gopay_app.GopayAppService.SignupComplete:output_type -> gopay_app.SignupCompleteResponse
-	37, // 69: gopay_app.GopayAppService.CreatePinStart:output_type -> gopay_app.CreatePinStartResponse
-	39, // 70: gopay_app.GopayAppService.CreatePinRetry:output_type -> gopay_app.CreatePinRetryResponse
-	41, // 71: gopay_app.GopayAppService.CreatePinComplete:output_type -> gopay_app.CreatePinCompleteResponse
-	43, // 72: gopay_app.GopayAppService.AuthStart:output_type -> gopay_app.AuthStartResponse
-	45, // 73: gopay_app.GopayAppService.AuthComplete:output_type -> gopay_app.AuthCompleteResponse
-	47, // 74: gopay_app.GopayAppService.CheckTokenValid:output_type -> gopay_app.CheckTokenValidResponse
-	49, // 75: gopay_app.GopayAppService.ClaimEnvelope:output_type -> gopay_app.ClaimEnvelopeResponse
-	51, // 76: gopay_app.GopayAppService.Unlink:output_type -> gopay_app.UnlinkResponse
-	53, // 77: gopay_app.GopayAppService.Status:output_type -> gopay_app.StatusResponse
-	59, // 78: gopay_app.GopayAppService.GetQrId:output_type -> gopay_app.GetQrIdResponse
-	55, // 79: gopay_app.GopayAppService.GetReadyAccountToken:output_type -> gopay_app.GetReadyAccountTokenResponse
-	57, // 80: gopay_app.GopayAppService.CheckDeactivation:output_type -> gopay_app.CheckDeactivationResponse
-	78, // 81: gopay_app.GopayAppService.StartGopayPayment:output_type -> gopay_app.StartGopayPaymentResponse
-	85, // 82: gopay_app.GopayAppService.CompleteGopayPayment:output_type -> gopay_app.GopayPaymentResponse
-	81, // 83: gopay_app.GopayAppService.ResendGopayPaymentOTP:output_type -> gopay_app.ResendGopayPaymentOTPResponse
-	85, // 84: gopay_app.GopayAppService.ConfirmGopayPayment:output_type -> gopay_app.GopayPaymentResponse
-	84, // 85: gopay_app.GopayAppService.CancelGopayPayment:output_type -> gopay_app.CancelGopayPaymentResponse
-	49, // [49:86] is the sub-list for method output_type
-	12, // [12:49] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	0,   // 0: gopay_app.GoPayOTPChannelDescriptor.channel:type_name -> gopay_app.GoPayOTPChannel
+	1,   // 1: gopay_app.GoPayAccountWorkflowRequest.operation:type_name -> gopay_app.GoPayAccountWorkflowOperation
+	101, // 2: gopay_app.GopayWorkflowJob.result:type_name -> google.protobuf.Struct
+	8,   // 3: gopay_app.GetGoPaySettingsResponse.register_indonesia_wa:type_name -> gopay_app.GoPayRegisterIndonesiaWASettings
+	8,   // 4: gopay_app.SaveGoPaySettingsRequest.register_indonesia_wa:type_name -> gopay_app.GoPayRegisterIndonesiaWASettings
+	8,   // 5: gopay_app.SaveGoPaySettingsResponse.register_indonesia_wa:type_name -> gopay_app.GoPayRegisterIndonesiaWASettings
+	102, // 6: gopay_app.GetGopayActionCatalogResponse.catalog:type_name -> byte.v.forge.contracts.account.v1.AccountActionCatalog
+	16,  // 7: gopay_app.GopayHealthResponse.workflows:type_name -> gopay_app.GopayHealthWorkflow
+	101, // 8: gopay_app.GenerateDeviceProxyResponse.data:type_name -> google.protobuf.Struct
+	71,  // 9: gopay_app.ChannelOTPResumeRequest.data:type_name -> gopay_app.ChannelOTPResumeData
+	103, // 10: gopay_app.GopayAccount.account:type_name -> byte.v.forge.contracts.account.v1.Account
+	77,  // 11: gopay_app.GetGopayAccountResponse.account:type_name -> gopay_app.GopayAccount
+	77,  // 12: gopay_app.ListGopayAccountsResponse.accounts:type_name -> gopay_app.GopayAccount
+	77,  // 13: gopay_app.LoadGopayAccountStateResponse.account:type_name -> gopay_app.GopayAccount
+	77,  // 14: gopay_app.SaveGopayAccountStateResponse.account:type_name -> gopay_app.GopayAccount
+	13,  // 15: gopay_app.GopayAppService.GetActionCatalog:input_type -> gopay_app.GetGopayActionCatalogRequest
+	78,  // 16: gopay_app.GopayAppService.GetGopayAccount:input_type -> gopay_app.GetGopayAccountRequest
+	80,  // 17: gopay_app.GopayAppService.ListGopayAccounts:input_type -> gopay_app.ListGopayAccountsRequest
+	82,  // 18: gopay_app.GopayAppService.LoadGopayAccountState:input_type -> gopay_app.LoadGopayAccountStateRequest
+	84,  // 19: gopay_app.GopayAppService.SaveGopayAccountState:input_type -> gopay_app.SaveGopayAccountStateRequest
+	86,  // 20: gopay_app.GopayAppService.DeleteGopayAccount:input_type -> gopay_app.DeleteGopayAccountRequest
+	88,  // 21: gopay_app.GopayAppService.GetGopayAccountProfile:input_type -> gopay_app.GetGopayAccountProfileRequest
+	90,  // 22: gopay_app.GopayAppService.SaveGopayAccountProfile:input_type -> gopay_app.SaveGopayAccountProfileRequest
+	39,  // 23: gopay_app.GopayAppService.GenerateDeviceProxy:input_type -> gopay_app.GenerateDeviceProxyRequest
+	65,  // 24: gopay_app.GopayAppService.CheckPhone:input_type -> gopay_app.CheckPhoneRequest
+	19,  // 25: gopay_app.GopayAppService.ChangePhoneStart:input_type -> gopay_app.ChangePhoneStartRequest
+	23,  // 26: gopay_app.GopayAppService.ChangePhoneRetry:input_type -> gopay_app.ChangePhoneRetryRequest
+	21,  // 27: gopay_app.GopayAppService.ChangePhoneComplete:input_type -> gopay_app.ChangePhoneCompleteRequest
+	25,  // 28: gopay_app.GopayAppService.DeactivateStart:input_type -> gopay_app.DeactivateStartRequest
+	27,  // 29: gopay_app.GopayAppService.DeactivateComplete:input_type -> gopay_app.DeactivateCompleteRequest
+	29,  // 30: gopay_app.GopayAppService.LoginStart:input_type -> gopay_app.LoginStartRequest
+	31,  // 31: gopay_app.GopayAppService.LoginComplete:input_type -> gopay_app.LoginCompleteRequest
+	33,  // 32: gopay_app.GopayAppService.SignupStart:input_type -> gopay_app.SignupStartRequest
+	35,  // 33: gopay_app.GopayAppService.SignupRetry:input_type -> gopay_app.SignupRetryRequest
+	37,  // 34: gopay_app.GopayAppService.SignupComplete:input_type -> gopay_app.SignupCompleteRequest
+	41,  // 35: gopay_app.GopayAppService.CreatePinStart:input_type -> gopay_app.CreatePinStartRequest
+	43,  // 36: gopay_app.GopayAppService.CreatePinRetry:input_type -> gopay_app.CreatePinRetryRequest
+	45,  // 37: gopay_app.GopayAppService.CreatePinComplete:input_type -> gopay_app.CreatePinCompleteRequest
+	47,  // 38: gopay_app.GopayAppService.AuthStart:input_type -> gopay_app.AuthStartRequest
+	49,  // 39: gopay_app.GopayAppService.AuthComplete:input_type -> gopay_app.AuthCompleteRequest
+	51,  // 40: gopay_app.GopayAppService.CheckTokenValid:input_type -> gopay_app.CheckTokenValidRequest
+	53,  // 41: gopay_app.GopayAppService.ClaimEnvelope:input_type -> gopay_app.ClaimEnvelopeRequest
+	55,  // 42: gopay_app.GopayAppService.Unlink:input_type -> gopay_app.UnlinkRequest
+	57,  // 43: gopay_app.GopayAppService.Status:input_type -> gopay_app.StatusRequest
+	63,  // 44: gopay_app.GopayAppService.GetQrId:input_type -> gopay_app.GetQrIdRequest
+	59,  // 45: gopay_app.GopayAppService.GetReadyAccountToken:input_type -> gopay_app.GetReadyAccountTokenRequest
+	61,  // 46: gopay_app.GopayAppService.CheckDeactivation:input_type -> gopay_app.CheckDeactivationRequest
+	92,  // 47: gopay_app.GopayAppService.StartGopayPayment:input_type -> gopay_app.StartGopayPaymentRequest
+	94,  // 48: gopay_app.GopayAppService.CompleteGopayPayment:input_type -> gopay_app.CompleteGopayPaymentRequest
+	95,  // 49: gopay_app.GopayAppService.ResendGopayPaymentOTP:input_type -> gopay_app.ResendGopayPaymentOTPRequest
+	97,  // 50: gopay_app.GopayAppService.ConfirmGopayPayment:input_type -> gopay_app.ConfirmGopayPaymentRequest
+	98,  // 51: gopay_app.GopayAppService.CancelGopayPayment:input_type -> gopay_app.CancelGopayPaymentRequest
+	14,  // 52: gopay_app.GopayAppService.GetActionCatalog:output_type -> gopay_app.GetGopayActionCatalogResponse
+	79,  // 53: gopay_app.GopayAppService.GetGopayAccount:output_type -> gopay_app.GetGopayAccountResponse
+	81,  // 54: gopay_app.GopayAppService.ListGopayAccounts:output_type -> gopay_app.ListGopayAccountsResponse
+	83,  // 55: gopay_app.GopayAppService.LoadGopayAccountState:output_type -> gopay_app.LoadGopayAccountStateResponse
+	85,  // 56: gopay_app.GopayAppService.SaveGopayAccountState:output_type -> gopay_app.SaveGopayAccountStateResponse
+	87,  // 57: gopay_app.GopayAppService.DeleteGopayAccount:output_type -> gopay_app.DeleteGopayAccountResponse
+	89,  // 58: gopay_app.GopayAppService.GetGopayAccountProfile:output_type -> gopay_app.GetGopayAccountProfileResponse
+	91,  // 59: gopay_app.GopayAppService.SaveGopayAccountProfile:output_type -> gopay_app.SaveGopayAccountProfileResponse
+	40,  // 60: gopay_app.GopayAppService.GenerateDeviceProxy:output_type -> gopay_app.GenerateDeviceProxyResponse
+	66,  // 61: gopay_app.GopayAppService.CheckPhone:output_type -> gopay_app.CheckPhoneResponse
+	20,  // 62: gopay_app.GopayAppService.ChangePhoneStart:output_type -> gopay_app.ChangePhoneStartResponse
+	24,  // 63: gopay_app.GopayAppService.ChangePhoneRetry:output_type -> gopay_app.ChangePhoneRetryResponse
+	22,  // 64: gopay_app.GopayAppService.ChangePhoneComplete:output_type -> gopay_app.ChangePhoneCompleteResponse
+	26,  // 65: gopay_app.GopayAppService.DeactivateStart:output_type -> gopay_app.DeactivateStartResponse
+	28,  // 66: gopay_app.GopayAppService.DeactivateComplete:output_type -> gopay_app.DeactivateCompleteResponse
+	30,  // 67: gopay_app.GopayAppService.LoginStart:output_type -> gopay_app.LoginStartResponse
+	32,  // 68: gopay_app.GopayAppService.LoginComplete:output_type -> gopay_app.LoginCompleteResponse
+	34,  // 69: gopay_app.GopayAppService.SignupStart:output_type -> gopay_app.SignupStartResponse
+	36,  // 70: gopay_app.GopayAppService.SignupRetry:output_type -> gopay_app.SignupRetryResponse
+	38,  // 71: gopay_app.GopayAppService.SignupComplete:output_type -> gopay_app.SignupCompleteResponse
+	42,  // 72: gopay_app.GopayAppService.CreatePinStart:output_type -> gopay_app.CreatePinStartResponse
+	44,  // 73: gopay_app.GopayAppService.CreatePinRetry:output_type -> gopay_app.CreatePinRetryResponse
+	46,  // 74: gopay_app.GopayAppService.CreatePinComplete:output_type -> gopay_app.CreatePinCompleteResponse
+	48,  // 75: gopay_app.GopayAppService.AuthStart:output_type -> gopay_app.AuthStartResponse
+	50,  // 76: gopay_app.GopayAppService.AuthComplete:output_type -> gopay_app.AuthCompleteResponse
+	52,  // 77: gopay_app.GopayAppService.CheckTokenValid:output_type -> gopay_app.CheckTokenValidResponse
+	54,  // 78: gopay_app.GopayAppService.ClaimEnvelope:output_type -> gopay_app.ClaimEnvelopeResponse
+	56,  // 79: gopay_app.GopayAppService.Unlink:output_type -> gopay_app.UnlinkResponse
+	58,  // 80: gopay_app.GopayAppService.Status:output_type -> gopay_app.StatusResponse
+	64,  // 81: gopay_app.GopayAppService.GetQrId:output_type -> gopay_app.GetQrIdResponse
+	60,  // 82: gopay_app.GopayAppService.GetReadyAccountToken:output_type -> gopay_app.GetReadyAccountTokenResponse
+	62,  // 83: gopay_app.GopayAppService.CheckDeactivation:output_type -> gopay_app.CheckDeactivationResponse
+	93,  // 84: gopay_app.GopayAppService.StartGopayPayment:output_type -> gopay_app.StartGopayPaymentResponse
+	100, // 85: gopay_app.GopayAppService.CompleteGopayPayment:output_type -> gopay_app.GopayPaymentResponse
+	96,  // 86: gopay_app.GopayAppService.ResendGopayPaymentOTP:output_type -> gopay_app.ResendGopayPaymentOTPResponse
+	100, // 87: gopay_app.GopayAppService.ConfirmGopayPayment:output_type -> gopay_app.GopayPaymentResponse
+	99,  // 88: gopay_app.GopayAppService.CancelGopayPayment:output_type -> gopay_app.CancelGopayPaymentResponse
+	52,  // [52:89] is the sub-list for method output_type
+	15,  // [15:52] is the sub-list for method input_type
+	15,  // [15:15] is the sub-list for extension type_name
+	15,  // [15:15] is the sub-list for extension extendee
+	0,   // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_gopay_app_proto_init() }
@@ -6701,7 +8099,7 @@ func file_gopay_app_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_gopay_app_proto_rawDesc), len(file_gopay_app_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   84,
+			NumMessages:   99,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

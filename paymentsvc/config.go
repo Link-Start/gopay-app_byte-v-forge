@@ -3,9 +3,9 @@ package paymentsvc
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
 
+	"github.com/byte-v-forge/common-lib/envx"
 	"github.com/byte-v-forge/common-lib/stringx"
 )
 
@@ -41,7 +41,7 @@ type requestProfile struct {
 func ConfigFromEnv() Config {
 	return Config{
 		PaymentProfile:   requestProfileFromEnv("GOPAY_PAYMENT_PROFILE_JSON", defaultRequestProfile("payment")),
-		MidtransClientID: stringx.FirstNonEmpty(os.Getenv("GOPAY_MIDTRANS_CLIENT_ID"), defaultMidtransClientID),
+		MidtransClientID: envx.StringDefault("GOPAY_MIDTRANS_CLIENT_ID", defaultMidtransClientID),
 	}
 }
 
@@ -51,7 +51,7 @@ func defaultRequestProfile(name string) requestProfile {
 
 func requestProfileFromEnv(envName string, fallback requestProfile) requestProfile {
 	profile := fallback
-	if raw := strings.TrimSpace(os.Getenv(envName)); raw != "" {
+	if raw := envx.String(envName); raw != "" {
 		if err := json.Unmarshal([]byte(raw), &profile); err != nil {
 			panic(fmt.Sprintf("invalid %s: %v", envName, err))
 		}

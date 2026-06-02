@@ -10,7 +10,6 @@ import (
 	"github.com/byte-v-forge/common-lib/httpjson"
 	"github.com/byte-v-forge/common-lib/jsonx"
 	"github.com/byte-v-forge/common-lib/stringx"
-
 	"github.com/byte-v-forge/gopay-app/otpchannel"
 )
 
@@ -120,7 +119,7 @@ func accountListFrom(value any) any {
 	if _, ok := value.([]any); ok {
 		return value
 	}
-	if obj, ok := jsonObject(value); ok {
+	if obj, ok := jsonx.Object(value); ok {
 		for _, key := range []string{"account_list", "accountList", "accounts"} {
 			if items := obj[key]; items != nil {
 				return items

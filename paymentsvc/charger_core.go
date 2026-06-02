@@ -3,6 +3,8 @@ package paymentsvc
 import (
 	"context"
 	"strings"
+
+	"github.com/byte-v-forge/common-lib/stringx"
 )
 
 type charger struct {
@@ -28,13 +30,12 @@ func (s *Server) newCharger(ctx context.Context, input StartInput) (*charger, er
 	if err != nil {
 		return nil, err
 	}
-	paymentFingerprint.applyBrowserHeaders(paymentHTTP.headers)
 	return &charger{
 		cfg:            s.cfg,
 		paymentProfile: paymentProfile,
 		paymentHTTP:    paymentHTTP,
-		countryCode:    normalizeCountryCode(input.CountryCode),
-		phone:          normalizeDigits(input.Phone),
+		countryCode:    stringx.Digits(input.CountryCode),
+		phone:          stringx.Digits(input.Phone),
 		pin:            strings.TrimSpace(input.PIN),
 		tokenization:   normalizeTokenization(input.Tokenization),
 		amount:         input.Amount,

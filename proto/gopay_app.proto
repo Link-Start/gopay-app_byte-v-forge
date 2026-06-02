@@ -58,6 +58,22 @@ message StartGoPayRegisterIndonesiaWAWorkflowResponse {
   string error_message = 3;
 }
 
+message GopayWorkflowJob {
+  string job_id = 1;
+  string n8n_execution_id = 2;
+  string operation = 3;
+  string gopay_account_id = 4;
+  string phone = 5;
+  string country_code = 6;
+  string pin = 7;
+  string otp_channel = 8;
+  string status = 9;
+  string error_message = 10;
+  int64 created_at_unix = 11;
+  int64 updated_at_unix = 12;
+  google.protobuf.Struct result = 13;
+}
+
 message GoPayRegisterIndonesiaWASettings {
   reserved 1, 2, 3;
   reserved "sms_application_key", "country_iso2", "country_calling_code";
@@ -94,6 +110,32 @@ message GetGopayActionCatalogResponse {
   bool success = 1;
   string error_message = 2;
   byte.v.forge.contracts.account.v1.AccountActionCatalog catalog = 3;
+}
+
+message GopayAPIErrorResponse {
+  string error = 1;
+}
+
+message GopayHealthWorkflow {
+  string key = 1;
+  string label = 2;
+  string webhook_path = 3;
+}
+
+message GopayHealthResponse {
+  bool success = 1;
+  bool ok = 2;
+  string service = 3;
+  bool n8n_webhook_configured = 4;
+  bool gopay_action_api_owned = 5;
+  bool gopay_account_api_owned = 6;
+  repeated GopayHealthWorkflow workflows = 7;
+}
+
+message CreateGopayAccountRequest {
+  string phone = 1;
+  string country_code = 2;
+  string otp_channel = 3;
 }
 
 // === 改手机号 ===
@@ -484,6 +526,99 @@ message CheckPhoneResponse {
   string proxy_hash = 6;
   string device_fingerprint = 7;
   string state_json = 100;  // 原样返回输入链路态；用于后续注册复用同一 proxy/device
+}
+
+message CheckGopayPhoneAvailabilityRequest {
+  string phone = 1;
+  string country_code = 2;
+  string state_json = 3;
+  bool release_proxy_state = 4;
+}
+
+message CheckGopayPhoneAvailabilityResponse {
+  bool success = 1;
+  bool available = 2;
+  string phone = 3;
+  string country_code = 4;
+  string status = 5;
+  string error_message = 6;
+  string proxy_hash = 7;
+  string device_fingerprint = 8;
+  bool generated_proxy_state = 9;
+}
+
+message SubmitChannelOTPRequest {
+  string gopay_account_id = 1;
+  string channel = 2;
+  string target = 3;
+  string otp = 4;
+  string otp_source = 5;
+  bool manual_once = 6;
+}
+
+message SubmitChannelOTPResponse {
+  bool success = 1;
+  bool manual_once = 2;
+  string gopay_account_id = 3;
+  string channel = 4;
+  string target = 5;
+  int64 otp_received_at_unix = 6;
+  int32 resume_count = 7;
+  repeated string resumed_job_ids = 8;
+  string error_message = 9;
+}
+
+message ChannelOTPResumeData {
+  bool otp_found = 1;
+  string otp_channel = 2;
+  string channel_otp_target = 3;
+  int64 otp_issued_after_unix = 4;
+}
+
+message ChannelOTPWaitEntry {
+  string job_id = 1;
+  string account_id = 2;
+  string n8n_execution_id = 3;
+  string action = 4;
+  string step_name = 5;
+  string channel = 6;
+  string target = 7;
+  int64 issued_after_unix = 8;
+  int32 timeout_seconds = 9;
+  string resume_url = 10;
+  int64 created_at_unix = 11;
+}
+
+message LatestChannelOTP {
+  string channel = 1;
+  string target = 2;
+  string otp = 3;
+  int64 received_at_unix = 4;
+  string source = 5;
+}
+
+message ChannelOTPResumeRequest {
+  string job_id = 1;
+  string account_id = 2;
+  string n8n_execution_id = 3;
+  string action = 4;
+  string step = 5;
+  string channel = 6;
+  string target = 7;
+  string otp = 8;
+  string otp_source = 9;
+  int64 otp_received_at_unix = 10;
+  ChannelOTPResumeData data = 11;
+}
+
+message GopayOTPWebhookRequest {
+  string otp = 1;
+}
+
+message GopayOTPWebhookResponse {
+  bool success = 1;
+  string purpose = 2;
+  string error_message = 3;
 }
 
 // === GoPay account state 持久化（由 gopay-app 自己持有）===

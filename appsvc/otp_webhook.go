@@ -1,9 +1,7 @@
 package appsvc
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -12,30 +10,14 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/byte-v-forge/common-lib/protojsonhttp"
+	"github.com/byte-v-forge/gopay-app/pb"
 )
 
 type OTPWebhookServer struct {
 	httpServer *http.Server
 	listener   net.Listener
-}
-
-type otpWebhookPayload struct {
-	OTP string `json:"otp"`
-}
-
-type otpWebhookResponse struct {
-	Success      bool   `json:"success"`
-	Purpose      string `json:"purpose,omitempty"`
-	ErrorMessage string `json:"error_message,omitempty"`
-}
-
-type otpSubmitPayload struct {
-	GopayAccountID string `json:"gopay_account_id,omitempty"`
-	Channel        string `json:"channel"`
-	Target         string `json:"target"`
-	OTP            string `json:"otp"`
-	OTPSource      string `json:"otp_source,omitempty"`
-	ManualOnce     bool   `json:"manual_once,omitempty"`
 }
 
 func StartOTPWebhook(addr string, submitURL string) (*OTPWebhookServer, error) {
@@ -79,58 +61,43 @@ type otpWebhookHandler struct {
 
 func (h otpWebhookHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet && r.URL.Path == "/health" {
-		writeOTPWebhookJSON(w, http.StatusOK, otpWebhookResponse{Success: true})
+		_ = protojsonhttp.WriteResponse(w, http.StatusOK, &pb.GopayOTPWebhookResponse{Success: true})
 		return
 	}
 	if r.Method != http.MethodPost {
-		writeOTPWebhookJSON(w, http.StatusMethodNotAllowed, otpWebhookResponse{Success: false, ErrorMessage: "method not allowed"})
+		_ = protojsonhttp.WriteResponse(w, http.StatusMethodNotAllowed, &pb.GopayOTPWebhookResponse{Success: false, ErrorMessage: "method not allowed"})
 		return
 	}
 	target, purpose, err := parseOTPWebhookPath(r.URL.Path)
 	if err != nil {
-		writeOTPWebhookJSON(w, http.StatusBadRequest, otpWebhookResponse{Success: false, ErrorMessage: err.Error()})
+		_ = protojsonhttp.WriteResponse(w, http.StatusBadRequest, &pb.GopayOTPWebhookResponse{Success: false, ErrorMessage: err.Error()})
 		return
 	}
-	var payload otpWebhookPayload
-	decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 16*1024))
-	if err := decoder.Decode(&payload); err != nil {
-		writeOTPWebhookJSON(w, http.StatusBadRequest, otpWebhookResponse{Success: false, ErrorMessage: "invalid json payload"})
+	var payload pb.GopayOTPWebhookRequest
+	if err := protojsonhttp.ReadRequest(r, &payload); err != nil {
+		_ = protojsonhttp.WriteResponse(w, http.StatusBadRequest, &pb.GopayOTPWebhookResponse{Success: false, ErrorMessage: "invalid json payload"})
 		return
 	}
-	code := normalizeOTP(payload.OTP)
+	code := normalizeOTP(payload.GetOtp())
 	if code == "" {
-		writeOTPWebhookJSON(w, http.StatusBadRequest, otpWebhookResponse{Success: false, ErrorMessage: "otp is required"})
+		_ = protojsonhttp.WriteResponse(w, http.StatusBadRequest, &pb.GopayOTPWebhookResponse{Success: false, ErrorMessage: "otp is required"})
 		return
 	}
-	if err := h.postSubmit(r.Context(), otpSubmitPayload{Channel: "wa", Target: target, OTP: code}); err != nil {
-		writeOTPWebhookJSON(w, http.StatusBadGateway, otpWebhookResponse{Success: false, ErrorMessage: err.Error()})
+	if err := h.postSubmit(r.Context(), &pb.SubmitChannelOTPRequest{Channel: "wa", Target: target, Otp: code}); err != nil {
+		_ = protojsonhttp.WriteResponse(w, http.StatusBadGateway, &pb.GopayOTPWebhookResponse{Success: false, ErrorMessage: err.Error()})
 		return
 	}
 	log.Printf("[gopay-app] OTP webhook accepted purpose=%s target=%s", purpose, target)
-	writeOTPWebhookJSON(w, http.StatusAccepted, otpWebhookResponse{Success: true, Purpose: target + "/" + purpose})
+	_ = protojsonhttp.WriteResponse(w, http.StatusAccepted, &pb.GopayOTPWebhookResponse{Success: true, Purpose: target + "/" + purpose})
 }
 
-func (h otpWebhookHandler) postSubmit(ctx context.Context, payload otpSubmitPayload) error {
-	body, err := json.Marshal(payload)
-	if err != nil {
-		return err
+func (h otpWebhookHandler) postSubmit(ctx context.Context, payload *pb.SubmitChannelOTPRequest) error {
+	opts := jsonPostOptions{Timeout: 15 * time.Second, Operation: "post gopay otp submit"}
+	if h.client != nil {
+		opts.Doer = h.client
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, h.submitURL, bytes.NewReader(body))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	client := h.client
-	if client == nil {
-		client = &http.Client{Timeout: 15 * time.Second}
-	}
-	resp, err := client.Do(req)
-	if err != nil {
+	if err := postJSON(ctx, h.submitURL, payload, opts); err != nil {
 		return fmt.Errorf("post gopay otp submit: %w", err)
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
-		return fmt.Errorf("gopay otp submit returned HTTP %d", resp.StatusCode)
 	}
 	return nil
 }
@@ -156,13 +123,8 @@ func parseOTPWebhookPath(path string) (string, string, error) {
 	return target, purpose, nil
 }
 
-func writeOTPWebhookJSON(w http.ResponseWriter, status int, response otpWebhookResponse) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(response)
-}
+var otpCodeReplacer = strings.NewReplacer(" ", "", "\t", "", "\n", "", "\r", "", "-", "")
 
 func normalizeOTP(value string) string {
-	replacer := strings.NewReplacer(" ", "", "\t", "", "\n", "", "\r", "", "-", "")
-	return strings.TrimSpace(replacer.Replace(value))
+	return strings.TrimSpace(otpCodeReplacer.Replace(value))
 }

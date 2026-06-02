@@ -1,48 +1,29 @@
 package appsvc
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/byte-v-forge/common-lib/httpx"
-	"github.com/byte-v-forge/common-lib/redactx"
+	"github.com/byte-v-forge/common-lib/protojsonx"
+	"google.golang.org/protobuf/proto"
 )
 
 var proxyRuntimeHTTPClient = &http.Client{Timeout: 35 * time.Second}
 
-func postProxyRuntime(ctx context.Context, endpoint string, payload map[string]any, out any, timeout time.Duration) error {
-	body, err := json.Marshal(payload)
-	if err != nil {
+func postProxyRuntime(ctx context.Context, endpoint string, payload proto.Message, out proto.Message, timeout time.Duration) error {
+	resp, err := doJSONPost(ctx, endpoint, payload, jsonPostOptions{
+		Doer:      proxyRuntimeHTTPClient,
+		Timeout:   timeout,
+		BodyLimit: 1 << 20,
+		Operation: "proxy runtime",
+	})
+	if err != nil || out == nil {
 		return err
 	}
-	reqCtx, cancel := context.WithTimeout(ctx, timeout)
-	defer cancel()
-	req, err := http.NewRequestWithContext(reqCtx, http.MethodPost, endpoint, bytes.NewReader(body))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := proxyRuntimeHTTPClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	raw, err := httpx.ReadLimited(resp.Body, 1<<20)
-	if err != nil {
-		return fmt.Errorf("read response: %w", err)
-	}
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("status %d %s", resp.StatusCode, redactx.Snippet(redactx.Text(string(raw)), 300))
-	}
-	if out == nil {
-		return nil
-	}
-	if err := json.Unmarshal(raw, out); err != nil {
-		return fmt.Errorf("parse response: %w", err)
+	if err := protojsonx.Unmarshal(resp.Body, out); err != nil {
+		return fmt.Errorf("parse proxy-runtime response: %w", err)
 	}
 	return nil
 }
