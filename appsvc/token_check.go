@@ -56,6 +56,23 @@ func (s *Server) tokenValidResult(ctx context.Context, state stateMap, profile m
 }
 
 func (s *Server) checkBalance(ctx context.Context, state stateMap) map[string]any {
+	var last map[string]any
+	for attempt := 1; attempt <= 2; attempt++ {
+		if attempt > 1 {
+			if err := s.ensureProxyRuntimeSession(ctx, state, proxyRuntimeAcquireOptions{ForceNew: true}); err != nil {
+				return map[string]any{"success": false, "error": err.Error(), "status": 0}
+			}
+		}
+		last = s.checkBalanceOnce(ctx, state)
+		if anyBool(last["success"]) || !retryableGoPayActionError(last) {
+			return last
+		}
+		time.Sleep(loginMethodsBackoff(attempt))
+	}
+	return last
+}
+
+func (s *Server) checkBalanceOnce(ctx context.Context, state stateMap) map[string]any {
 	if stateString(state, "token") == "" {
 		return map[string]any{"success": false, "error": "access_token missing", "status": 0}
 	}
