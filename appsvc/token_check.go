@@ -59,6 +59,7 @@ func (s *Server) checkBalance(ctx context.Context, state stateMap) map[string]an
 	if stateString(state, "token") == "" {
 		return map[string]any{"success": false, "error": "access_token missing", "status": 0}
 	}
+	deleteKeys(state, "last_token_refresh_error", "last_token_refresh_failed_at")
 	client, err := s.newClientWithState(ctx, state, false)
 	if err != nil {
 		return map[string]any{"success": false, "error": err.Error(), "status": 0}

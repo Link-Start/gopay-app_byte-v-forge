@@ -12,15 +12,16 @@ func (s *Server) Status(ctx context.Context, req *pb.StatusRequest) (*pb.StatusR
 	state := s.parseRequestState(req.GetStateJson())
 	s.expireLoginIfNeeded(state)
 	s.expireSignupIfNeeded(state)
-	if stateString(state, "stage") == "ready" {
+	stage := stringx.FirstNonEmpty(stateString(state, "stage"), "idle")
+	if stage == "ready" {
 		_ = s.ensureAccessToken(ctx, state, s.cfg.TokenRefreshMinTTL, false)
 	}
 	errorMessage := stateString(state, "last_error")
-	if stateString(state, "last_token_refresh_error") != "" && !tokenUsable(state, "token", 0) {
+	if stage == "ready" && stateString(state, "last_token_refresh_error") != "" && !tokenUsable(state, "token", 0) {
 		errorMessage = stateString(state, "last_token_refresh_error")
 	}
 	return &pb.StatusResponse{
-		Stage:                     stringx.FirstNonEmpty(stateString(state, "stage"), "idle"),
+		Stage:                     stage,
 		Phone:                     stateString(state, "phone"),
 		DeviceFingerprint:         deviceFingerprintForState(state),
 		DeactivatedAt:             stateInt(state, "deactivated_at"),
