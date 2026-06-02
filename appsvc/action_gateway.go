@@ -365,16 +365,20 @@ func (h gopayHTTPHandler) loadState(ctx context.Context, req gopayActionRequest)
 }
 
 func (h gopayHTTPHandler) checkBalance(ctx context.Context, req gopayActionRequest) (*gopayActionResult, error) {
-	resp, err := h.service.CheckTokenValid(ctx, &pb.CheckTokenValidRequest{StateJson: firstNonEmpty(req.StateJSON, "{}")})
-	if err != nil {
-		return nil, err
-	}
-	out := h.baseResult(req, "status", resp.GetSuccess(), map[string]any{"balance_amount": resp.GetBalanceAmount(), "balance_currency": resp.GetBalanceCurrency(), "has_min_balance": resp.GetHasMinBalance()})
-	out.StateJSON = resp.GetStateJson()
-	out.AccountTokenReady = resp.GetTokenValid()
-	out.Ready = resp.GetTokenValid()
-	out.Phone = resp.GetPhone()
-	out.ErrorMessage = resp.GetErrorMessage()
+	state := h.service.parseRequestState(firstNonEmpty(req.StateJSON, "{}"))
+	result := h.service.checkBalance(ctx, state)
+	success := anyBool(result["success"])
+	out := h.baseResult(req, "status", success, map[string]any{
+		"balance_amount":   anyInt(result["balance_amount"]),
+		"balance_currency": anyString(result["balance_currency"]),
+		"has_min_balance":  anyBool(result["has_min_balance"]),
+		"status":           anyInt(result["status"]),
+	})
+	out.StateJSON = stateJSON(state)
+	out.AccountTokenReady = success
+	out.Ready = success
+	out.Phone = stateString(state, "phone")
+	out.ErrorMessage = anyString(result["error"])
 	_ = h.saveStateIfAccount(ctx, req, out.StateJSON)
 	return out, nil
 }
