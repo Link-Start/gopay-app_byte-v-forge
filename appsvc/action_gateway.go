@@ -460,6 +460,11 @@ func (h gopayHTTPHandler) startPIN(ctx context.Context, req gopayActionRequest) 
 	out.applyOTP(resp.GetOtpSent(), resp.GetVerificationMethod())
 	out.StateJSON = resp.GetStateJson()
 	out.ErrorMessage = resp.GetErrorMessage()
+	state := h.service.parseRequestState(out.StateJSON)
+	ready := resp.GetSuccess() && stateString(state, "stage") == "ready"
+	out.SignupPINComplete = ready
+	out.AccountTokenReady = ready
+	out.Ready = ready
 	_ = h.saveStateIfAccount(ctx, req.withOTPChannel(out.OTPChannel), out.StateJSON)
 	return out, nil
 }

@@ -202,11 +202,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/finish' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/' + (($json.success === false || $json.error_message || $json.account_token_ready !== true) ? 'fail' : 'finish') }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('Load Params').first().json.job_id, n8n_execution_id: $('Load Params').first().json.n8n_execution_id, operation: 'provision', gopay_account_id: $('Load Params').first().json.gopay_account_id, state_json: $json.state_json, data: { operation: 'provision', login: $('Auth Provision').first().json.data, change_phone: $('Change Phone Provision').first().json.data, deactivate: $('Deactivate Provision').first().json.data, signup: $('Signup Provision').first().json.data, ensure_pin_setup: $json.data, activation_id: $('Change Phone Provision').first().json.activation_id, phone: $('Change Phone Provision').first().json.phone, change_phone_complete: $('Change Phone Provision').first().json.change_phone_complete, deactivate_complete: $('Deactivate Provision').first().json.deactivate_complete, signup_complete: $('Signup Provision').first().json.signup_complete, signup_pin_complete: $json.signup_pin_complete, account_token_ready: $json.account_token_ready } } }}",
+        "jsonBody": "={{ { job_id: $('Load Params').first().json.job_id, n8n_execution_id: $('Load Params').first().json.n8n_execution_id, operation: 'provision', gopay_account_id: $('Load Params').first().json.gopay_account_id, state_json: $json.state_json, error_message: ($json.success === false || $json.error_message || $json.account_token_ready !== true) ? ($json.error_message || 'gopay account token is not ready after ensure pin setup') : undefined, data: { operation: 'provision', login: $('Auth Provision').first().json.data, change_phone: $('Change Phone Provision').first().json.data, deactivate: $('Deactivate Provision').first().json.data, signup: $('Signup Provision').first().json.data, ensure_pin_setup: $json.data, activation_id: $('Change Phone Provision').first().json.activation_id, phone: $('Change Phone Provision').first().json.phone, change_phone_complete: $('Change Phone Provision').first().json.change_phone_complete, deactivate_complete: $('Deactivate Provision').first().json.deactivate_complete, signup_complete: $('Signup Provision').first().json.signup_complete, signup_pin_complete: $json.signup_pin_complete, account_token_ready: $json.account_token_ready } } }}",
         "options": {}
       },
       "id": "gopay-account-finish-provision",
@@ -432,11 +432,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/finish' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/' + (($json.success === false || $json.error_message || $json.account_token_ready !== true) ? 'fail' : 'finish') }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('Load Params').first().json.job_id, n8n_execution_id: $('Load Params').first().json.n8n_execution_id, operation: 'ensure_pin_setup', gopay_account_id: $('Load Params').first().json.gopay_account_id, state_json: $json.state_json, data: { operation: 'ensure_pin_setup', gopay_account_id: $('Load Params').first().json.gopay_account_id, ensure_pin_setup: $json.data, signup_pin_complete: $json.signup_pin_complete, account_token_ready: $json.account_token_ready } } }}",
+        "jsonBody": "={{ { job_id: $('Load Params').first().json.job_id, n8n_execution_id: $('Load Params').first().json.n8n_execution_id, operation: 'ensure_pin_setup', gopay_account_id: $('Load Params').first().json.gopay_account_id, state_json: $json.state_json, error_message: ($json.success === false || $json.error_message || $json.account_token_ready !== true) ? ($json.error_message || 'gopay account token is not ready after ensure pin setup') : undefined, data: { operation: 'ensure_pin_setup', gopay_account_id: $('Load Params').first().json.gopay_account_id, success: $json.success, error_message: $json.error_message, ensure_pin_setup: $json.data, signup_pin_complete: $json.signup_pin_complete, account_token_ready: $json.account_token_ready } } }}",
         "options": {}
       },
       "id": "gopay-account-finish-ensure-pin",
@@ -767,7 +767,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const params = $('Load Params').first().json;\nconst signup = $('Signup Provision').first().json;\nreturn [{ json: {\n  job_id: params.job_id,\n  n8n_execution_id: params.n8n_execution_id,\n  operation: 'provision',\n  gopay_account_id: params.gopay_account_id,\n  otp_channel: params.otp_channel || signup.otp_channel,\n  activation_id: signup.activation_id,\n  state_json: signup.state_json,\n  data: signup.data,\n  not_ready_error_message: 'gopay account token is not ready after ensure pin setup',\n  otp_timeout_error_message: 'gopay ensure pin otp not received before timeout',\n} }];"
+        "jsCode": "const params = $('Load Params').first().json;\nconst signup = $('Signup Provision').first().json;\nreturn [{ json: {\n  job_id: params.job_id,\n  n8n_execution_id: params.n8n_execution_id,\n  operation: 'provision',\n  gopay_account_id: params.gopay_account_id,\n  pin: params.pin,\n  otp_channel: params.otp_channel || signup.otp_channel,\n  activation_id: signup.activation_id,\n  state_json: signup.state_json,\n  data: signup.data,\n  not_ready_error_message: 'gopay account token is not ready after ensure pin setup',\n  otp_timeout_error_message: 'gopay ensure pin otp not received before timeout',\n} }];"
       },
       "id": "gopay-account-build-pin-provision-input",
       "name": "Build PIN Provision Input",
@@ -797,7 +797,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const params = $('Load Params').first().json;\nconst state = $('Load State').first().json;\nreturn [{ json: {\n  job_id: params.job_id,\n  n8n_execution_id: params.n8n_execution_id,\n  operation: 'ensure_pin_setup',\n  gopay_account_id: params.gopay_account_id,\n  otp_channel: params.otp_channel,\n  activation_id: state.activation_id,\n  state_json: state.state_json,\n  data: state.data,\n  not_ready_error_message: 'gopay account token is not ready after ensure pin setup',\n  otp_timeout_error_message: 'gopay ensure pin otp not received before timeout',\n} }];"
+        "jsCode": "const params = $('Load Params').first().json;\nconst state = $('Load State').first().json;\nreturn [{ json: {\n  job_id: params.job_id,\n  n8n_execution_id: params.n8n_execution_id,\n  operation: 'ensure_pin_setup',\n  gopay_account_id: params.gopay_account_id,\n  pin: params.pin,\n  otp_channel: params.otp_channel,\n  activation_id: state.activation_id,\n  state_json: state.state_json,\n  data: state.data,\n  not_ready_error_message: 'gopay account token is not ready after ensure pin setup',\n  otp_timeout_error_message: 'gopay ensure pin otp not received before timeout',\n} }];"
       },
       "id": "gopay-account-build-pin-user-input",
       "name": "Build PIN User Input",

@@ -11,6 +11,23 @@ import (
 )
 
 func (s *Server) startSignupPIN(ctx context.Context, state stateMap, pin, otpChannel string) map[string]any {
+	var last map[string]any
+	for attempt := 1; attempt <= 2; attempt++ {
+		if attempt > 1 {
+			if err := s.ensureProxyRuntimeSession(ctx, state, proxyRuntimeAcquireOptions{ForceNew: true}); err != nil {
+				return map[string]any{"success": false, "error": err.Error()}
+			}
+		}
+		last = s.startSignupPINOnce(ctx, state, pin, otpChannel)
+		if anyBool(last["success"]) || !retryableGoPayActionError(last) {
+			return last
+		}
+		time.Sleep(loginMethodsBackoff(attempt))
+	}
+	return last
+}
+
+func (s *Server) startSignupPINOnce(ctx context.Context, state stateMap, pin, otpChannel string) map[string]any {
 	pin = s.resolveGoPayAccountPin(ctx, state, pin)
 	if pin == "" {
 		return map[string]any{"success": false, "error": "gopay pin missing"}
@@ -109,6 +126,14 @@ func (s *Server) startSignupPIN(ctx context.Context, state stateMap, pin, otpCha
 	state["stage"] = "signup_pin_otp_pending"
 	delete(state, "last_error")
 	return map[string]any{"success": true, "otp_sent": true, "verification_id": verificationID, "method": method}
+}
+
+func retryableGoPayActionError(result map[string]any) bool {
+	err := strings.TrimSpace(anyString(result["error"]))
+	if err == "" {
+		return false
+	}
+	return retryableGoPayTransportError(fmt.Errorf("%s", err))
 }
 
 func (s *Server) retrySignupPIN(ctx context.Context, state stateMap) map[string]any {

@@ -23,7 +23,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $json.job_id, n8n_execution_id: $json.n8n_execution_id, operation: $json.operation, gopay_account_id: $json.gopay_account_id, otp_channel: $json.otp_channel, activation_id: $json.activation_id, state_json: $json.state_json } }}",
+        "jsonBody": "={{ { job_id: $json.job_id, n8n_execution_id: $json.n8n_execution_id, operation: $json.operation, gopay_account_id: $json.gopay_account_id, pin: $json.pin, otp_channel: $json.otp_channel, activation_id: $json.activation_id, state_json: $json.state_json } }}",
         "options": {}
       },
       "id": "gopay-account-pin-start",
@@ -148,7 +148,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay App Workflow').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App Workflow').first().json.n8n_execution_id, operation: $('When Executed by GoPay App Workflow').first().json.operation, gopay_account_id: $('When Executed by GoPay App Workflow').first().json.gopay_account_id, otp_channel: $('Start PIN').first().json.otp_channel, activation_id: $('Start PIN').first().json.activation_id, state_json: $('Start PIN').first().json.state_json, otp_issued_after_unix: $('Start PIN').first().json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source, data: { pin_start: $('Start PIN').first().json, otp: $json } } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay App Workflow').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App Workflow').first().json.n8n_execution_id, operation: $('When Executed by GoPay App Workflow').first().json.operation, gopay_account_id: $('When Executed by GoPay App Workflow').first().json.gopay_account_id, pin: $('When Executed by GoPay App Workflow').first().json.pin, otp: $json.otp || $json.code || $json.body?.otp || $json.body?.code || $json.data?.otp || $json.data?.code, otp_channel: $('Start PIN').first().json.otp_channel, activation_id: $('Start PIN').first().json.activation_id, state_json: $('Start PIN').first().json.state_json, otp_issued_after_unix: $('Start PIN').first().json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source, data: { pin_start: $('Start PIN').first().json, otp: $json } } }}",
         "options": {}
       },
       "id": "gopay-account-pin-complete-with-otp",
@@ -205,7 +205,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay App Workflow').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App Workflow').first().json.n8n_execution_id, operation: $('When Executed by GoPay App Workflow').first().json.operation, gopay_account_id: $('When Executed by GoPay App Workflow').first().json.gopay_account_id, otp_channel: $('Retry PIN').first().json.otp_channel, activation_id: $('Retry PIN').first().json.activation_id, state_json: $('Retry PIN').first().json.state_json, otp_issued_after_unix: $('Retry PIN').first().json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source, data: { pin_start: $('Start PIN').first().json, pin_retry: $('Retry PIN').first().json, otp: $json } } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay App Workflow').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App Workflow').first().json.n8n_execution_id, operation: $('When Executed by GoPay App Workflow').first().json.operation, gopay_account_id: $('When Executed by GoPay App Workflow').first().json.gopay_account_id, pin: $('When Executed by GoPay App Workflow').first().json.pin, otp: $json.otp || $json.code || $json.body?.otp || $json.body?.code || $json.data?.otp || $json.data?.code, otp_channel: $('Retry PIN').first().json.otp_channel, activation_id: $('Retry PIN').first().json.activation_id, state_json: $('Retry PIN').first().json.state_json, otp_issued_after_unix: $('Retry PIN').first().json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source, data: { pin_start: $('Start PIN').first().json, pin_retry: $('Retry PIN').first().json, otp: $json } } }}",
         "options": {}
       },
       "id": "gopay-account-pin-complete-with-retry-otp",
