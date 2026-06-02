@@ -149,14 +149,7 @@ func (h gopayHTTPHandler) handleAccountWorkflowStart(w http.ResponseWriter, r *h
 		writeError(w, http.StatusBadGateway, err)
 		return
 	}
-	if err := h.triggerGoPayWorkflow(r.Context(), job.JobID, gopayAccountWebhookPath, "gopay-account"); err != nil {
-		job.Status = "trigger_failed"
-		job.ErrorMessage = err.Error()
-		job.UpdatedAtUnix = time.Now().Unix()
-		_ = h.saveWorkflowJob(context.Background(), job)
-		_ = protojsonhttp.WriteResponse(w, http.StatusAccepted, &pb.GoPayAccountWorkflowResponse{JobId: job.JobID, Started: false, ErrorMessage: err.Error()})
-		return
-	}
+	h.triggerGoPayWorkflowAsync(job, gopayAccountWebhookPath, "gopay-account")
 	_ = protojsonhttp.WriteResponse(w, http.StatusAccepted, &pb.GoPayAccountWorkflowResponse{JobId: job.JobID, Started: true})
 }
 
@@ -170,14 +163,7 @@ func (h gopayHTTPHandler) handleRegisterIndonesiaWAWorkflowStart(w http.Response
 		writeError(w, http.StatusBadGateway, err)
 		return
 	}
-	if err := h.triggerGoPayWorkflow(r.Context(), job.JobID, gopayRegisterIndonesiaWAWebhookPath, gopayRegisterIndonesiaWAWorkflowKey); err != nil {
-		job.Status = "trigger_failed"
-		job.ErrorMessage = err.Error()
-		job.UpdatedAtUnix = time.Now().Unix()
-		_ = h.saveWorkflowJob(context.Background(), job)
-		_ = protojsonhttp.WriteResponse(w, http.StatusAccepted, &pb.StartGoPayRegisterIndonesiaWAWorkflowResponse{JobId: job.JobID, Started: false, ErrorMessage: err.Error()})
-		return
-	}
+	h.triggerGoPayWorkflowAsync(job, gopayRegisterIndonesiaWAWebhookPath, gopayRegisterIndonesiaWAWorkflowKey)
 	_ = protojsonhttp.WriteResponse(w, http.StatusAccepted, &pb.StartGoPayRegisterIndonesiaWAWorkflowResponse{JobId: job.JobID, Started: true})
 }
 
@@ -1012,6 +998,20 @@ func (h gopayHTTPHandler) triggerGoPayWorkflow(ctx context.Context, jobID string
 		return fmt.Errorf("n8n %s workflow returned HTTP %d", strings.TrimSpace(workflowName), resp.StatusCode)
 	}
 	return nil
+}
+
+func (h gopayHTTPHandler) triggerGoPayWorkflowAsync(job *gopayWorkflowJob, webhookPath string, workflowName string) {
+	if job == nil {
+		return
+	}
+	go func(snapshot gopayWorkflowJob) {
+		if err := h.triggerGoPayWorkflow(context.Background(), snapshot.JobID, webhookPath, workflowName); err != nil {
+			snapshot.Status = "trigger_failed"
+			snapshot.ErrorMessage = err.Error()
+			snapshot.UpdatedAtUnix = time.Now().Unix()
+			_ = h.saveWorkflowJob(context.Background(), &snapshot)
+		}
+	}(*job)
 }
 
 func (h gopayHTTPHandler) loadWorkflowJob(ctx context.Context, jobID string) (*gopayWorkflowJob, error) {
