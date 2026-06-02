@@ -59,11 +59,11 @@ func gopayAccountPhoneE164(phone string, countryCode string) string {
 }
 
 func stateCountryCode(state stateMap) string {
-	return stringx.FirstNonEmpty(
-		stateString(state, "_gopay_country_code"),
+	return phoneCountryCode(Config{}, stringx.FirstNonEmpty(
 		stateString(state, "_login_country_code"),
 		stateString(state, "_signup_country_code"),
-	)
+		stateString(state, "_gopay_country_code"),
+	))
 }
 
 func stateUpdatedAt(state stateMap) time.Time {

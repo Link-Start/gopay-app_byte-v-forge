@@ -143,9 +143,12 @@ func deleteKeys(state stateMap, keys ...string) {
 
 func phoneCountryCode(cfg Config, explicit string) string {
 	value := strings.TrimSpace(explicit)
-	value = strings.TrimSpace(value)
 	if value == "" {
 		value = "62"
+	}
+	switch strings.ToUpper(strings.TrimPrefix(value, "+")) {
+	case "ID", "IDN", "INDONESIA":
+		return "+62"
 	}
 	if strings.HasPrefix(value, "+") {
 		return value
