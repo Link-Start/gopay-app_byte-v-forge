@@ -102,6 +102,9 @@ type gopayActionResult struct {
 	StateJSON           string         `json:"state_json,omitempty"`
 	Ready               bool           `json:"ready,omitempty"`
 	AccountTokenReady   bool           `json:"account_token_ready,omitempty"`
+	PhoneAccepted       bool           `json:"phone_accepted,omitempty"`
+	RetryableFailure    bool           `json:"retryable_failure,omitempty"`
+	RotatableFailure    bool           `json:"rotatable_failure,omitempty"`
 	ChangePhoneComplete bool           `json:"change_phone_complete,omitempty"`
 	DeactivateComplete  bool           `json:"deactivate_complete,omitempty"`
 	SignupComplete      bool           `json:"signup_complete,omitempty"`
@@ -247,6 +250,10 @@ func (h gopayHTTPHandler) invokeGoPayAccountAction(ctx context.Context, action s
 		return nil, loadErr
 	}
 	req = req.withJob(job)
+	return h.invokeGoPayAccountRuntimeAction(ctx, action, req, job)
+}
+
+func (h gopayHTTPHandler) invokeGoPayAccountRuntimeAction(ctx context.Context, action string, req gopayActionRequest, job *gopayWorkflowJob) (*gopayActionResult, error) {
 	switch strings.TrimSpace(action) {
 	case "load-params":
 		return h.loadParamsResult(job, req), nil
@@ -272,6 +279,14 @@ func (h gopayHTTPHandler) invokeGoPayAccountAction(ctx context.Context, action s
 		return h.retryPIN(ctx, req)
 	case "complete-pin", "complete-gopay-pin":
 		return h.completePIN(ctx, req)
+	case "acquire-signup-phone":
+		return h.acquireSignupPhone(req), nil
+	case "generate-signup-device-proxy":
+		return h.generateSharedPhoneCheckProxy(ctx, req)
+	case "check-signup-phone":
+		return h.checkSignupPhone(ctx, req)
+	case "discard-signup-phone":
+		return h.discardSignupPhone(req), nil
 	case "start-signup":
 		return h.startSignup(ctx, req)
 	case "request-signup-otp", "retry-signup":
@@ -329,6 +344,12 @@ func (h gopayHTTPHandler) invokeGoPayToolboxAction(ctx context.Context, action s
 }
 
 func (h gopayHTTPHandler) invokeGoPayPaymentAction(ctx context.Context, scope string, action string, req gopayActionRequest) (*gopayActionResult, error) {
+	if isGoPayPaymentAccountRuntimeAction(action) {
+		req.actionScope = scope
+		req.Operation = normalizeGoPayWorkflowOperation(req.Operation)
+		req.OTPChannel = normalizeActionOTPChannel(req.OTPChannel)
+		return h.invokeGoPayAccountRuntimeAction(ctx, action, req, nil)
+	}
 	switch strings.TrimSpace(action) {
 	case "start-payment":
 		return h.startPayment(ctx, scope, req)
@@ -344,6 +365,38 @@ func (h gopayHTTPHandler) invokeGoPayPaymentAction(ctx context.Context, scope st
 		return h.awaitPaymentChannelOTP(ctx, scope, req)
 	default:
 		return nil, fmt.Errorf("unsupported gopay payment action: %s", action)
+	}
+}
+
+func isGoPayPaymentAccountRuntimeAction(action string) bool {
+	switch strings.TrimSpace(action) {
+	case "load-state",
+		"start-gopay-auth",
+		"complete-gopay-auth",
+		"start-pin",
+		"start-gopay-pin",
+		"request-pin-otp",
+		"retry-pin",
+		"retry-gopay-pin",
+		"complete-pin",
+		"complete-gopay-pin",
+		"acquire-signup-phone",
+		"generate-signup-device-proxy",
+		"check-signup-phone",
+		"discard-signup-phone",
+		"start-signup",
+		"request-signup-otp",
+		"retry-signup",
+		"complete-signup",
+		"acquire-change-phone-number",
+		"start-change-phone",
+		"retry-change-phone-otp",
+		"complete-change-phone",
+		"cancel-change-phone",
+		"await-channel-otp":
+		return true
+	default:
+		return false
 	}
 }
 
@@ -487,6 +540,58 @@ func (h gopayHTTPHandler) completePIN(ctx context.Context, req gopayActionReques
 	return out, nil
 }
 
+func (h gopayHTTPHandler) acquireSignupPhone(req gopayActionRequest) *gopayActionResult {
+	phone := firstNonEmpty(req.Phone, req.WAPhone, mapString(req.Data, "phone"))
+	countryCode := firstNonEmpty(req.CountryCode, mapString(req.Data, "country_code"), "62")
+	data := map[string]any{
+		"phone":        phone,
+		"country_code": countryCode,
+	}
+	out := h.baseResult(req, "gopay_app_signup_phone", phone != "", data)
+	out.Phone = phone
+	out.CountryCode = countryCode
+	out.ActivationID = req.ActivationID
+	if phone == "" {
+		out.ErrorMessage = "signup phone is required"
+	}
+	return out
+}
+
+func (h gopayHTTPHandler) checkSignupPhone(ctx context.Context, req gopayActionRequest) (*gopayActionResult, error) {
+	resp, err := h.service.CheckPhone(ctx, &pb.CheckPhoneRequest{
+		Phone:       req.Phone,
+		CountryCode: firstNonEmpty(req.CountryCode, "62"),
+		StateJson:   firstNonEmpty(req.StateJSON, mapString(req.Data, "state_json")),
+	})
+	if err != nil {
+		return nil, err
+	}
+	success := resp.GetAvailable() && resp.GetStatus() != "error" && resp.GetStatus() != "rate_limited"
+	data := map[string]any{
+		"available":          resp.GetAvailable(),
+		"status":             resp.GetStatus(),
+		"proxy_hash":         resp.GetProxyHash(),
+		"device_fingerprint": resp.GetDeviceFingerprint(),
+		"state_json":         resp.GetStateJson(),
+	}
+	out := h.baseResult(req, "gopay_app_check_phone", success, data)
+	out.Phone = req.Phone
+	out.StateJSON = firstNonEmpty(resp.GetStateJson(), req.StateJSON, "{}")
+	out.PhoneAccepted = success
+	out.RotatableFailure = resp.GetStatus() == "registered"
+	out.RetryableFailure = resp.GetStatus() == "error" || resp.GetStatus() == "rate_limited"
+	out.ErrorMessage = resp.GetErrorMessage()
+	return out, nil
+}
+
+func (h gopayHTTPHandler) discardSignupPhone(req gopayActionRequest) *gopayActionResult {
+	data := map[string]any{
+		"activation_id": req.ActivationID,
+		"reason":        strings.TrimSpace(req.Reason),
+	}
+	return h.baseResult(req, "gopay_app_signup_phone_cancel", true, data)
+}
+
 func (h gopayHTTPHandler) startSignup(ctx context.Context, req gopayActionRequest) (*gopayActionResult, error) {
 	resp, err := h.service.SignupStart(ctx, &pb.SignupStartRequest{Phone: req.Phone, CountryCode: req.CountryCode, OtpChannel: req.OTPChannel, StateJson: firstNonEmpty(req.StateJSON, "{}")})
 	if err != nil {
@@ -619,7 +724,7 @@ func (h gopayHTTPHandler) awaitChannelOTP(ctx context.Context, req gopayActionRe
 		}
 	}
 	if otp == "" {
-		if err := h.registerChannelOTPWait(ctx, gopayAccountActionScope, "await_channel_otp", req, channel); err != nil {
+		if err := h.registerChannelOTPWait(ctx, firstNonEmpty(req.actionScope, gopayAccountActionScope), "await_channel_otp", req, channel); err != nil {
 			return nil, err
 		}
 	}

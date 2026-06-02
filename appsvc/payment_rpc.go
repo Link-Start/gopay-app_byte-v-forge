@@ -121,9 +121,6 @@ func (s *Server) resolvePaymentAccount(ctx context.Context, req *pb.StartGopayPa
 		}
 	}
 	state["_otp_channel"] = otpChannel
-	state["_payment_tokenization"] = firstNonEmpty(req.GetTokenization(), "true")
-	state["_payment_amount"] = req.GetAmount()
-	state["_payment_currency"] = strings.ToUpper(firstNonEmpty(req.GetCurrency(), stateString(state, "balance_currency"), "IDR"))
 	if _, err := s.store.SaveAccount(ctx, key, stateJSON(state)); err != nil {
 		return resolvedPaymentAccount{}, err
 	}
