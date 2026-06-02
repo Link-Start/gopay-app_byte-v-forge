@@ -121,17 +121,15 @@ func (s *Server) completeSignup(ctx context.Context, state stateMap, otp string)
 		return map[string]any{"success": false, "error": apiError("customer signup failed", signupResp), "raw_json": safeJSON(signupResp.Payload)}
 	}
 	s.storeTokenResponse(state, signupResp.Data(), false)
+	if stateString(state, "token") == "" {
+		state["last_error"] = "signup access token missing"
+		return map[string]any{"success": false, "error": stateString(state, "last_error"), "raw_json": safeJSON(signupResp.Payload)}
+	}
 	state["phone"] = phone
 	state["name"] = name
 	state["email"] = email
 	state["stage"] = "signup_pin_required"
 	delete(state, "last_error")
 	deleteKeys(state, signupOTPStateKeys...)
-	refresh := s.ensureAccessToken(ctx, state, 0, true)
-	if !anyBool(refresh["success"]) {
-		state["last_error"] = anyString(refresh["error"])
-		return map[string]any{"success": false, "error": stateString(state, "last_error"), "raw_json": safeJSON(signupResp.Payload)}
-	}
-	state["stage"] = "signup_pin_required"
 	return map[string]any{"success": true, "phone": phone, "pin_setup_required": true, "raw_json": safeJSON(signupResp.Payload)}
 }
