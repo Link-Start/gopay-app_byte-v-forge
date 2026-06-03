@@ -38,6 +38,7 @@ type gopayActionRequest struct {
 	Tokenization      string         `json:"tokenization"`
 	Amount            int64          `json:"amount"`
 	Currency          string         `json:"currency"`
+	SkipPhoneProbe    bool           `json:"skip_phone_probe"`
 	UseAccountToken   bool           `json:"use_account_token"`
 	FailureCount      int32          `json:"failure_count"`
 	OTPRetryAttempt   int32          `json:"otp_retry_attempt"`

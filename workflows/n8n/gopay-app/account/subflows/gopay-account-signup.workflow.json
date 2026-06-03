@@ -21,7 +21,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App').first().json.n8n_execution_id, operation: $('When Executed by GoPay App').first().json.operation, gopay_account_id: $('When Executed by GoPay App').first().json.gopay_account_id, phone: $('When Executed by GoPay App').first().json.phone, otp_channel: $('When Executed by GoPay App').first().json.otp_channel, activation_id: $('When Executed by GoPay App').first().json.activation_id, state_json: $('When Executed by GoPay App').first().json.state_json || '{}' } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App').first().json.n8n_execution_id, operation: $('When Executed by GoPay App').first().json.operation, gopay_account_id: $('When Executed by GoPay App').first().json.gopay_account_id, phone: $('When Executed by GoPay App').first().json.phone, otp_channel: $('When Executed by GoPay App').first().json.otp_channel, activation_id: $('When Executed by GoPay App').first().json.activation_id, skip_phone_probe: $('When Executed by GoPay App').first().json.skip_phone_probe === true, state_json: $('When Executed by GoPay App').first().json.state_json || '{}' } }}",
         "options": {}
       },
       "id": "gopay-account-signup-start-signup",

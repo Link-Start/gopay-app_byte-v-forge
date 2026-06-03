@@ -120,8 +120,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1200,
-        0
+        2100,
+        -180
       ],
       "retryOnFail": true,
       "maxTries": 3,
@@ -142,8 +142,165 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
+        2400,
+        -180
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/generate-signup-device-proxy' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Load Params').first().json.job_id, n8n_execution_id: $('Load Params').first().json.n8n_execution_id, operation: 'signup', gopay_account_id: $('Load Params').first().json.gopay_account_id, country_code: $('Load Params').first().json.country_code || '62', data: { country_code: $('Load Params').first().json.country_code || '62' } } }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        }
+      },
+      "id": "gopay-account-signup-generate-detection-proxy",
+      "name": "Generate Signup Detection Proxy",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        -120
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/check-signup-phone' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Load Params').first().json.job_id, n8n_execution_id: $('Load Params').first().json.n8n_execution_id, operation: 'signup', gopay_account_id: $('Load Params').first().json.gopay_account_id, phone: $('Load Params').first().json.phone, country_code: $('Load Params').first().json.country_code || '62', otp_channel: $('Load Params').first().json.otp_channel || 'sms', state_json: $('Generate Signup Detection Proxy').first().json.state_json || '{}' } }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        }
+      },
+      "id": "gopay-account-signup-check-phone",
+      "name": "Check Signup Phone",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
         1500,
-        0
+        -120
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-account-signup-phone-available-cond",
+              "leftValue": "={{ $json.success === true && $json.phone_accepted === true }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-account-signup-phone-available",
+      "name": "Signup Phone Available?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1800,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const params = $('Load Params').first().json || {};\nconst checked = $input.first().json || {};\nreturn [{ json: {\n  ...checked,\n  job_id: params.job_id || checked.job_id,\n  n8n_execution_id: params.n8n_execution_id || checked.n8n_execution_id,\n  operation: 'signup',\n  gopay_account_id: params.gopay_account_id || checked.gopay_account_id,\n  phone: params.phone || checked.phone,\n  country_code: params.country_code || checked.country_code || '62',\n  otp_channel: params.otp_channel || checked.otp_channel || 'sms',\n  activation_id: params.activation_id || checked.activation_id,\n  state_json: checked.state_json || '{}',\n  skip_phone_probe: true,\n  data: { ...(checked.data || {}), phone_check_preflight: true, skip_phone_probe: true },\n} }];"
+      },
+      "id": "gopay-account-signup-build-prechecked-input",
+      "name": "Build Prechecked Signup Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2100,
+        -360
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/release-shared-phone-check-proxy' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Load Params').first().json.job_id, n8n_execution_id: $('Load Params').first().json.n8n_execution_id, operation: 'signup', state_json: $('Check Signup Phone').first().json.state_json || $('Generate Signup Detection Proxy').first().json.state_json || '' } }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        }
+      },
+      "id": "gopay-account-signup-release-proxy-check-failure",
+      "name": "Release Signup Detection Proxy After Phone Check Failure",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2100,
+        120
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/fail' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Load Params').first().json.job_id, n8n_execution_id: $('Load Params').first().json.n8n_execution_id, operation: 'signup', gopay_account_id: $('Load Params').first().json.gopay_account_id, error_message: $('Check Signup Phone').first().json.error_message || $('Check Signup Phone').first().json.data?.status || 'gopay signup phone is not available', data: { operation: 'signup', gopay_account_id: $('Load Params').first().json.gopay_account_id, phone_check_preflight: true, phone_accepted: $('Check Signup Phone').first().json.phone_accepted === true, rotatable_failure: $('Check Signup Phone').first().json.rotatable_failure === true, retryable_failure: $('Check Signup Phone').first().json.retryable_failure === true, phone_check_status: $('Check Signup Phone').first().json.data?.status, proxy_hash: $('Check Signup Phone').first().json.data?.proxy_hash } } }}",
+        "options": {}
+      },
+      "id": "gopay-account-signup-fail-phone-check",
+      "name": "Fail Signup Phone Check",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2400,
+        120
       ],
       "retryOnFail": true,
       "maxTries": 3,
@@ -188,6 +345,57 @@
       "main": [
         [
           {
+            "node": "Generate Signup Detection Proxy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Signup Detection Proxy": {
+      "main": [
+        [
+          {
+            "node": "Check Signup Phone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Signup Phone": {
+      "main": [
+        [
+          {
+            "node": "Signup Phone Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Signup Phone Available?": {
+      "main": [
+        [
+          {
+            "node": "Build Prechecked Signup Input",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Release Signup Detection Proxy After Phone Check Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Prechecked Signup Input": {
+      "main": [
+        [
+          {
             "node": "Signup User",
             "type": "main",
             "index": 0
@@ -200,6 +408,17 @@
         [
           {
             "node": "Finish Signup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Release Signup Detection Proxy After Phone Check Failure": {
+      "main": [
+        [
+          {
+            "node": "Fail Signup Phone Check",
             "type": "main",
             "index": 0
           }

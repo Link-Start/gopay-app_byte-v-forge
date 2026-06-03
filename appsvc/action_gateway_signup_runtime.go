@@ -61,7 +61,13 @@ func (h gopayHTTPHandler) discardSignupPhone(req gopayActionRequest) *gopayActio
 }
 
 func (h gopayHTTPHandler) startSignup(ctx context.Context, req gopayActionRequest) (*gopayActionResult, error) {
-	resp, err := h.service.SignupStart(ctx, &pb.SignupStartRequest{Phone: req.Phone, CountryCode: req.CountryCode, OtpChannel: req.OTPChannel, StateJson: stringx.FirstNonEmpty(req.StateJSON, "{}")})
+	resp, err := h.service.SignupStart(ctx, &pb.SignupStartRequest{
+		Phone:          req.Phone,
+		CountryCode:    req.CountryCode,
+		OtpChannel:     req.OTPChannel,
+		SkipPhoneProbe: req.SkipPhoneProbe || anyBool(req.Data["skip_phone_probe"]),
+		StateJson:      stringx.FirstNonEmpty(req.StateJSON, "{}"),
+	})
 	if err != nil {
 		return nil, err
 	}
