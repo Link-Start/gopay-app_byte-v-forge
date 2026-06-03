@@ -112,7 +112,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App').first().json.n8n_execution_id, operation: $('When Executed by GoPay App').first().json.operation, gopay_account_id: $('When Executed by GoPay App').first().json.gopay_account_id, activation_id: $('Start Deactivate').first().json.activation_id, state_json: $('Start Deactivate').first().json.state_json, otp_issued_after_unix: $('Start Deactivate').first().json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App').first().json.n8n_execution_id, operation: $('When Executed by GoPay App').first().json.operation, gopay_account_id: $('When Executed by GoPay App').first().json.gopay_account_id, activation_id: $('Start Deactivate').first().json.activation_id, state_json: $('Start Deactivate').first().json.state_json, otp_issued_after_unix: $('Start Deactivate').first().json.otp_issued_after_unix, otp: $json.otp || $json.code || $json.body?.otp || $json.body?.code || $json.data?.otp || $json.data?.code, otp_source: $json.otp_source || $json.body?.otp_source } }}",
         "options": {}
       },
       "id": "gopay-account-deactivate-complete-deactivate",

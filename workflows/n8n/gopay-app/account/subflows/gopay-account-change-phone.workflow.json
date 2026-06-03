@@ -402,7 +402,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, activation_id: $json.activation_id, phone: $json.phone, state_json: $json.state_json || '{}', failure_count: $json.failure_count || 0, otp_issued_after_unix: $json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, activation_id: $json.activation_id, phone: $json.phone, state_json: $json.state_json || '{}', failure_count: $json.failure_count || 0, otp_issued_after_unix: $json.otp_issued_after_unix, otp: $json.otp || $json.code || $json.body?.otp || $json.body?.code || $json.data?.otp || $json.data?.code, otp_source: $json.otp_source || $json.body?.otp_source } }}",
         "options": {}
       },
       "id": "gopay-account-change-phone-complete",

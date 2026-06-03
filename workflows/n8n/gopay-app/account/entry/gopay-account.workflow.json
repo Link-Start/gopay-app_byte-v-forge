@@ -376,11 +376,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/finish' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/' + (($json.success === false || $json.error_message || $json.signup_complete !== true) ? 'fail' : 'finish') }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('Load Params').first().json.job_id, n8n_execution_id: $('Load Params').first().json.n8n_execution_id, operation: 'signup', gopay_account_id: $('Load Params').first().json.gopay_account_id, state_json: $('Signup User').first().json.state_json, data: { operation: 'signup', gopay_account_id: $('Load Params').first().json.gopay_account_id, signup: $('Signup User').first().json.data, signup_complete: $('Signup User').first().json.signup_complete } } }}",
+        "jsonBody": "={{ { job_id: $('Load Params').first().json.job_id, n8n_execution_id: $('Load Params').first().json.n8n_execution_id, operation: 'signup', gopay_account_id: $('Load Params').first().json.gopay_account_id, state_json: $('Signup User').first().json.state_json, error_message: ($json.success === false || $json.error_message || $json.signup_complete !== true) ? ($json.error_message || 'gopay signup did not complete') : undefined, data: { operation: 'signup', gopay_account_id: $('Load Params').first().json.gopay_account_id, signup: $('Signup User').first().json.data, signup_complete: $('Signup User').first().json.signup_complete } } }}",
         "options": {}
       },
       "id": "gopay-account-finish-signup",
