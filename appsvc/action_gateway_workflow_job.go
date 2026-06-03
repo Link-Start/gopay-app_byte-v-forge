@@ -9,6 +9,7 @@ import (
 	"github.com/byte-v-forge/common-lib/protojsonx"
 	"github.com/byte-v-forge/gopay-app/pb"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/proto"
 )
 
 func newGoPayWorkflowJob(req *pb.GoPayAccountWorkflowRequest) (*pb.GopayWorkflowJob, error) {
@@ -65,14 +66,18 @@ func (h gopayHTTPHandler) triggerGoPayWorkflowAsync(job *pb.GopayWorkflowJob, we
 	if job == nil {
 		return
 	}
-	go func(snapshot pb.GopayWorkflowJob) {
+	snapshot, ok := proto.Clone(job).(*pb.GopayWorkflowJob)
+	if !ok {
+		return
+	}
+	go func(snapshot *pb.GopayWorkflowJob) {
 		if err := h.triggerGoPayWorkflow(context.Background(), snapshot.GetJobId(), webhookPath, workflowName); err != nil {
 			snapshot.Status = "trigger_failed"
 			snapshot.ErrorMessage = err.Error()
 			snapshot.UpdatedAtUnix = time.Now().Unix()
-			_ = h.saveWorkflowJob(context.Background(), &snapshot)
+			_ = h.saveWorkflowJob(context.Background(), snapshot)
 		}
-	}(*job)
+	}(snapshot)
 }
 
 func (h gopayHTTPHandler) loadWorkflowJob(ctx context.Context, jobID string) (*pb.GopayWorkflowJob, error) {

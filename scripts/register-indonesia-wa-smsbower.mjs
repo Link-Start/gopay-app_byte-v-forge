@@ -148,12 +148,12 @@ async function listOffers(config) {
   return (body.offers || [])
     .map((offer) => ({
       provider_key: offer.provider_key || config.providerKey,
-      provider_id: offer.upstream_provider_id || offer.acquire_params?.sms_bower?.provider_id || offer.acquire_params?.hero_sms?.operator || 'default',
+      provider_id: offer.upstream_provider_id || offer.offer_ref?.upstream_provider_id || 'default',
       price: Number(offer.price?.amount_decimal || Number.POSITIVE_INFINITY),
       count: Number(offer.available_count || 0),
-      acquire_params: offer.acquire_params,
+      offer_ref: offer.offer_ref,
     }))
-    .filter((offer) => offer.acquire_params)
+    .filter((offer) => offer.offer_ref)
     .filter((offer) => !config.providerID || offer.provider_id === config.providerID)
     .filter((offer) => offer.count >= config.minAvailableCount)
     .filter((offer) => config.price === undefined || Math.abs(offer.price - config.price) < 0.000001)
@@ -167,7 +167,7 @@ async function acquireSMSNumber(config, offer, runID) {
     request_id: `${runID}-sms-${offer.provider_id}`,
     lease_duration: `${config.otpWaitSeconds + 300}s`,
     acquire_params: {
-      ...offer.acquire_params,
+      offer_ref: offer.offer_ref,
       application_key: config.applicationKey,
       country_iso2: config.countryISO2,
       country_calling_code: config.countryCallingCode,

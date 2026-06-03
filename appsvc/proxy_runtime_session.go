@@ -32,10 +32,10 @@ func (s *Server) acquireProxyRuntimeSessionWithListener(ctx context.Context, bas
 			RotationMode: proxyruntimev1.ProxyRotationMode_PROXY_ROTATION_MODE_STICKY_SESSION,
 			Labels:       map[string]string{"purpose": "gopay_app", "country": countryCode},
 		},
-		ChainPolicy: &proxyruntimev1.ProxyChainPolicy{
+		RoutePolicy: &proxyruntimev1.EgressRoutePolicy{
 			CountryCode:               countryCode,
 			Purpose:                   goPayProxyPurpose,
-			Strategy:                  proxyruntimev1.ProxyChainStrategy_PROXY_CHAIN_STRATEGY_REGION_AWARE,
+			Strategy:                  proxyruntimev1.ProxySelectorStrategy_PROXY_SELECTOR_STRATEGY_HASH_TARGET_HOST,
 			RequireDynamicExit:        true,
 			AllowDirectDynamicGateway: !requireLineProxy,
 			PreferLineProxy:           true,
@@ -61,7 +61,7 @@ func (s *Server) acquireProxyRuntimeSessionWithListener(ctx context.Context, bas
 	}
 
 	dynamicLease := lease.GetLease()
-	chainPlan := firstProxyChainPlan(lease.GetChainPlan(), dynamicLease.GetChainPlan())
+	routePlan := firstProxyRoutePlan(lease.GetRoutePlan(), dynamicLease.GetRoutePlan())
 	out := map[string]any{
 		"_gopay_proxy":                      proxyURL,
 		"_gopay_account_id":                 identity,
@@ -80,8 +80,8 @@ func (s *Server) acquireProxyRuntimeSessionWithListener(ctx context.Context, bas
 	if sessionID := dynamicLease.GetSession().GetSessionId(); sessionID != "" {
 		out["_proxy_runtime_session_hash"] = hashx.ShortSHA256(sessionID, 12)
 	}
-	if routeLabel := chainRouteLabel(chainPlan); routeLabel != "" {
-		out["_proxy_runtime_chain_route"] = routeLabel
+	if routeLabel := proxyRouteLabel(routePlan); routeLabel != "" {
+		out["_proxy_runtime_route"] = routeLabel
 	}
 	exitIP := ""
 	if !skipPreflight {

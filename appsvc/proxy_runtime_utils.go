@@ -132,7 +132,7 @@ func protoTimestampRFC3339(value *timestamppb.Timestamp) string {
 	return value.AsTime().Format(time.RFC3339Nano)
 }
 
-func firstProxyChainPlan(values ...*proxyruntimev1.ProxyChainPlan) *proxyruntimev1.ProxyChainPlan {
+func firstProxyRoutePlan(values ...*proxyruntimev1.EgressRoutePlan) *proxyruntimev1.EgressRoutePlan {
 	for _, value := range values {
 		if value != nil {
 			return value
@@ -141,12 +141,12 @@ func firstProxyChainPlan(values ...*proxyruntimev1.ProxyChainPlan) *proxyruntime
 	return nil
 }
 
-func chainRouteLabel(chainPlan *proxyruntimev1.ProxyChainPlan) string {
-	if chainPlan == nil {
+func proxyRouteLabel(routePlan *proxyruntimev1.EgressRoutePlan) string {
+	if routePlan == nil {
 		return ""
 	}
-	line := chainPlan.GetLine()
-	dynamicGateway := chainPlan.GetDynamicGateway()
+	line := routePlan.GetLine()
+	dynamicGateway := routePlan.GetDynamicGateway()
 	lineName := stringx.FirstNonEmpty(line.GetDisplayName(), line.GetNodeId(), line.GetSourceId())
 	gatewayName := stringx.FirstNonEmpty(dynamicGateway.GetDisplayName(), dynamicGateway.GetGatewayId(), dynamicGateway.GetProviderId())
 	switch {

@@ -26,7 +26,7 @@ func (s *Server) deviceProxyDiagnostics(state stateMap) map[string]any {
 		"_proxy_runtime_lease_id",
 		"_proxy_runtime_lease_expires_at",
 		"_proxy_runtime_listener_id",
-		"_proxy_runtime_chain_route",
+		"_proxy_runtime_route",
 		"_proxy_runtime_exit_ip_hash",
 		"_proxy_runtime_exit_country_code",
 		"_proxy_runtime_exit_region",
