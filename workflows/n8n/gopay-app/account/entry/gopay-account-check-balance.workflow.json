@@ -1,0 +1,250 @@
+{
+  "id": "gopay-account-check-balance",
+  "name": "GoPay Account / Check Balance",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gopay-app/account/check-balance",
+        "responseMode": "onReceived",
+        "options": {
+          "responseCode": 202
+        }
+      },
+      "id": "gopay-account-check-balance-start-webhook",
+      "name": "Start",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "byte-v-forge-gopay-account-check-balance"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "job-id",
+              "name": "job_id",
+              "value": "={{ $json.body?.job_id || $json.job_id }}",
+              "type": "string"
+            },
+            {
+              "id": "account-id",
+              "name": "account_id",
+              "value": "={{ $json.body?.account_id || $json.account_id }}",
+              "type": "string"
+            },
+            {
+              "id": "n8n-execution-id",
+              "name": "n8n_execution_id",
+              "value": "={{ $execution.id }}",
+              "type": "string"
+            },
+            {
+              "id": "action-scope",
+              "name": "action_scope",
+              "value": "gopay-account",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "gopay-account-check-balance-normalize-input",
+      "name": "Normalize Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        300,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/load-params' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id } }}",
+        "options": {}
+      },
+      "id": "gopay-account-check-balance-load-params",
+      "name": "Load Params",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        600,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/load-state' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Load Params').first().json.job_id, n8n_execution_id: $('Load Params').first().json.n8n_execution_id, gopay_account_id: $('Load Params').first().json.gopay_account_id, operation: $('Load Params').first().json.operation } }}",
+        "options": {}
+      },
+      "id": "gopay-account-check-balance-load-state",
+      "name": "Load State",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "gopay-account-auth",
+          "mode": "id"
+        }
+      },
+      "id": "gopay-account-auth-check-balance-user",
+      "name": "Auth Check Balance User",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1200,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/check-balance' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Load Params').first().json.job_id, n8n_execution_id: $('Load Params').first().json.n8n_execution_id, operation: 'check_balance', gopay_account_id: $('Load Params').first().json.gopay_account_id, phone: $('Load Params').first().json.phone, otp_channel: $('Load Params').first().json.otp_channel, state_json: $json.state_json || $('Load State').first().json.state_json } }}",
+        "options": {}
+      },
+      "id": "gopay-account-check-balance-user",
+      "name": "Check Balance User",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1500,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/' + (($json.success !== false && !$json.error_message && $json.account_token_ready === true) ? 'finish' : 'fail') }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={ { job_id: $('Load Params').first().json.job_id, n8n_execution_id: $('Load Params').first().json.n8n_execution_id, operation: 'check_balance', gopay_account_id: $('Load Params').first().json.gopay_account_id, state_json: $('Check Balance User').first().json.state_json, error_message: ($json.success !== false && !$json.error_message && $json.account_token_ready === true) ? undefined : ($json.error_message || 'gopay balance check did not produce ready token'), data: { operation: 'check_balance', gopay_account_id: $('Load Params').first().json.gopay_account_id, check_balance: $('Check Balance User').first().json.data, account_token_ready: $('Check Balance User').first().json.account_token_ready } } }",
+        "options": {}
+      },
+      "id": "gopay-account-finish-check-balance",
+      "name": "Finish Check Balance",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1800,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Normalize Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Input": {
+      "main": [
+        [
+          {
+            "node": "Load Params",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Params": {
+      "main": [
+        [
+          {
+            "node": "Load State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load State": {
+      "main": [
+        [
+          {
+            "node": "Auth Check Balance User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auth Check Balance User": {
+      "main": [
+        [
+          {
+            "node": "Check Balance User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Balance User": {
+      "main": [
+        [
+          {
+            "node": "Finish Check Balance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true,
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all"
+  },
+  "tags": []
+}

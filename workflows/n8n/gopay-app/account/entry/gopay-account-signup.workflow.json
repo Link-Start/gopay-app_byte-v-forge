@@ -1,0 +1,217 @@
+{
+  "id": "gopay-account-signup",
+  "name": "GoPay Account / Signup",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gopay-app/account/signup",
+        "responseMode": "onReceived",
+        "options": {
+          "responseCode": 202
+        }
+      },
+      "id": "gopay-account-signup-start-webhook",
+      "name": "Start",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "byte-v-forge-gopay-account-signup"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "job-id",
+              "name": "job_id",
+              "value": "={{ $json.body?.job_id || $json.job_id }}",
+              "type": "string"
+            },
+            {
+              "id": "account-id",
+              "name": "account_id",
+              "value": "={{ $json.body?.account_id || $json.account_id }}",
+              "type": "string"
+            },
+            {
+              "id": "n8n-execution-id",
+              "name": "n8n_execution_id",
+              "value": "={{ $execution.id }}",
+              "type": "string"
+            },
+            {
+              "id": "action-scope",
+              "name": "action_scope",
+              "value": "gopay-account",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "gopay-account-signup-normalize-input",
+      "name": "Normalize Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        300,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/load-params' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id } }}",
+        "options": {}
+      },
+      "id": "gopay-account-signup-load-params",
+      "name": "Load Params",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        600,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/load-state' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Load Params').first().json.job_id, n8n_execution_id: $('Load Params').first().json.n8n_execution_id, gopay_account_id: $('Load Params').first().json.gopay_account_id, operation: $('Load Params').first().json.operation } }}",
+        "options": {}
+      },
+      "id": "gopay-account-signup-load-state",
+      "name": "Load State",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "gopay-account-signup",
+          "mode": "id"
+        }
+      },
+      "id": "gopay-account-signup-user",
+      "name": "Signup User",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1200,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/' + (($json.success === false || $json.error_message || $json.signup_complete !== true) ? 'fail' : 'finish') }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Load Params').first().json.job_id, n8n_execution_id: $('Load Params').first().json.n8n_execution_id, operation: 'signup', gopay_account_id: $('Load Params').first().json.gopay_account_id, state_json: $('Signup User').first().json.state_json, error_message: ($json.success === false || $json.error_message || $json.signup_complete !== true) ? ($json.error_message || 'gopay signup did not complete') : undefined, data: { operation: 'signup', gopay_account_id: $('Load Params').first().json.gopay_account_id, signup: $('Signup User').first().json.data, signup_complete: $('Signup User').first().json.signup_complete } } }}",
+        "options": {}
+      },
+      "id": "gopay-account-finish-signup",
+      "name": "Finish Signup",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1500,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Normalize Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Input": {
+      "main": [
+        [
+          {
+            "node": "Load Params",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Params": {
+      "main": [
+        [
+          {
+            "node": "Load State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load State": {
+      "main": [
+        [
+          {
+            "node": "Signup User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Signup User": {
+      "main": [
+        [
+          {
+            "node": "Finish Signup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true,
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all"
+  },
+  "tags": []
+}

@@ -1,0 +1,238 @@
+{
+  "id": "gopay-account-ensure-pin",
+  "name": "GoPay Account / Ensure PIN",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gopay-app/account/ensure-pin",
+        "responseMode": "onReceived",
+        "options": {
+          "responseCode": 202
+        }
+      },
+      "id": "gopay-account-ensure-pin-start-webhook",
+      "name": "Start",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "byte-v-forge-gopay-account-ensure-pin"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "job-id",
+              "name": "job_id",
+              "value": "={{ $json.body?.job_id || $json.job_id }}",
+              "type": "string"
+            },
+            {
+              "id": "account-id",
+              "name": "account_id",
+              "value": "={{ $json.body?.account_id || $json.account_id }}",
+              "type": "string"
+            },
+            {
+              "id": "n8n-execution-id",
+              "name": "n8n_execution_id",
+              "value": "={{ $execution.id }}",
+              "type": "string"
+            },
+            {
+              "id": "action-scope",
+              "name": "action_scope",
+              "value": "gopay-account",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "gopay-account-ensure-pin-normalize-input",
+      "name": "Normalize Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        300,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/load-params' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id } }}",
+        "options": {}
+      },
+      "id": "gopay-account-ensure-pin-load-params",
+      "name": "Load Params",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        600,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/load-state' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Load Params').first().json.job_id, n8n_execution_id: $('Load Params').first().json.n8n_execution_id, gopay_account_id: $('Load Params').first().json.gopay_account_id, operation: $('Load Params').first().json.operation } }}",
+        "options": {}
+      },
+      "id": "gopay-account-ensure-pin-load-state",
+      "name": "Load State",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "jsCode": "const params = $('Load Params').first().json;\nconst state = $('Load State').first().json;\nreturn [{ json: {\n  job_id: params.job_id,\n  n8n_execution_id: params.n8n_execution_id,\n  operation: 'ensure_pin_setup',\n  gopay_account_id: params.gopay_account_id,\n  pin: params.pin,\n  otp_channel: params.otp_channel,\n  activation_id: state.activation_id,\n  state_json: state.state_json,\n  data: state.data,\n  not_ready_error_message: 'gopay account token is not ready after ensure pin setup',\n  otp_timeout_error_message: 'gopay ensure pin otp not received before timeout',\n} }];"
+      },
+      "id": "gopay-account-build-pin-user-input",
+      "name": "Build PIN User Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "gopay-account-pin",
+          "mode": "id"
+        }
+      },
+      "id": "gopay-account-ensure-pin-user",
+      "name": "Ensure PIN User",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1500,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-account/' + (($json.success === false || $json.error_message || $json.account_token_ready !== true) ? 'fail' : 'finish') }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Load Params').first().json.job_id, n8n_execution_id: $('Load Params').first().json.n8n_execution_id, operation: 'ensure_pin_setup', gopay_account_id: $('Load Params').first().json.gopay_account_id, state_json: $json.state_json, error_message: ($json.success === false || $json.error_message || $json.account_token_ready !== true) ? ($json.error_message || 'gopay account token is not ready after ensure pin setup') : undefined, data: { operation: 'ensure_pin_setup', gopay_account_id: $('Load Params').first().json.gopay_account_id, success: $json.success, error_message: $json.error_message, ensure_pin_setup: $json.data, signup_pin_complete: $json.signup_pin_complete, account_token_ready: $json.account_token_ready } } }}",
+        "options": {}
+      },
+      "id": "gopay-account-finish-ensure-pin",
+      "name": "Finish Ensure PIN",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1800,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Normalize Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Input": {
+      "main": [
+        [
+          {
+            "node": "Load Params",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Params": {
+      "main": [
+        [
+          {
+            "node": "Load State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load State": {
+      "main": [
+        [
+          {
+            "node": "Build PIN User Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build PIN User Input": {
+      "main": [
+        [
+          {
+            "node": "Ensure PIN User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ensure PIN User": {
+      "main": [
+        [
+          {
+            "node": "Finish Ensure PIN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true,
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all"
+  },
+  "tags": []
+}

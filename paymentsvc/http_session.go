@@ -55,7 +55,7 @@ func (s *httpSession) rebuildClient(fingerprint browserFingerprint) error {
 		return err
 	}
 	if s.client != nil {
-		s.client.CloseIdleConnections()
+		s.client.Close()
 	}
 	s.client = client
 	s.fingerprint = fingerprint
@@ -64,6 +64,6 @@ func (s *httpSession) rebuildClient(fingerprint browserFingerprint) error {
 
 func (s *httpSession) close() {
 	if s != nil && s.client != nil {
-		s.client.CloseIdleConnections()
+		s.client.Close()
 	}
 }

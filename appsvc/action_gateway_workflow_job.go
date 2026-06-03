@@ -12,7 +12,14 @@ import (
 )
 
 func newGoPayWorkflowJob(req *pb.GoPayAccountWorkflowRequest) (*pb.GopayWorkflowJob, error) {
-	operation := normalizeGoPayWorkflowOperation(req.GetOperation().String())
+	return newGoPayWorkflowJobWithOperation(req, "")
+}
+
+func newGoPayWorkflowJobWithOperation(req *pb.GoPayAccountWorkflowRequest, operationOverride string) (*pb.GopayWorkflowJob, error) {
+	operation := normalizeGoPayWorkflowOperation(operationOverride)
+	if operation == "" || operation == "login" && operationOverride == "" {
+		operation = normalizeGoPayWorkflowOperation(req.GetOperation().String())
+	}
 	accountID := goPayAppAccountID(req.GetGopayAccountId())
 	if accountID == "" {
 		return nil, fmt.Errorf("gopay_account_id is required")

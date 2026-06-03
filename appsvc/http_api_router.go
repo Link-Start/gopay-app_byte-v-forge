@@ -46,6 +46,11 @@ func (h gopayHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h gopayHTTPHandler) handleHealth(w http.ResponseWriter, _ *http.Request) {
+	workflows := make([]*pb.GopayHealthWorkflow, 0, len(goPayAccountWorkflows())+1)
+	for _, workflow := range goPayAccountWorkflows() {
+		workflows = append(workflows, &pb.GopayHealthWorkflow{Key: workflow.Key, Label: workflow.Label, WebhookPath: workflow.WebhookPath})
+	}
+	workflows = append(workflows, &pb.GopayHealthWorkflow{Key: gopayRegisterIndonesiaWAWorkflowKey, Label: registerIndonesiaWAWorkflowDisplayLabel, WebhookPath: gopayRegisterIndonesiaWAWebhookPath})
 	_ = protojsonhttp.WriteResponse(w, http.StatusOK, &pb.GopayHealthResponse{
 		Success:              true,
 		Ok:                   true,
@@ -53,9 +58,6 @@ func (h gopayHTTPHandler) handleHealth(w http.ResponseWriter, _ *http.Request) {
 		N8NWebhookConfigured: h.n8nWebhookBaseURL != "",
 		GopayActionApiOwned:  true,
 		GopayAccountApiOwned: true,
-		Workflows: []*pb.GopayHealthWorkflow{
-			{Key: "gopay-account", Label: "GoPay 账户编排", WebhookPath: gopayAccountWebhookPath},
-			{Key: gopayRegisterIndonesiaWAWorkflowKey, Label: registerIndonesiaWAWorkflowDisplayLabel, WebhookPath: gopayRegisterIndonesiaWAWebhookPath},
-		},
+		Workflows:            workflows,
 	})
 }

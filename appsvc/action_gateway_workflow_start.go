@@ -9,9 +9,11 @@ import (
 )
 
 func (h gopayHTTPHandler) handleWorkflowStart(w http.ResponseWriter, r *http.Request, key string) {
+	if workflow, ok := goPayAccountWorkflowByKey(key); ok {
+		h.handleAccountWorkflowStart(w, r, workflow)
+		return
+	}
 	switch key {
-	case gopayAccountActionScope:
-		h.handleAccountWorkflowStart(w, r)
 	case gopayRegisterIndonesiaWAWorkflowKey:
 		h.handleRegisterIndonesiaWAWorkflowStart(w, r)
 	default:
@@ -19,7 +21,7 @@ func (h gopayHTTPHandler) handleWorkflowStart(w http.ResponseWriter, r *http.Req
 	}
 }
 
-func (h gopayHTTPHandler) handleAccountWorkflowStart(w http.ResponseWriter, r *http.Request) {
+func (h gopayHTTPHandler) handleAccountWorkflowStart(w http.ResponseWriter, r *http.Request, workflow goPayAccountWorkflow) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -29,7 +31,7 @@ func (h gopayHTTPHandler) handleAccountWorkflowStart(w http.ResponseWriter, r *h
 		writeError(w, http.StatusBadRequest, err)
 		return
 	}
-	job, err := newGoPayWorkflowJob(&req)
+	job, err := newGoPayWorkflowJobWithOperation(&req, workflow.Operation)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err)
 		return
@@ -38,7 +40,7 @@ func (h gopayHTTPHandler) handleAccountWorkflowStart(w http.ResponseWriter, r *h
 		writeError(w, http.StatusBadGateway, err)
 		return
 	}
-	h.triggerGoPayWorkflowAsync(job, gopayAccountWebhookPath, "gopay-account")
+	h.triggerGoPayWorkflowAsync(job, workflow.WebhookPath, workflow.Key)
 	_ = protojsonhttp.WriteResponse(w, http.StatusAccepted, &pb.GoPayAccountWorkflowResponse{JobId: job.GetJobId(), Started: true})
 }
 

@@ -6,7 +6,6 @@ const (
 	gopayAccountActionScope                 = "gopay-account"
 	gopayToolboxActionScope                 = "gopay-toolbox"
 	gopayPaymentActionScope                 = "gopay-payment"
-	gopayAccountWebhookPath                 = "gopay-app/account"
 	gopayRegisterIndonesiaWAWorkflowKey     = "register-indonesia-wa"
 	gopayRegisterIndonesiaWAWebhookPath     = "gopay-app/toolbox/register-indonesia-wa"
 	registerIndonesiaWAWorkflowOperation    = "register_indonesia_wa"

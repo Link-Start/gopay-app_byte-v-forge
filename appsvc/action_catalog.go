@@ -30,46 +30,46 @@ func (s *Server) GetActionCatalog(context.Context, *pb.GetGopayActionCatalogRequ
 
 func GoPayActionCatalog() *accountv1.AccountActionCatalog {
 	return accountaction.Catalog(
-		goPayWorkflowAction(ActionGoPaySignup, "GoPay 注册", "注册", "signup",
+		goPayWorkflowAction(ActionGoPaySignup, "GoPay 注册", goPayAccountSignupWorkflow,
 			accountaction.RequiredFields("account_id", "phone", "country_code", "otp_channel"),
 		),
-		goPayWorkflowAction(ActionGoPayLogin, "GoPay 登录", "登录", "login",
+		goPayWorkflowAction(ActionGoPayLogin, "GoPay 登录", goPayAccountLoginWorkflow,
 			accountaction.RequiredFields("account_id", "phone", "country_code", "otp_channel"),
 		),
-		goPayWorkflowAction(ActionGoPayEnsurePIN, "GoPay PIN 设置", "PIN 设置", "ensure_pin_setup",
+		goPayWorkflowAction(ActionGoPayEnsurePIN, "GoPay PIN 设置", goPayAccountEnsurePINWorkflow,
 			accountaction.RequiredFields("account_id", "phone", "country_code", "otp_channel"),
 		),
-		goPayWorkflowAction(ActionGoPayCheckBalance, "GoPay 查余额", "查余额", "check_balance",
+		goPayWorkflowAction(ActionGoPayCheckBalance, "GoPay 查余额", goPayAccountCheckBalanceWorkflow,
 			accountaction.RequiredFields("account_id", "phone", "country_code"),
 		),
-		goPayWorkflowAction(ActionGoPayCheckPIN, "GoPay 查 PIN", "查 PIN", "check_pin",
+		goPayWorkflowAction(ActionGoPayCheckPIN, "GoPay 查 PIN", goPayAccountCheckPINWorkflow,
 			accountaction.RequiredFields("account_id"),
 		),
-		goPayWorkflowAction(ActionGoPayChangePhone, "GoPay 改绑手机号", "改绑手机号", "change_phone",
+		goPayWorkflowAction(ActionGoPayChangePhone, "GoPay 改绑手机号", goPayAccountChangePhoneWorkflow,
 			accountaction.RequiredFields("account_id", "phone", "country_code"),
 		),
-		goPayWorkflowAction(ActionGoPayDeactivate, "GoPay 注销", "注销", "deactivate",
+		goPayWorkflowAction(ActionGoPayDeactivate, "GoPay 注销", goPayAccountDeactivateWorkflow,
 			accountaction.RequiredFields("account_id", "phone", "country_code"),
 		),
 	)
 }
 
-func goPayWorkflowAction(actionID, displayName, buttonLabel, intent string, options ...accountaction.DefinitionOption) *accountv1.AccountActionDefinition {
+func goPayWorkflowAction(actionID, displayName string, workflow goPayAccountWorkflow, options ...accountaction.DefinitionOption) *accountv1.AccountActionDefinition {
 	defOptions := []accountaction.DefinitionOption{
 		accountaction.Owner("gopay-app"),
 		accountaction.Visibility(AccountActionVisibility),
 		accountaction.RequestProto("gopay_app.GoPayAccountWorkflowRequest"),
 		accountaction.ResponseProto("gopay_app.GoPayAccountWorkflowResponse"),
 		accountaction.N8NWorkflow(
+			workflow.Key,
+			workflow.Key+"-",
+			"/workflows/"+workflow.Key,
 			"gopay-account",
-			"gopay-account-",
-			"/workflows/gopay-account",
-			"gopay-account",
-			"gopay-app/account",
+			workflow.WebhookPath,
 			"/actions/gopay-account",
 			accountv1.AccountActionAPIKind_ACCOUNT_ACTION_API_KIND_RAW_N8N,
 		),
-		accountaction.DefaultButton(buttonLabel, AccountActionPlacement, accountaction.ButtonIntent(intent)),
+		accountaction.DefaultButton(workflow.ButtonLabel, AccountActionPlacement, accountaction.ButtonIntent(workflow.Intent)),
 		accountaction.Capabilities(CapabilityGoPay, CapabilityGoPayAccount, CapabilityN8NWorkflow),
 	}
 	defOptions = append(defOptions, options...)
