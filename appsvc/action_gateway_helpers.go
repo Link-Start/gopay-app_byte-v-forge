@@ -36,8 +36,6 @@ func normalizeGoPayWorkflowOperation(value string) string {
 		return "check_pin"
 	case "change_phone":
 		return "change_phone"
-	case "provision":
-		return "provision"
 	case "deactivate":
 		return "deactivate"
 	case "signup":

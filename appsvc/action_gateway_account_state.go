@@ -9,7 +9,7 @@ import (
 
 func (h gopayHTTPHandler) loadParamsResult(job *pb.GopayWorkflowJob, req gopayActionRequest) *gopayActionResult {
 	out := h.baseResult(req, "load_params", true, map[string]any{"action": stringx.FirstNonEmpty(req.actionScope, gopayAccountActionScope), "operation": req.Operation, "gopay_account_id": req.GopayAccountID, "otp_channel": req.OTPChannel})
-	out.RequirePIN = req.Operation == "provision"
+	out.RequirePIN = req.Operation == "ensure_pin_setup"
 	return out
 }
 
