@@ -27,7 +27,6 @@ export enum GoPayAccountWorkflowOperation {
   GOPAY_ACCOUNT_WORKFLOW_OPERATION_CHECK_BALANCE = "GOPAY_ACCOUNT_WORKFLOW_OPERATION_CHECK_BALANCE",
   GOPAY_ACCOUNT_WORKFLOW_OPERATION_CHECK_PIN = "GOPAY_ACCOUNT_WORKFLOW_OPERATION_CHECK_PIN",
   GOPAY_ACCOUNT_WORKFLOW_OPERATION_CHANGE_PHONE = "GOPAY_ACCOUNT_WORKFLOW_OPERATION_CHANGE_PHONE",
-  GOPAY_ACCOUNT_WORKFLOW_OPERATION_PROVISION = "GOPAY_ACCOUNT_WORKFLOW_OPERATION_PROVISION",
   GOPAY_ACCOUNT_WORKFLOW_OPERATION_DEACTIVATE = "GOPAY_ACCOUNT_WORKFLOW_OPERATION_DEACTIVATE",
   UNRECOGNIZED = "UNRECOGNIZED",
 }
@@ -66,6 +65,22 @@ export interface StartGoPayRegisterIndonesiaWAWorkflowResponse {
   error_message: string;
 }
 
+export interface GopayWorkflowJob {
+  job_id: string;
+  n8n_execution_id: string;
+  operation: string;
+  gopay_account_id: string;
+  phone: string;
+  country_code: string;
+  pin: string;
+  otp_channel: string;
+  status: string;
+  error_message: string;
+  created_at_unix: number;
+  updated_at_unix: number;
+  result: { [key: string]: any } | undefined;
+}
+
 export interface GoPayRegisterIndonesiaWASettings {
   sms_acquire_wait_seconds: number;
   sms_min_available_count: number;
@@ -100,6 +115,32 @@ export interface GetGopayActionCatalogResponse {
   success: boolean;
   error_message: string;
   catalog: AccountActionCatalog | undefined;
+}
+
+export interface GopayAPIErrorResponse {
+  error: string;
+}
+
+export interface GopayHealthWorkflow {
+  key: string;
+  label: string;
+  webhook_path: string;
+}
+
+export interface GopayHealthResponse {
+  success: boolean;
+  ok: boolean;
+  service: string;
+  n8n_webhook_configured: boolean;
+  gopay_action_api_owned: boolean;
+  gopay_account_api_owned: boolean;
+  workflows: GopayHealthWorkflow[];
+}
+
+export interface CreateGopayAccountRequest {
+  phone: string;
+  country_code: string;
+  otp_channel: string;
 }
 
 export interface ChangePhoneStartRequest {
@@ -496,6 +537,99 @@ export interface CheckPhoneResponse {
   device_fingerprint: string;
   /** 原样返回输入链路态；用于后续注册复用同一 proxy/device */
   state_json: string;
+}
+
+export interface CheckGopayPhoneAvailabilityRequest {
+  phone: string;
+  country_code: string;
+  state_json: string;
+  release_proxy_state: boolean;
+}
+
+export interface CheckGopayPhoneAvailabilityResponse {
+  success: boolean;
+  available: boolean;
+  phone: string;
+  country_code: string;
+  status: string;
+  error_message: string;
+  proxy_hash: string;
+  device_fingerprint: string;
+  generated_proxy_state: boolean;
+}
+
+export interface SubmitChannelOTPRequest {
+  gopay_account_id: string;
+  channel: string;
+  target: string;
+  otp: string;
+  otp_source: string;
+  manual_once: boolean;
+}
+
+export interface SubmitChannelOTPResponse {
+  success: boolean;
+  manual_once: boolean;
+  gopay_account_id: string;
+  channel: string;
+  target: string;
+  otp_received_at_unix: number;
+  resume_count: number;
+  resumed_job_ids: string[];
+  error_message: string;
+}
+
+export interface ChannelOTPResumeData {
+  otp_found: boolean;
+  otp_channel: string;
+  channel_otp_target: string;
+  otp_issued_after_unix: number;
+}
+
+export interface ChannelOTPWaitEntry {
+  job_id: string;
+  account_id: string;
+  n8n_execution_id: string;
+  action: string;
+  step_name: string;
+  channel: string;
+  target: string;
+  issued_after_unix: number;
+  timeout_seconds: number;
+  resume_url: string;
+  created_at_unix: number;
+}
+
+export interface LatestChannelOTP {
+  channel: string;
+  target: string;
+  otp: string;
+  received_at_unix: number;
+  source: string;
+}
+
+export interface ChannelOTPResumeRequest {
+  job_id: string;
+  account_id: string;
+  n8n_execution_id: string;
+  action: string;
+  step: string;
+  channel: string;
+  target: string;
+  otp: string;
+  otp_source: string;
+  otp_received_at_unix: number;
+  data: ChannelOTPResumeData | undefined;
+}
+
+export interface GopayOTPWebhookRequest {
+  otp: string;
+}
+
+export interface GopayOTPWebhookResponse {
+  success: boolean;
+  purpose: string;
+  error_message: string;
 }
 
 export interface GopayAccount {

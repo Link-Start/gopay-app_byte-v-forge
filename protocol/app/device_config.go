@@ -10,6 +10,8 @@ type DeviceConfig struct {
 	AppVersion       string
 	AppID            string
 	AppBuild         string
+	Platform         string
+	OSVersion        string
 	AndroidVersion   string
 	PhoneMake        string
 	PhoneModel       string
@@ -52,6 +54,8 @@ func DeviceConfigFromEnv() DeviceConfig {
 		AppVersion:       getenv("GOPAY_APP_VERSION"),
 		AppID:            getenv("GOPAY_APP_ID"),
 		AppBuild:         getenv("GOPAY_APP_BUILD"),
+		Platform:         getenv("GOPAY_DEVICE_PLATFORM"),
+		OSVersion:        stringx.FirstNonEmpty(getenv("GOPAY_IOS_VERSION"), getenv("GOPAY_DEVICE_OS_VERSION")),
 		AndroidVersion:   getenv("GOPAY_ANDROID_VERSION"),
 		PhoneMake:        getenv("GOPAY_PHONE_MAKE"),
 		PhoneModel:       getenv("GOPAY_PHONE_MODEL"),

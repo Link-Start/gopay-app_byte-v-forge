@@ -118,7 +118,7 @@ func deviceMapString(raw map[string]any, mapping deviceFieldMapping) string {
 
 func normalizeDeviceShape(device gopayapp.DeviceFingerprint) gopayapp.DeviceFingerprint {
 	device.PhoneModel = normalizeCommaValue(device.PhoneModel)
-	device.DeviceOS = normalizeAndroidOSValue(device.DeviceOS)
+	device.DeviceOS = normalizeDeviceOSValue(device.DeviceOS)
 	return device
 }
 
@@ -131,9 +131,10 @@ func normalizeCommaValue(value string) string {
 	return strings.TrimSpace(parts[0]) + ", " + strings.TrimSpace(parts[1])
 }
 
-func normalizeAndroidOSValue(value string) string {
+func normalizeDeviceOSValue(value string) string {
 	value = strings.TrimSpace(value)
-	if value == "" || !strings.HasPrefix(strings.ToLower(value), "android") {
+	prefix := strings.ToLower(value)
+	if value == "" || (!strings.HasPrefix(prefix, "android") && !strings.HasPrefix(prefix, "ios")) {
 		return value
 	}
 	return normalizeCommaValue(value)

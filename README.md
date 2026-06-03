@@ -31,6 +31,7 @@ GoPay 侧 payment action 使用中性 `/api/gopay/actions/gopay-payment/*`；`ac
 - `PROXY_RUNTIME_HTTP_ADDR`：proxy-runtime HTTP 地址。
 - `GOPAY_OTP_WEBHOOK_LISTEN_ADDR`：OTP webhook HTTP 监听地址，默认 `:8081`。
 - `GOPAY_OTP_SUBMIT_URL`：OTP webhook 提交地址，默认本服务 `/api/gopay/otp/submit`。
+- GoPay 注册新设备默认使用 Apple/iOS 指纹；调试旧 Android replay 时才用 `GOPAY_DEVICE_PLATFORM=Android` 与 `GOPAY_TLS_PROFILE` 覆盖。
 
 ## 生成 proto
 

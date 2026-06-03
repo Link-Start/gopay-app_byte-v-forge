@@ -66,7 +66,7 @@ func setBaseHeaders(headers http.Header, device DeviceFingerprint, xM1 string, h
 	setHeader(headers, "X-User-Type", device.UserType)
 	setHeader(headers, "X-DeviceOS", device.DeviceOS)
 	setHeader(headers, "X-PhoneMake", device.PhoneMake)
-	setHeader(headers, "X-PushTokenType", "FCM")
+	setHeader(headers, "X-PushTokenType", device.PushTokenType())
 	setHeader(headers, "X-DeviceToken", device.DeviceToken)
 	setHeader(headers, "X-IMEI", device.IMEI)
 	setHeader(headers, "X-IpAddress", device.IPAddress)

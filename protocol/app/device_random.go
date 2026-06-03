@@ -13,28 +13,57 @@ import (
 	"github.com/byte-v-forge/common-lib/randx"
 )
 
-func androidDeviceOS(value string) string {
+func normalizedDevicePlatform(value string) string {
 	value = strings.TrimSpace(value)
 	if value == "" {
-		value = defaultAndroidVersion
+		return defaultPlatform
 	}
-	if strings.HasPrefix(strings.ToLower(value), "android") {
-		parts := strings.SplitN(value, ",", 2)
-		if len(parts) == 2 {
-			return strings.TrimSpace(parts[0]) + ", " + strings.TrimSpace(parts[1])
-		}
-		return value
+	switch strings.ToLower(value) {
+	case "android":
+		return androidPlatform
+	case "ios", "iphone", "ipad", "apple":
+		return defaultPlatform
+	default:
+		return defaultPlatform
 	}
-	return "Android, " + value
 }
 
-func normalizePhoneModel(value string) string {
+func deviceOS(platform string, version string) string {
+	platform = normalizedDevicePlatform(platform)
+	version = strings.TrimSpace(version)
+	if version == "" {
+		version = defaultIOSVersion
+		if isAndroidPlatform(platform) {
+			version = defaultAndroidVersion
+		}
+	}
+	lower := strings.ToLower(version)
+	if strings.HasPrefix(lower, "android") || strings.HasPrefix(lower, "ios") {
+		return normalizeCommaValue(version)
+	}
+	return platform + ", " + version
+}
+
+func normalizeCommaValue(value string) string {
 	value = strings.TrimSpace(value)
 	parts := strings.SplitN(value, ",", 2)
 	if len(parts) != 2 {
 		return value
 	}
 	return strings.TrimSpace(parts[0]) + ", " + strings.TrimSpace(parts[1])
+}
+
+func normalizePhoneModel(value string) string {
+	return normalizeCommaValue(value)
+}
+
+func isApplePlatform(platform string) bool {
+	platform = strings.ToLower(strings.TrimSpace(platform))
+	return platform == "" || platform == "ios" || platform == "iphone" || platform == "ipad" || platform == "apple"
+}
+
+func isAndroidPlatform(platform string) bool {
+	return strings.EqualFold(strings.TrimSpace(platform), androidPlatform)
 }
 
 func generatedOrStatic(static bool, staticValue string, generate func() string) string {
@@ -53,16 +82,70 @@ func randomD1() string {
 	return strings.Join(parts, ":")
 }
 
-func randomHardwareProfile(static bool) hardwareProfile {
-	if static || !envx.Bool("GOPAY_RANDOM_HARDWARE_PROFILE", false) || len(hardwareProfiles) == 0 {
-		return hardwareProfile{
-			AndroidVersion: defaultAndroidVersion,
-			PhoneMake:      defaultPhoneMake,
-			PhoneModel:     defaultPhoneModel,
-			Screen:         defaultXM1Screen,
+func randomHardwareProfile(platform string, static bool) hardwareProfile {
+	profiles := appleHardwareProfiles
+	fallback := hardwareProfile{
+		Platform:   defaultPlatform,
+		OSVersion:  defaultIOSVersion,
+		PhoneMake:  defaultPhoneMake,
+		PhoneModel: defaultPhoneModel,
+		Screen:     defaultXM1Screen,
+		Hardware:   defaultXM1Hardware,
+	}
+	if isAndroidPlatform(platform) {
+		profiles = androidHardwareProfiles
+		fallback = hardwareProfile{
+			Platform:   androidPlatform,
+			OSVersion:  defaultAndroidVersion,
+			PhoneMake:  androidPhoneMake,
+			PhoneModel: androidPhoneModel,
+			Screen:     androidXM1Screen,
+			Hardware:   androidXM1Hardware,
 		}
 	}
-	return hardwareProfiles[randomIntRange(0, len(hardwareProfiles)-1)]
+	if static || !envx.Bool("GOPAY_RANDOM_HARDWARE_PROFILE", false) || len(profiles) == 0 {
+		return fallback
+	}
+	return profiles[randomIntRange(0, len(profiles)-1)]
+}
+
+func installReferrerForPlatform(platform string) string {
+	if isAndroidPlatform(platform) {
+		return androidInstallReferrer
+	}
+	return defaultInstallReferrer
+}
+
+func installerForPlatform(platform string) string {
+	if isAndroidPlatform(platform) {
+		return androidInstaller
+	}
+	return defaultInstaller
+}
+
+func gmsVersionForPlatform(platform string) string {
+	if isAndroidPlatform(platform) {
+		return defaultGMSVersion
+	}
+	return ""
+}
+
+func randomDeviceToken(platform string) string {
+	if isAndroidPlatform(platform) {
+		return randomFCMToken()
+	}
+	return randomAPNsToken()
+}
+
+func staticDeviceToken(platform string) string {
+	if isAndroidPlatform(platform) {
+		return ""
+	}
+	return strings.Repeat("0", 64)
+}
+
+func randomAPNsToken() string {
+	return randomHex(32)
 }
 
 func randomAppsFlyerID() string {

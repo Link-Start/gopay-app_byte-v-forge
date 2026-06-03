@@ -67,6 +67,7 @@ func deviceFingerprintForState(state stateMap) string {
 		}
 	}
 	addPlain("profile", "profile_id")
+	addPlain("platform", "x-platform")
 	addPlain("make", "x-phonemake")
 	addPlain("model", "x-phonemodel")
 	addPlain("os", "x-deviceos")

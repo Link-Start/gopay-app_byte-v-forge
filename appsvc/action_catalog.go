@@ -37,7 +37,7 @@ func GoPayActionCatalog() *accountv1.AccountActionCatalog {
 			accountaction.RequiredFields("account_id", "phone", "country_code", "otp_channel"),
 		),
 		goPayWorkflowAction(ActionGoPayEnsurePIN, "GoPay PIN 设置", goPayAccountEnsurePINWorkflow,
-			accountaction.RequiredFields("account_id", "phone", "country_code", "otp_channel"),
+			accountaction.RequiredFields("account_id", "phone", "country_code", "pin", "otp_channel"),
 		),
 		goPayWorkflowAction(ActionGoPayCheckBalance, "GoPay 查余额", goPayAccountCheckBalanceWorkflow,
 			accountaction.RequiredFields("account_id", "phone", "country_code"),

@@ -53,11 +53,16 @@ type DeviceFingerprint struct {
 }
 
 func NewDeviceFingerprint(cfg DeviceConfig) (DeviceFingerprint, error) {
-	profile := randomHardwareProfile(cfg.StaticIdentity)
+	platform := normalizedDevicePlatform(cfg.Platform)
+	profile := randomHardwareProfile(platform, cfg.StaticIdentity)
 	appVersion := stringx.FirstNonEmpty(cfg.AppVersion, defaultAppVersion)
 	appID := stringx.FirstNonEmpty(cfg.AppID, defaultAppID)
 	appBuild := stringx.FirstNonEmpty(cfg.AppBuild, defaultAppBuild)
-	deviceOS := androidDeviceOS(stringx.FirstNonEmpty(cfg.AndroidVersion, profile.AndroidVersion))
+	osVersion := stringx.FirstNonEmpty(cfg.OSVersion, profile.OSVersion)
+	if isAndroidPlatform(platform) {
+		osVersion = stringx.FirstNonEmpty(cfg.OSVersion, cfg.AndroidVersion, profile.OSVersion)
+	}
+	deviceOS := deviceOS(platform, osVersion)
 	phoneMake := stringx.FirstNonEmpty(cfg.PhoneMake, profile.PhoneMake)
 	phoneModel := normalizePhoneModel(stringx.FirstNonEmpty(cfg.PhoneModel, profile.PhoneModel))
 	userAgent := stringx.FirstNonEmpty(cfg.UserAgent, fmt.Sprintf("GoPay/%s (%s; build:%s; %s)", appVersion, appID, appBuild, deviceOS))
@@ -68,19 +73,19 @@ func NewDeviceFingerprint(cfg DeviceConfig) (DeviceFingerprint, error) {
 	wifiMAC := strings.ToLower(stringx.FirstNonEmpty(cfg.WiFiMAC, generatedOrStatic(cfg.StaticIdentity, defaultXM1WiFiMAC, randomWiFiMAC)))
 	wifiSSID := stringx.FirstNonEmpty(cfg.WiFiSSID, generatedOrStatic(cfg.StaticIdentity, defaultXM1WiFiSSID, randomWiFiSSID))
 	m1ConnectionID := stringx.FirstNonEmpty(cfg.M1ConnectionID, generatedOrStatic(cfg.StaticIdentity, defaultXM1ConnectionID, randomM1ConnectionID))
-	m1Hardware := stringx.FirstNonEmpty(cfg.M1Hardware, defaultXM1Hardware)
+	m1Hardware := stringx.FirstNonEmpty(cfg.M1Hardware, profile.Hardware, defaultXM1Hardware)
 	m1Signature := stringx.FirstNonEmpty(cfg.M1Signature, generatedOrStatic(cfg.StaticIdentity, defaultM1Signature, func() string { return randomHex(8) }))
 	m1SignatureTime := stringx.FirstNonEmpty(cfg.M1SignatureTime, generatedOrStatic(cfg.StaticIdentity, "0", randomM1SignatureTime))
 	m1DeviceUUID := stringx.FirstNonEmpty(cfg.M1DeviceUUID, generatedOrStatic(cfg.StaticIdentity, defaultM1DeviceUUID, uuid.NewString))
 	firebaseID := stringx.FirstNonEmpty(cfg.FirebaseID, generatedOrStatic(cfg.StaticIdentity, defaultFirebaseID, func() string { return randomHex(16) }))
 	advertisingID := stringx.FirstNonEmpty(cfg.AdvertisingID, generatedOrStatic(cfg.StaticIdentity, defaultAdvertisingID, uuid.NewString))
 	appSetID := stringx.FirstNonEmpty(cfg.AppSetID, generatedOrStatic(cfg.StaticIdentity, defaultAppSetID, uuid.NewString))
-	deviceToken := strings.TrimSpace(cfg.DeviceToken)
+	deviceToken := stringx.FirstNonEmpty(strings.TrimSpace(cfg.DeviceToken), generatedOrStatic(cfg.StaticIdentity, staticDeviceToken(platform), func() string { return randomDeviceToken(platform) }))
 	return DeviceFingerprint{
 		AppType:          defaultApplicationType,
 		AppVersion:       appVersion,
 		AppID:            appID,
-		Platform:         defaultPlatform,
+		Platform:         platform,
 		UniqueID:         uniqueID,
 		PhoneMake:        phoneMake,
 		PhoneModel:       phoneModel,
@@ -105,9 +110,9 @@ func NewDeviceFingerprint(cfg DeviceConfig) (DeviceFingerprint, error) {
 		FirebaseID:       firebaseID,
 		AdvertisingID:    advertisingID,
 		AppSetID:         appSetID,
-		InstallReferrer:  stringx.FirstNonEmpty(cfg.InstallReferrer, defaultInstallReferrer),
-		InstallerPackage: stringx.FirstNonEmpty(cfg.InstallerPackage, defaultInstaller),
-		GMSVersion:       stringx.FirstNonEmpty(cfg.GMSVersion, defaultGMSVersion),
+		InstallReferrer:  stringx.FirstNonEmpty(cfg.InstallReferrer, installReferrerForPlatform(platform)),
+		InstallerPackage: stringx.FirstNonEmpty(cfg.InstallerPackage, installerForPlatform(platform)),
+		GMSVersion:       stringx.FirstNonEmpty(cfg.GMSVersion, gmsVersionForPlatform(platform)),
 		UserUUID:         strings.TrimSpace(cfg.UserUUID),
 		DeviceToken:      deviceToken,
 		IMEI:             stringx.FirstNonEmpty(cfg.IMEI, uniqueID),
@@ -115,8 +120,15 @@ func NewDeviceFingerprint(cfg DeviceConfig) (DeviceFingerprint, error) {
 		Location:         stringx.FirstNonEmpty(cfg.Location, defaultLocation),
 		LocationAccuracy: stringx.FirstNonEmpty(cfg.LocationAccuracy, defaultLocationAcc),
 		GojekCountryCode: stringx.FirstNonEmpty(cfg.GojekCountryCode, defaultGojekCountry),
-		TLSProfileName:   protocol.ResolveTLSProfileName(cfg.TLSProfileName),
+		TLSProfileName:   protocol.ResolveTLSProfileNameForPlatform(cfg.TLSProfileName, platform),
 	}, nil
+}
+
+func (d DeviceFingerprint) PushTokenType() string {
+	if isApplePlatform(d.Platform) || strings.HasPrefix(strings.ToLower(strings.TrimSpace(d.DeviceOS)), "ios") {
+		return "APN"
+	}
+	return "FCM"
 }
 
 func (d DeviceFingerprint) XM1() string {

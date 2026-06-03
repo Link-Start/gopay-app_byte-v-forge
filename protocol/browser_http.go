@@ -32,6 +32,17 @@ func selectedTLSProfileName(values ...string) string {
 	return ""
 }
 
+var defaultAppleTLSProfileNames = []string{
+	"safari_ios_18_5",
+	"safari_ios_18_0",
+	"safari_ios_17_0",
+	"safari_ios_16_0",
+	"zalando_ios_mobile",
+	"nike_ios_mobile",
+	"confirmed_ios",
+	"mesh_ios",
+}
+
 var defaultAndroidTLSProfileNames = []string{
 	"okhttp4_android_10",
 	"okhttp4_android_11",
@@ -44,6 +55,10 @@ var defaultAndroidTLSProfileNames = []string{
 }
 
 func SelectTLSProfileName() string {
+	return SelectTLSProfileNameForPlatform("")
+}
+
+func SelectTLSProfileNameForPlatform(platform string) string {
 	if profileName := envx.String("GOPAY_TLS_PROFILE"); profileName != "" && !strings.EqualFold(profileName, "random") {
 		if canonical := browserfingerprint.CanonicalTLSProfileName(profileName); canonical != "" {
 			return canonical
@@ -52,17 +67,24 @@ func SelectTLSProfileName() string {
 	if profilesFromEnv := tlsProfilesFromEnv(); len(profilesFromEnv) > 0 {
 		return browserfingerprint.RandomTLSProfileName(profilesFromEnv)
 	}
-	return browserfingerprint.RandomTLSProfileName(defaultAndroidTLSProfileNames)
+	if strings.EqualFold(strings.TrimSpace(platform), "android") {
+		return browserfingerprint.RandomTLSProfileName(defaultAndroidTLSProfileNames)
+	}
+	return browserfingerprint.RandomTLSProfileName(defaultAppleTLSProfileNames)
 }
 
 func ResolveTLSProfileName(profileName string) string {
+	return ResolveTLSProfileNameForPlatform(profileName, "")
+}
+
+func ResolveTLSProfileNameForPlatform(profileName string, platform string) string {
 	profileName = strings.TrimSpace(profileName)
 	if profileName != "" && !strings.EqualFold(profileName, "random") {
 		if canonical := browserfingerprint.CanonicalTLSProfileName(profileName); canonical != "" {
 			return canonical
 		}
 	}
-	return SelectTLSProfileName()
+	return SelectTLSProfileNameForPlatform(platform)
 }
 
 func tlsProfilesFromEnv() []string {
