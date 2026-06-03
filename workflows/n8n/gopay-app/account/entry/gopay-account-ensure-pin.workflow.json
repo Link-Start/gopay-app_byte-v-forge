@@ -1,5 +1,5 @@
 {
-  "id": "gopay-account-ensure-pin",
+  "id": "gopay-account-ensure-pin-entry",
   "name": "GoPay Account / Ensure PIN",
   "active": true,
   "nodes": [
