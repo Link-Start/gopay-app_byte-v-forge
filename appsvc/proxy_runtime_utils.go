@@ -145,16 +145,7 @@ func proxyRouteLabel(routePlan *proxyruntimev1.EgressRoutePlan) string {
 	if routePlan == nil {
 		return ""
 	}
-	line := routePlan.GetLine()
 	dynamicGateway := routePlan.GetDynamicGateway()
-	lineName := stringx.FirstNonEmpty(line.GetDisplayName(), line.GetNodeId(), line.GetSourceId())
 	gatewayName := stringx.FirstNonEmpty(dynamicGateway.GetDisplayName(), dynamicGateway.GetGatewayId(), dynamicGateway.GetProviderId())
-	switch {
-	case lineName != "" && gatewayName != "":
-		return lineName + " -> " + gatewayName
-	case gatewayName != "":
-		return gatewayName
-	default:
-		return lineName
-	}
+	return gatewayName
 }

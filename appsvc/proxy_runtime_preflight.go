@@ -8,8 +8,8 @@ import (
 	"github.com/byte-v-forge/common-lib/hashx"
 )
 
-func (s *Server) acquireAndPreflightProxyRuntimeSession(ctx context.Context, baseURL string, state stateMap, identity string, countryCode string, forceNew bool, leaseTTL string, attempt int, requireLineProxy bool) (map[string]any, error) {
-	out, listenerID, exitIP, err := s.acquireProxyRuntimeSessionWithListener(ctx, baseURL, state, identity, countryCode, forceNew, leaseTTL, attempt, false, requireLineProxy)
+func (s *Server) acquireAndPreflightProxyRuntimeSession(ctx context.Context, baseURL string, state stateMap, identity string, countryCode string, forceNew bool, leaseTTL string, attempt int) (map[string]any, error) {
+	out, listenerID, exitIP, err := s.acquireProxyRuntimeSessionWithListener(ctx, baseURL, state, identity, countryCode, forceNew, leaseTTL, attempt, false)
 	if err != nil {
 		return nil, err
 	}

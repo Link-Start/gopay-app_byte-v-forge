@@ -19,7 +19,7 @@ func (s *Server) ensureProxyRuntimeSession(ctx context.Context, state stateMap, 
 	if !options.ForceNew && proxyRuntimeLeaseActive(state) && stateString(state, "_gopay_proxy") != "" && stateString(state, "_proxy_runtime_listener_id") != "" {
 		return nil
 	}
-	sessionData, err := s.createProxyRuntimeSession(ctx, state, proxyRuntimeAcquireOptions{AccountID: identity, CountryCode: options.CountryCode, ForceNew: options.ForceNew, SkipPreflight: options.SkipPreflight, LeaseTTL: options.LeaseTTL, RequireLineProxy: options.RequireLineProxy})
+	sessionData, err := s.createProxyRuntimeSession(ctx, state, proxyRuntimeAcquireOptions{AccountID: identity, CountryCode: options.CountryCode, ForceNew: options.ForceNew, SkipPreflight: options.SkipPreflight, LeaseTTL: options.LeaseTTL})
 	if err != nil {
 		return err
 	}
@@ -41,11 +41,11 @@ func (s *Server) createProxyRuntimeSession(ctx context.Context, state stateMap, 
 	countryCode := normalizeGoPayProxyCountryCode(options.CountryCode)
 	leaseTTL := stringx.FirstNonEmpty(options.LeaseTTL, goPayProxyLeaseTTL)
 	if options.SkipPreflight {
-		return s.acquireProxyRuntimeSession(ctx, baseURL, state, identity, countryCode, options.ForceNew, leaseTTL, 1, true, options.RequireLineProxy)
+		return s.acquireProxyRuntimeSession(ctx, baseURL, state, identity, countryCode, options.ForceNew, leaseTTL, 1, true)
 	}
 	var lastErr error
 	for attempt := 1; attempt <= goPayProxyPreflightMaxAttempts; attempt++ {
-		attemptData, err := s.acquireAndPreflightProxyRuntimeSession(ctx, baseURL, state, identity, countryCode, options.ForceNew || attempt > 1, leaseTTL, attempt, options.RequireLineProxy)
+		attemptData, err := s.acquireAndPreflightProxyRuntimeSession(ctx, baseURL, state, identity, countryCode, options.ForceNew || attempt > 1, leaseTTL, attempt)
 		if err == nil {
 			attemptData["_proxy_runtime_preflight_attempts"] = attempt
 			return attemptData, nil

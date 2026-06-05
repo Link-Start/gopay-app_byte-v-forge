@@ -12,12 +12,12 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 )
 
-func (s *Server) acquireProxyRuntimeSession(ctx context.Context, baseURL string, state stateMap, identity string, countryCode string, forceNew bool, leaseTTL string, attempt int, skipPreflight bool, requireLineProxy bool) (map[string]any, error) {
-	out, _, _, err := s.acquireProxyRuntimeSessionWithListener(ctx, baseURL, state, identity, countryCode, forceNew, leaseTTL, attempt, skipPreflight, requireLineProxy)
+func (s *Server) acquireProxyRuntimeSession(ctx context.Context, baseURL string, state stateMap, identity string, countryCode string, forceNew bool, leaseTTL string, attempt int, skipPreflight bool) (map[string]any, error) {
+	out, _, _, err := s.acquireProxyRuntimeSessionWithListener(ctx, baseURL, state, identity, countryCode, forceNew, leaseTTL, attempt, skipPreflight)
 	return out, err
 }
 
-func (s *Server) acquireProxyRuntimeSessionWithListener(ctx context.Context, baseURL string, state stateMap, identity string, countryCode string, forceNew bool, leaseTTL string, attempt int, skipPreflight bool, requireLineProxy bool) (map[string]any, string, string, error) {
+func (s *Server) acquireProxyRuntimeSessionWithListener(ctx context.Context, baseURL string, state stateMap, identity string, countryCode string, forceNew bool, leaseTTL string, attempt int, skipPreflight bool) (map[string]any, string, string, error) {
 	accountID := proxyRuntimeAccountID(identity)
 	leaseTTL = stringx.FirstNonEmpty(leaseTTL, goPayProxyLeaseTTL)
 	leaseReq := &proxyruntimev1.AcquireProxyLeaseRequest{
@@ -37,8 +37,7 @@ func (s *Server) acquireProxyRuntimeSessionWithListener(ctx context.Context, bas
 			Purpose:                   goPayProxyPurpose,
 			Strategy:                  proxyruntimev1.ProxySelectorStrategy_PROXY_SELECTOR_STRATEGY_HASH_TARGET_HOST,
 			RequireDynamicExit:        true,
-			AllowDirectDynamicGateway: !requireLineProxy,
-			PreferLineProxy:           true,
+			AllowDirectDynamicGateway: true,
 			MaxAttempts:               goPayProxyPreflightMaxAttempts,
 		},
 	}
