@@ -32,13 +32,10 @@ func (s *Server) acquireProxyRuntimeSessionWithListener(ctx context.Context, bas
 			RotationMode: proxyruntimev1.ProxyRotationMode_PROXY_ROTATION_MODE_STICKY_SESSION,
 			Labels:       map[string]string{"purpose": "gopay_app", "country": countryCode},
 		},
-		RoutePolicy: &proxyruntimev1.EgressRoutePolicy{
-			CountryCode:               countryCode,
-			Purpose:                   goPayProxyPurpose,
-			Strategy:                  proxyruntimev1.ProxySelectorStrategy_PROXY_SELECTOR_STRATEGY_HASH_TARGET_HOST,
-			RequireDynamicExit:        true,
-			AllowDirectDynamicGateway: true,
-			MaxAttempts:               goPayProxyPreflightMaxAttempts,
+		SelectionPolicy: &proxyruntimev1.ProxyDynamicIPSelectionPolicy{
+			CountryCode: countryCode,
+			Purpose:     goPayProxyPurpose,
+			MaxAttempts: goPayProxyPreflightMaxAttempts,
 		},
 	}
 	var lease proxyruntimev1.AcquireProxyLeaseResponse
@@ -60,7 +57,7 @@ func (s *Server) acquireProxyRuntimeSessionWithListener(ctx context.Context, bas
 	}
 
 	dynamicLease := lease.GetLease()
-	routePlan := firstProxyRoutePlan(lease.GetRoutePlan(), dynamicLease.GetRoutePlan())
+	selectionPlan := firstProxySelectionPlan(lease.GetSelectionPlan(), dynamicLease.GetSelectionPlan())
 	out := map[string]any{
 		"_gopay_proxy":                      proxyURL,
 		"_gopay_account_id":                 identity,
@@ -72,15 +69,14 @@ func (s *Server) acquireProxyRuntimeSessionWithListener(ctx context.Context, bas
 		"_proxy_runtime_listener_id":        listenerID,
 		"_proxy_runtime_listener_kind":      shortProxyEnum(listener.GetKind().String()),
 		"_proxy_runtime_session_started_at": time.Now().Unix(),
-		"_proxy_runtime_pool_endpoints":     len(lease.GetPool().GetEndpoints()),
 		"_proxy_runtime_session_rotated":    forceNew,
 		"_proxy_runtime_preflight_skipped":  skipPreflight,
 	}
 	if sessionID := dynamicLease.GetSession().GetSessionId(); sessionID != "" {
 		out["_proxy_runtime_session_hash"] = hashx.ShortSHA256(sessionID, 12)
 	}
-	if routeLabel := proxyRouteLabel(routePlan); routeLabel != "" {
-		out["_proxy_runtime_route"] = routeLabel
+	if selectionLabel := proxySelectionLabel(selectionPlan); selectionLabel != "" {
+		out["_proxy_runtime_selection"] = selectionLabel
 	}
 	exitIP := ""
 	if !skipPreflight {

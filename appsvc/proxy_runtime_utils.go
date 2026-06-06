@@ -8,7 +8,6 @@ import (
 
 	proxyruntimev1 "github.com/byte-v-forge/common-lib/gen/go/byte/v/forge/contracts/proxyruntime/v1"
 	"github.com/byte-v-forge/common-lib/hashx"
-	"github.com/byte-v-forge/common-lib/stringx"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -132,7 +131,7 @@ func protoTimestampRFC3339(value *timestamppb.Timestamp) string {
 	return value.AsTime().Format(time.RFC3339Nano)
 }
 
-func firstProxyRoutePlan(values ...*proxyruntimev1.EgressRoutePlan) *proxyruntimev1.EgressRoutePlan {
+func firstProxySelectionPlan(values ...*proxyruntimev1.ProxyDynamicIPSelectionPlan) *proxyruntimev1.ProxyDynamicIPSelectionPlan {
 	for _, value := range values {
 		if value != nil {
 			return value
@@ -141,11 +140,16 @@ func firstProxyRoutePlan(values ...*proxyruntimev1.EgressRoutePlan) *proxyruntim
 	return nil
 }
 
-func proxyRouteLabel(routePlan *proxyruntimev1.EgressRoutePlan) string {
-	if routePlan == nil {
+func proxySelectionLabel(plan *proxyruntimev1.ProxyDynamicIPSelectionPlan) string {
+	if plan == nil {
 		return ""
 	}
-	dynamicGateway := routePlan.GetDynamicGateway()
-	gatewayName := stringx.FirstNonEmpty(dynamicGateway.GetDisplayName(), dynamicGateway.GetGatewayId(), dynamicGateway.GetProviderId())
-	return gatewayName
+	endpoint := plan.GetSelectedEndpoint()
+	if endpoint.GetEndpointUrl() != "" {
+		return endpoint.GetEndpointUrl()
+	}
+	if endpoint.GetEndpointId() != "" {
+		return endpoint.GetEndpointId()
+	}
+	return endpoint.GetProviderId()
 }
