@@ -16,10 +16,10 @@ func proxyRuntimeAPIBase(value string) string {
 	if value == "" {
 		return ""
 	}
-	if strings.HasSuffix(value, "/api/proxy-runtime") || strings.HasSuffix(value, "/proxy") {
+	if strings.HasSuffix(value, "/api") {
 		return value
 	}
-	return value + "/api/proxy-runtime"
+	return value + "/api"
 }
 
 func proxyRuntimeAccountID(identity string) string {
