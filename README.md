@@ -1,40 +1,30 @@
 # gopay-app
 
-独立 GoPay App 多用户管理服务，提供 gRPC API、Dashboard HTTP API、WebUI 远程模块与 OTP webhook。
+`gopay-app` 是 GoPay App 账号与支付运行时服务，负责多用户状态、设备指纹、账号动作、OTP 接入和 GoPay payment runtime。
 
-## 职责
+## 核心能力
 
-- 管理 GoPay App 账号状态、设备指纹、代理会话和 token 生命周期。
-- 支持登录、注册、改绑手机号、PIN、注销、余额检查和状态查询。
-- 接收 WhatsApp/SMS OTP webhook，并以 `channel + target + otp` 投递到等待中的 n8n flow；账号详情提供一次性手动 OTP 兜底，不写入最新 OTP 缓存。
-- 承载 Midtrans + GoPay linking/payment runtime；GPT 只负责 ChatGPT checkout/Stripe/snap_token 准备。
-- 提供 `/api/gopay/*` 与 `/mf/gopay/*`，GoPayAccount 页面归属本仓。
+- 管理 GoPay App 账号、设备指纹、代理会话、token 生命周期和多用户运行态。
+- 支持登录、注册、改绑手机号、PIN、注销、余额检查和账号状态查询。
+- 接收 WhatsApp/SMS OTP webhook，并把验证码投递到等待中的业务流程。
+- 承载 Midtrans + GoPay linking/payment runtime；GPT 侧只传入已准备好的 checkout 参数。
+- 提供 gRPC、Dashboard HTTP API 和 GoPay 管理前端模块。
 
-GoPay 侧 payment action 使用中性 `/api/gopay/actions/gopay-payment/*`；`activate`、Plus 等 GPT 业务语义不进入本仓。
+## 使用方式
+
+业务服务通过 proto/gRPC、HTTP webhook 或部署配置集成 GoPay 能力，不直接读写本服务状态存储。短期运行态进入 Redis TTL，长期事实由服务自有存储维护。
 
 ## 入口
 
-- gRPC: `cmd/gopay-app-server`
-- Dashboard HTTP API: `/api/gopay`
-- WebUI remote: `/mf/gopay/remoteEntry.js`
-- Proto: `proto/gopay_app.proto`
+- 服务入口：`cmd/gopay-app-server`
+- 契约真源：`proto/gopay_app.proto`
+- Dashboard API：`/api/gopay/*`
+- 前端模块：`webui/`
+- 工作流素材：`workflows/`
 
-## 关键环境变量
+## 常用检查
 
-- `GOPAY_APP_PORT`：gRPC 端口，默认 `50051`。
-- `GOPAY_HTTP_LISTEN_ADDR`：Dashboard HTTP/API 监听地址，默认 `:8080`。
-- `GOPAY_DASHBOARD_STATIC_DIR`：GoPay WebUI 静态文件目录，默认 `/app/dashboard/gopay`。
-- `GOPAY_N8N_WEBHOOK_BASE_URL`：GoPay account workflow 的 n8n webhook base。
-- `GOPAY_STATE_REDIS_URL`：Redis URL，必填。
-- `GOPAY_STATE_KEY_PREFIX`：状态 key 前缀，默认 `byte-v-forge:gopay-app:state`。
-- `GOPAY_STATE_TTL_SECONDS`：状态 TTL，默认 7 天。
-- `PROXY_RUNTIME_HTTP_ADDR`：proxy-runtime HTTP 地址。
-- `GOPAY_OTP_WEBHOOK_LISTEN_ADDR`：OTP webhook HTTP 监听地址，默认 `:8081`。
-- `GOPAY_OTP_SUBMIT_URL`：OTP webhook 提交地址，默认本服务 `/api/gopay/otp/submit`。
-- GoPay 注册新设备默认使用 Apple/iOS 指纹；调试旧 Android replay 时才用 `GOPAY_DEVICE_PLATFORM=Android` 与 `GOPAY_TLS_PROFILE` 覆盖。
-
-## 生成 proto
-
-```bash
+```sh
 ./scripts/generate-proto.sh
+git diff --check
 ```
